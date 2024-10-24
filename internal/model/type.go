@@ -33,7 +33,9 @@ type Entity struct {
 	ID     int
 	Age    int
 	Energy int
+	Live   bool
 	turn   turns
+	Coordinates
 	DNA
 }
 

@@ -51,6 +51,10 @@ func (world *World) SetCellPoison(cord Coordinates, dPoison int) error {
 	return nil
 }
 
+func (world *World) SetCellEntity(cord Coordinates, entity *Entity) error {
+	return nil
+}
+
 func (world *World) GetStatistic() (string, error) {
 	return " ", nil
 }
