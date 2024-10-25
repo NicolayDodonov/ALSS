@@ -19,10 +19,17 @@ type Statistic struct {
 // Изменить структуру типов клеток
 type Cell struct {
 	*Entity
+	types  cellType
 	Poison int
-	Food   int
-	Wall   bool
 }
+
+type cellType int
+
+const (
+	emptyCell cellType = iota
+	foodCell
+	wallCell
+)
 
 type Coordinates struct {
 	X int

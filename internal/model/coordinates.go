@@ -16,7 +16,7 @@ func Del(a, b Coordinates) Coordinates {
 	return DelCord
 }
 
-func makeTurn(turn turns) Coordinates {
+func viewCell(turn turns) Coordinates {
 	cordTurn := Coordinates{
 		0,
 		0,

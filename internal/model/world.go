@@ -43,7 +43,7 @@ func (world *World) GetCellData(cord Coordinates) (*Cell, error) {
 	return nil, nil
 }
 
-func (world *World) SetCellFood(cord Coordinates, dFood int) error {
+func (world *World) SetCellType(cord Coordinates, types cellType) error {
 	return nil
 }
 
@@ -52,6 +52,10 @@ func (world *World) SetCellPoison(cord Coordinates, dPoison int) error {
 }
 
 func (world *World) SetCellEntity(cord Coordinates, entity *Entity) error {
+	return nil
+}
+
+func (world *World) MoveEntity(oldCord, newCord Coordinates, entity *Entity) error {
 	return nil
 }
 
