@@ -16,14 +16,14 @@ type Statistic struct {
 	ID          int
 }
 
-// Изменить структуру типов клеток
+// todo: Изменить структуру типов клеток
 type Cell struct {
 	*Entity
-	types  cellType
+	Types  CellTypes
 	Poison int
 }
 
-type cellType int
+type CellTypes int
 
 type Coordinates struct {
 	X int

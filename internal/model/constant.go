@@ -6,9 +6,9 @@ const (
 	energyPoint = 10
 )
 const (
-	emptyCell cellType = iota
-	foodCell
-	wallCell
+	EmptyCell CellTypes = iota
+	FoodCell
+	WallCell
 )
 
 // run() константы

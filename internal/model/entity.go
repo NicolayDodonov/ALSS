@@ -97,7 +97,7 @@ func (e *Entity) move(w *World) error {
 		return fmt.Errorf("is another entity")
 	}
 	//мы не двигаемся в клетку со стеной
-	if cell.types == wallCell {
+	if cell.Types == WallCell {
 		return fmt.Errorf("is wall")
 	}
 	//двигаемся в клетку
@@ -132,19 +132,19 @@ func (e *Entity) look(w *World) (int, error) {
 	}
 
 	//Определяем тип возврата
-	switch cell.types {
-	case emptyCell:
+	switch cell.Types {
+	case EmptyCell:
 		if cell.Entity != nil {
 			return isEntity, nil
 		} else {
 			return isEmpty, nil
 		}
-	case foodCell:
+	case FoodCell:
 		return isFood, nil
-	case wallCell:
+	case WallCell:
 		return isWall, nil
 	default:
-		return isError, fmt.Errorf("[err] cell type is %v, I dont't know this type", cell.types)
+		return isError, fmt.Errorf("[err] cell type is %v, I dont't know this type", cell.Types)
 	}
 }
 
@@ -162,22 +162,22 @@ func (e *Entity) get(w *World) error {
 		return err
 	}
 	//совераем действие в зависимости от типа клетки
-	switch cell.types {
-	case emptyCell:
+	switch cell.Types {
+	case EmptyCell:
 		if cell.Entity != nil {
 			e.attack(cell)
 		}
-	case foodCell:
+	case FoodCell:
 		//сначала меняем тип клетки
-		if err = w.SetCellType(newCord, emptyCell); err != nil {
+		if err = w.SetCellType(newCord, EmptyCell); err != nil {
 			return err
 		}
 		//а потом увеличиваем энергию
 		e.Energy += energyPoint
-	case wallCell:
+	case WallCell:
 		e.Energy -= energyPoint
 	default:
-		return fmt.Errorf("[err] cell type is %v, I dont't know this type", cell.types)
+		return fmt.Errorf("[err] cell type is %v, I dont't know this type", cell.Types)
 	}
 	return nil
 }

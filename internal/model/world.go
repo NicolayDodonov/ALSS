@@ -66,7 +66,7 @@ func (w *World) Clear() {
 	for x := 0; x < len(w.Map); x++ {
 		for y := 0; y < len(w.Map[x]); y++ {
 			w.Map[x][y].Entity = nil
-			w.Map[x][y].types = emptyCell
+			w.Map[x][y].Types = EmptyCell
 			w.Map[x][y].Poison = 0
 		}
 	}
@@ -103,9 +103,9 @@ func (w *World) GetCellData(cord Coordinates) (*Cell, error) {
 
 // SetCellType изменяет тип клетки(Cell), на указанный. Возвращает nil или
 // ошибку выхода за границы мира.
-func (w *World) SetCellType(cord Coordinates, types cellType) error {
+func (w *World) SetCellType(cord Coordinates, types CellTypes) error {
 	if checkLimit(cord, Coordinates{w.Xsize, w.Ysize}) {
-		w.Map[cord.X][cord.Y].types = types
+		w.Map[cord.X][cord.Y].Types = types
 		return nil
 	}
 	return fmt.Errorf("[err] coordinate %v out of range", cord)
@@ -164,7 +164,7 @@ func (w *World) UpdateStat() {
 	for x := 0; x < len(w.Map); x++ {
 		for y := 0; y < len(w.Map[x]); y++ {
 			cell, _ := w.GetCellData(Coordinates{x, y})
-			if cell.types == foodCell {
+			if cell.Types == FoodCell {
 				Count++
 			}
 		}
