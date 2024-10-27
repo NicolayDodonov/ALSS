@@ -47,7 +47,15 @@ func (w *World) SetGeneration(endPopulation, mutationCount int) {
 	for i := 0; i < mutationCount; i++ {
 		w.ArrayEntity[rand.Intn(length)].DNA.Mutation(rand.Intn(length))
 	}
-
+	for _, entity := range w.ArrayEntity {
+		entity.Energy = 100
+		entity.Age = 0
+		entity.Live = true
+		entity.Coordinates = Coordinates{
+			rand.Intn(w.Xsize),
+			rand.Intn(w.Ysize),
+		}
+	}
 }
 
 // sortAge сортирует сущности(Entity) по возрасту в вызывающем мире(World).
@@ -136,12 +144,13 @@ func (w *World) SetCellEntity(cord Coordinates, entity *Entity) error {
 func (w *World) MoveEntity(oldCord, newCord Coordinates, entity *Entity) error {
 	if checkLimit(newCord, Coordinates{w.Xsize, w.Ysize}) {
 		cell, _ := w.GetCellData(newCord)
-		if cell.Entity == nil {
+		if cell.Entity == nil && cell.Types != WallCell {
 			w.Map[oldCord.X][oldCord.Y].Entity = nil
 			w.Map[newCord.X][newCord.Y].Entity = entity
+			entity.Coordinates = newCord
 			return nil
 		} else {
-			return fmt.Errorf("[err] coordinate %v have other entity %v", newCord, cell.Entity.ID)
+			return fmt.Errorf("[err] coordinate %v have another object", newCord)
 		}
 	}
 	return fmt.Errorf("[err] coordinate %v out of range", newCord)

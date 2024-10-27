@@ -49,6 +49,7 @@ func (s *Simulation) Train(endAge, mutation int) {
 			}
 			w.Age++
 		}
+		w.SetGeneration(s.endPopulation, mutation)
 		w.ID++
 
 		//todo: Логгирование
