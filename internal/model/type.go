@@ -3,8 +3,8 @@ package model
 type World struct {
 	Xsize       int
 	Ysize       int
-	Map         [][]Cell
-	ArrayEntity []Entity
+	Map         [][]*Cell
+	ArrayEntity []*Entity
 	Statistic
 }
 
@@ -24,12 +24,6 @@ type Cell struct {
 }
 
 type cellType int
-
-const (
-	emptyCell cellType = iota
-	foodCell
-	wallCell
-)
 
 type Coordinates struct {
 	X int

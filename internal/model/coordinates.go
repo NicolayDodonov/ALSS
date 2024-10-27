@@ -45,3 +45,16 @@ func viewCell(turn turns) Coordinates {
 	}
 	return cordTurn
 }
+
+// checkLimit проверяет, входит ли значение в лимиты [0,limit).
+// Если входит, возвращает true, иначе false.
+func checkLimit(value, limit Coordinates) bool {
+	if value.X >= 0 &&
+		value.Y >= 0 &&
+		value.X < limit.X &&
+		value.Y < limit.Y {
+		return true
+	} else {
+		return false
+	}
+}

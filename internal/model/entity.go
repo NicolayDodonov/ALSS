@@ -2,25 +2,6 @@ package model
 
 import (
 	"fmt"
-	"math/rand"
-	"time"
-)
-
-const (
-	maxGen      = 16
-	lengthDNA   = 64
-	left        = 1
-	right       = -1
-	energyPoint = 10
-)
-const (
-	move = iota
-	look
-	get
-	rotatedLeft
-	rotatedRight
-	recycling
-	reproduction
 )
 
 func NewEntity(ID, x, y, longDNA int) *Entity {
@@ -35,18 +16,6 @@ func NewEntity(ID, x, y, longDNA int) *Entity {
 			y,
 		},
 		*NewDNA(longDNA),
-	}
-}
-
-func NewDNA(longDNA int) *DNA {
-	var Array []int
-	for i := 0; i < longDNA; i++ {
-		Array = append(Array, rand.Intn(maxGen))
-	}
-	return &DNA{
-		time.Now().Nanosecond(),
-		0,
-		Array,
 	}
 }
 
@@ -110,7 +79,7 @@ func (e *Entity) Run(w *World) (err error) {
 	return nil
 }
 
-// move отвечает за передвижение сущности из одной клетки мира в другую.
+// move отвечает за передвижение сущности(Entity) из одной клетки(Cell) мира(World) в другую.
 // Возвращает nil или ошибку.
 func (e *Entity) move(w *World) error {
 	//получаем координаты, куда хотим переместиться
@@ -139,7 +108,7 @@ func (e *Entity) move(w *World) error {
 	return nil
 }
 
-// look отвечает за получение данных из другой клетки. Возвращает номер
+// look отвечает за получение данных из другой клетки(Cell). Возвращает номер
 // сдвига Entity.DNA.Pointer или ошибку.
 func (e *Entity) look(w *World) (int, error) {
 	//константы ответов на что мы смотрим
@@ -179,7 +148,7 @@ func (e *Entity) look(w *World) (int, error) {
 	}
 }
 
-// get отвечает за взаимодействие сущности с окружением
+// get отвечает за взаимодействие сущности(Entity) с окружением
 // таким как: взять, съесть и тп. Возвращает nil или ошибку.
 func (e *Entity) get(w *World) error {
 	//получаем координаты для взятия
@@ -213,8 +182,8 @@ func (e *Entity) get(w *World) error {
 	return nil
 }
 
-// attack отвечает за убийство сущности в клетке и передачи энергии сущьности,
-// вы звавщей функцию. Возвращает ничего не возвращает.
+// attack отвечает за убийство сущности(Entity) в клетке(Cell) и передачи энергии сущности(Entity),
+// вы звавщей функцию. Ничего не возвращает.
 func (e *Entity) attack(cell *Cell) {
 	energy := cell.Entity.Energy
 	cell.Entity.Live = false
