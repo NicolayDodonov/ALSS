@@ -8,4 +8,6 @@ import (
 func main() {
 	console := oTC.New()
 	sim := simulation.New(console, 8)
+
+	sim.Train(1000, 10)
 }

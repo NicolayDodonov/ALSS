@@ -6,11 +6,11 @@ import (
 )
 
 type Simulation struct {
-	printer       *console.Console
+	printer       console.Console
 	endPopulation int
 }
 
-func New(console *console.Console, endPop int) (s *Simulation) {
+func New(console console.Console, endPop int) (s *Simulation) {
 	return &Simulation{
 		printer:       console,
 		endPopulation: endPop,
