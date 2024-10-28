@@ -7,10 +7,10 @@ import (
 )
 
 func NewWorld(x, y, population int) *World {
-	return &World{
+	w := &World{
 		Xsize:       x,
 		Ysize:       y,
-		Map:         make([][]*Cell, population),
+		Map:         newMap(x, y),
 		ArrayEntity: newGeneration(population, x, y),
 		Statistic: Statistic{
 			population,
@@ -20,6 +20,26 @@ func NewWorld(x, y, population int) *World {
 			0,
 		},
 	}
+	w.Sync()
+	return w
+}
+
+// newMap возвращает пустую карту мира.
+func newMap(Xsize, Ysize int) [][]*Cell {
+	//создаём массив карты (содержащий строки клеток)
+	Map := make([][]*Cell, Xsize)
+	for x := 0; x < Xsize; x++ {
+		//создаём массив строки (содеижит клетки)
+		Map[x] = make([]*Cell, Ysize)
+		for y := 0; y < Ysize; y++ {
+			Map[x][y] = &Cell{
+				nil,
+				EmptyCell,
+				0,
+			}
+		}
+	}
+	return Map
 }
 
 // newGeneration создаёт стартовую популяцию сущностей(Entity). Возращает массив ссылок на Entity.
@@ -31,7 +51,33 @@ func newGeneration(population, x, y int) []*Entity {
 	return entityArray
 }
 
+// Sync отвечает за синхронизацию World.ArrayEntity c World.Map.
+// если несколько сущностей оказывается в одной клетке, для всех последующих
+// создаёт новое расположение.
+func (w *World) Sync() {
+	for _, entity := range w.ArrayEntity {
+		if entity.Live {
+			//если по коордитанам сущности расположена другая сущность
+			if w.Map[entity.X][entity.Y].Entity != nil &&
+				w.Map[entity.X][entity.Y].Entity != entity {
+				//ищем пустую клетку
+				for {
+					x := rand.Intn(w.Xsize)
+					y := rand.Intn(w.Ysize)
+					if w.Map[entity.X][entity.Y].Entity == nil &&
+						w.Map[entity.X][entity.Y].Types == EmptyCell {
+						//и записываем туда нащу сущность
+						entity.Coordinates = Coordinates{x, y}
+						break
+					}
+				}
+			}
+		}
+	}
+}
+
 // SetGeneration приводит отработавщую популяцию к стартовому состоянию с заменой генома.
+// разбрасывает сущности по карте в случайном порядке.
 func (w *World) SetGeneration(endPopulation, mutationCount int) {
 	//отсортируем сущности мо возрасту
 	//определив лучшие сущности
@@ -56,6 +102,7 @@ func (w *World) SetGeneration(endPopulation, mutationCount int) {
 			rand.Intn(w.Ysize),
 		}
 	}
+	w.Sync()
 }
 
 // sortAge сортирует сущности(Entity) по возрасту в вызывающем мире(World).
