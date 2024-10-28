@@ -1,5 +1,7 @@
 package model
 
+// World описывает базисную структуру мира, его линейные размеры,
+// а так же содержит массивы карты, сущностей мира и статистики.
 type World struct {
 	Xsize       int
 	Ysize       int
@@ -8,6 +10,7 @@ type World struct {
 	Statistic
 }
 
+// Statistic позволяет сохранять статистические данные о мире.
 type Statistic struct {
 	CountEntity int
 	CountFood   int
@@ -17,6 +20,8 @@ type Statistic struct {
 }
 
 // todo: Изменить структуру типов клеток
+
+// Cell описывает базовый эллемент карты мира - его клетку.
 type Cell struct {
 	*Entity
 	Types  CellTypes
@@ -25,11 +30,14 @@ type Cell struct {
 
 type CellTypes int
 
+// Coordinates - универсальная структура координат любого объекта в мире.
 type Coordinates struct {
 	X int
 	Y int
 }
 
+// Entity описывает базисную структуру сущностей мира. Они обладают
+// своим генокодом описанном в DNA.
 type Entity struct {
 	ID     int
 	Age    int
@@ -42,6 +50,9 @@ type Entity struct {
 
 type turns int
 
+// DNA - генокод. Array - область программного кода,
+// Pointer - указатель на ячейку программного кода.
+// ID - уникальный идентификатор генокода.
 type DNA struct {
 	ID      int
 	Pointer int

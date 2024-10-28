@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// NewEntity возвращает живую сущность(Entity) с координатами x, y.
 func NewEntity(ID, x, y, longDNA int) *Entity {
 	return &Entity{
 		ID,
