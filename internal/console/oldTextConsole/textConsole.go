@@ -66,6 +66,6 @@ func (tc *TextConsole) Print(world *model.World) {
 	fmt.Print(world.GetPrettyStatistic() + "\n")
 	//вернуть каретку в начало для перерисовки кадра
 	//todo: создать свою реализацию движения коретки
-	cursor.Up(world.Xsize + 5)
-	time.Sleep(1 * time.Millisecond)
+	cursor.Up(world.Xsize + 6)
+	time.Sleep(100 * time.Millisecond)
 }

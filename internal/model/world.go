@@ -58,14 +58,16 @@ func (w *World) Sync() {
 	for _, entity := range w.ArrayEntity {
 		if entity.Live {
 			//если по коордитанам сущности расположена другая сущность
-			if w.Map[entity.X][entity.Y].Entity != nil &&
-				w.Map[entity.X][entity.Y].Entity != entity {
+			cell, _ := w.GetCellData(Coordinates{entity.X, entity.Y})
+			if cell.Entity != nil &&
+				cell.Entity != entity {
 				//ищем пустую клетку
 				for {
 					x := rand.Intn(w.Xsize)
 					y := rand.Intn(w.Ysize)
-					if w.Map[entity.X][entity.Y].Entity == nil &&
-						w.Map[entity.X][entity.Y].Types == EmptyCell {
+					cell, _ := w.GetCellData(Coordinates{x, y})
+					if cell.Entity == nil &&
+						cell.Types == EmptyCell {
 						//и записываем туда нащу сущность
 						entity.Coordinates = Coordinates{x, y}
 						break
