@@ -4,14 +4,15 @@ import (
 	"artificialLifeGo/internal/model"
 	"atomicgo.dev/cursor"
 	"fmt"
+	"time"
 )
 
 type TextConsole struct {
-	Alphabet map[string]rune
+	Alphabet map[string]byte
 }
 
-var ASCIIAlphabet = map[string]rune{
-	"empty":  ' ',
+var ASCIIAlphabet = map[string]byte{
+	"empty":  '_',
 	"food":   'F',
 	"wall":   '#',
 	"entity": '0',
@@ -27,11 +28,10 @@ func New() *TextConsole {
 // Print выводит на экран кадр мира + статистическую информацию
 func (tc *TextConsole) Print(world *model.World) {
 	//создаём холст
-	var canvas = make([][]rune, world.Xsize)
-
+	var canvas = make([][]byte, world.Xsize)
 	//заполняем хост
 	for x := 0; x < world.Xsize; x++ {
-		canvas[x] = make([]rune, world.Ysize+1)
+		canvas[x] = make([]byte, world.Ysize)
 		//заполняем строку холста
 		for y := 0; y < world.Ysize; y++ {
 			//получаем клетку мира
@@ -41,11 +41,9 @@ func (tc *TextConsole) Print(world *model.World) {
 				continue
 			}
 			//смотрим что в ней и соотвественно доавляем на холст
+
 			switch cell.Types {
 			case model.EmptyCell:
-				if cell.Entity != nil && cell.Entity.Live {
-					canvas[x][y] = tc.Alphabet["entity"]
-				}
 				canvas[x][y] = tc.Alphabet["empty"]
 			case model.FoodCell:
 				canvas[x][y] = tc.Alphabet["food"]
@@ -56,15 +54,18 @@ func (tc *TextConsole) Print(world *model.World) {
 			}
 		}
 		//в конец добавляем перенос строки
-		canvas[x][world.Ysize] = '\n'
 	}
-	//добавляем статичтическую информацию
-	canvas[world.Xsize-1] = append(canvas[world.Xsize-1], []rune(world.GetPrettyStatistic())...)
+	for _, entity := range world.ArrayEntity {
+		canvas[entity.X][entity.Y] = tc.Alphabet["entity"]
+	}
+
 	//рисуем холст
 	for i := 0; i < len(canvas); i++ {
-		fmt.Print(string(canvas[i]))
+		fmt.Print("|" + string(canvas[i]) + "|\n")
 	}
+	fmt.Print(world.GetPrettyStatistic() + "\n")
 	//вернуть каретку в начало для перерисовки кадра
-	//todo: создать свою реализацию движения коре
-	cursor.Up(world.Xsize + 1)
+	//todo: создать свою реализацию движения коретки
+	cursor.Up(world.Xsize + 5)
+	time.Sleep(1 * time.Millisecond)
 }

@@ -75,7 +75,7 @@ func (e *Entity) Run(w *World) (err error) {
 		//если получили ошибку - вылетаем с ошибкой
 		if err != nil {
 			//todo: добавить логгирование
-			fmt.Print(err)
+			return err
 		}
 	}
 

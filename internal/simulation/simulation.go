@@ -22,7 +22,7 @@ func (s *Simulation) Train(endAge, mutation int) {
 	startPopulation := s.endPopulation * s.endPopulation
 
 	//создаёсм мир
-	w := model.NewWorld(30, 30, startPopulation)
+	w := model.NewWorld(10, 30, startPopulation)
 
 	//выполняем цикл обучения
 	for w.Age < endAge {
