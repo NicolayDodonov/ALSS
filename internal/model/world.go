@@ -138,13 +138,13 @@ func (w *World) Update() {
 
 // Execute выполняет генетический код для каждой сущности(Entity) вызвавщего
 // функцию мира(World). Возвращает nil или ошибку исполнения сущности.
-func (w *World) Execute() error {
+func (w *World) Execute() (err []error) {
 	for _, entity := range w.ArrayEntity {
-		if err := entity.Run(w); err != nil {
-			return err
+		if errEntity := entity.Run(w); errEntity != nil {
+			err = append(err, errEntity)
 		}
 	}
-	return nil
+	return err
 }
 
 // GetCellData возвращает указатель на клетку(*Cell) по заданным координатам или ошибку,

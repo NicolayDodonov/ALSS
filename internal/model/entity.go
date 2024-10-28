@@ -28,6 +28,11 @@ func (e *Entity) Run(w *World) (err error) {
 		return nil
 	}
 
+	//уменьшаем энергию бота перед выполнение генокода
+	// "Деньги в перёд"
+	e.Energy--
+	e.Age++
+
 	//выполняем генетический код
 	//не все команды равноценны по сложности, по этому
 	//выполняем их со счётчиком frameCount. Это создёт
@@ -65,16 +70,18 @@ func (e *Entity) Run(w *World) (err error) {
 		//увеличиваем программно-генетический счётчик
 		e.Pointer++
 		e.loopPointer()
+
 		//если получили ошибку - вылетаем с ошибкой
 		if err != nil {
 			//todo: добавить логгирование
-			return err
+			fmt.Print(err)
 		}
-		//проверяем, умер ли бот
-		if e.Energy <= 0 {
-			e.Live = false
-			return fmt.Errorf("I  die")
-		}
+	}
+
+	//проверяем, умер ли бот
+	if e.Energy <= 0 {
+		e.Live = false
+		return fmt.Errorf("I  die")
 	}
 	return nil
 }

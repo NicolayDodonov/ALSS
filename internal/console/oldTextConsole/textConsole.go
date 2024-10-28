@@ -59,7 +59,7 @@ func (tc *TextConsole) Print(world *model.World) {
 		canvas[x][world.Ysize] = '\n'
 	}
 	//добавляем статичтическую информацию
-	canvas[world.Xsize] = append(canvas[world.Xsize], []rune(world.GetPrettyStatistic())...)
+	canvas[world.Xsize-1] = append(canvas[world.Xsize-1], []rune(world.GetPrettyStatistic())...)
 	//рисуем холст
 	for i := 0; i < len(canvas); i++ {
 		fmt.Print(string(canvas[i]))
