@@ -6,11 +6,11 @@ import (
 )
 
 type Simulation struct {
-	printer       *console.Console
+	printer       console.Console
 	endPopulation int
 }
 
-func New(console *console.Console, endPop int) (s *Simulation) {
+func New(console console.Console, endPop int) (s *Simulation) {
 	return &Simulation{
 		printer:       console,
 		endPopulation: endPop,
@@ -22,7 +22,7 @@ func (s *Simulation) Train(endAge, mutation int) {
 	startPopulation := s.endPopulation * s.endPopulation
 
 	//создаёсм мир
-	w := model.NewWorld(30, 30, startPopulation)
+	w := model.NewWorld(10, 30, startPopulation)
 
 	//выполняем цикл обучения
 	for w.Age < endAge {
@@ -49,6 +49,7 @@ func (s *Simulation) Train(endAge, mutation int) {
 			}
 			w.Age++
 		}
+		w.SetGeneration(s.endPopulation, mutation)
 		w.ID++
 
 		//todo: Логгирование

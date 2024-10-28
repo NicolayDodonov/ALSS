@@ -7,10 +7,10 @@ import (
 )
 
 func NewWorld(x, y, population int) *World {
-	return &World{
+	w := &World{
 		Xsize:       x,
 		Ysize:       y,
-		Map:         make([][]*Cell, population),
+		Map:         newMap(x, y),
 		ArrayEntity: newGeneration(population, x, y),
 		Statistic: Statistic{
 			population,
@@ -20,6 +20,26 @@ func NewWorld(x, y, population int) *World {
 			0,
 		},
 	}
+	w.Sync()
+	return w
+}
+
+// newMap возвращает пустую карту мира.
+func newMap(Xsize, Ysize int) [][]*Cell {
+	//создаём массив карты (содержащий строки клеток)
+	Map := make([][]*Cell, Xsize)
+	for x := 0; x < Xsize; x++ {
+		//создаём массив строки (содеижит клетки)
+		Map[x] = make([]*Cell, Ysize)
+		for y := 0; y < Ysize; y++ {
+			Map[x][y] = &Cell{
+				nil,
+				EmptyCell,
+				0,
+			}
+		}
+	}
+	return Map
 }
 
 // newGeneration создаёт стартовую популяцию сущностей(Entity). Возращает массив ссылок на Entity.
@@ -31,7 +51,35 @@ func newGeneration(population, x, y int) []*Entity {
 	return entityArray
 }
 
+// Sync отвечает за синхронизацию World.ArrayEntity c World.Map.
+// если несколько сущностей оказывается в одной клетке, для всех последующих
+// создаёт новое расположение.
+func (w *World) Sync() {
+	for _, entity := range w.ArrayEntity {
+		if entity.Live {
+			//если по коордитанам сущности расположена другая сущность
+			cell, _ := w.GetCellData(Coordinates{entity.X, entity.Y})
+			if cell.Entity != nil &&
+				cell.Entity != entity {
+				//ищем пустую клетку
+				for {
+					x := rand.Intn(w.Xsize)
+					y := rand.Intn(w.Ysize)
+					cell, _ := w.GetCellData(Coordinates{x, y})
+					if cell.Entity == nil &&
+						cell.Types == EmptyCell {
+						//и записываем туда нащу сущность
+						entity.Coordinates = Coordinates{x, y}
+						break
+					}
+				}
+			}
+		}
+	}
+}
+
 // SetGeneration приводит отработавщую популяцию к стартовому состоянию с заменой генома.
+// разбрасывает сущности по карте в случайном порядке.
 func (w *World) SetGeneration(endPopulation, mutationCount int) {
 	//отсортируем сущности мо возрасту
 	//определив лучшие сущности
@@ -47,7 +95,16 @@ func (w *World) SetGeneration(endPopulation, mutationCount int) {
 	for i := 0; i < mutationCount; i++ {
 		w.ArrayEntity[rand.Intn(length)].DNA.Mutation(rand.Intn(length))
 	}
-
+	for _, entity := range w.ArrayEntity {
+		entity.Energy = 100
+		entity.Age = 0
+		entity.Live = true
+		entity.Coordinates = Coordinates{
+			rand.Intn(w.Xsize),
+			rand.Intn(w.Ysize),
+		}
+	}
+	w.Sync()
 }
 
 // sortAge сортирует сущности(Entity) по возрасту в вызывающем мире(World).
@@ -66,7 +123,7 @@ func (w *World) Clear() {
 	for x := 0; x < len(w.Map); x++ {
 		for y := 0; y < len(w.Map[x]); y++ {
 			w.Map[x][y].Entity = nil
-			w.Map[x][y].types = emptyCell
+			w.Map[x][y].Types = EmptyCell
 			w.Map[x][y].Poison = 0
 		}
 	}
@@ -83,13 +140,13 @@ func (w *World) Update() {
 
 // Execute выполняет генетический код для каждой сущности(Entity) вызвавщего
 // функцию мира(World). Возвращает nil или ошибку исполнения сущности.
-func (w *World) Execute() error {
+func (w *World) Execute() (err []error) {
 	for _, entity := range w.ArrayEntity {
-		if err := entity.Run(w); err != nil {
-			return err
+		if errEntity := entity.Run(w); errEntity != nil {
+			err = append(err, errEntity)
 		}
 	}
-	return nil
+	return err
 }
 
 // GetCellData возвращает указатель на клетку(*Cell) по заданным координатам или ошибку,
@@ -103,9 +160,9 @@ func (w *World) GetCellData(cord Coordinates) (*Cell, error) {
 
 // SetCellType изменяет тип клетки(Cell), на указанный. Возвращает nil или
 // ошибку выхода за границы мира.
-func (w *World) SetCellType(cord Coordinates, types cellType) error {
+func (w *World) SetCellType(cord Coordinates, types CellTypes) error {
 	if checkLimit(cord, Coordinates{w.Xsize, w.Ysize}) {
-		w.Map[cord.X][cord.Y].types = types
+		w.Map[cord.X][cord.Y].Types = types
 		return nil
 	}
 	return fmt.Errorf("[err] coordinate %v out of range", cord)
@@ -136,12 +193,13 @@ func (w *World) SetCellEntity(cord Coordinates, entity *Entity) error {
 func (w *World) MoveEntity(oldCord, newCord Coordinates, entity *Entity) error {
 	if checkLimit(newCord, Coordinates{w.Xsize, w.Ysize}) {
 		cell, _ := w.GetCellData(newCord)
-		if cell.Entity == nil {
+		if cell.Entity == nil && cell.Types != WallCell {
 			w.Map[oldCord.X][oldCord.Y].Entity = nil
 			w.Map[newCord.X][newCord.Y].Entity = entity
+			entity.Coordinates = newCord
 			return nil
 		} else {
-			return fmt.Errorf("[err] coordinate %v have other entity %v", newCord, cell.Entity.ID)
+			return fmt.Errorf("[err] coordinate %v have another object", newCord)
 		}
 	}
 	return fmt.Errorf("[err] coordinate %v out of range", newCord)
@@ -164,7 +222,7 @@ func (w *World) UpdateStat() {
 	for x := 0; x < len(w.Map); x++ {
 		for y := 0; y < len(w.Map[x]); y++ {
 			cell, _ := w.GetCellData(Coordinates{x, y})
-			if cell.types == foodCell {
+			if cell.Types == FoodCell {
 				Count++
 			}
 		}

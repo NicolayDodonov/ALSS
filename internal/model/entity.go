@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// NewEntity возвращает живую сущность(Entity) с координатами x, y.
 func NewEntity(ID, x, y, longDNA int) *Entity {
 	return &Entity{
 		ID,
@@ -27,6 +28,11 @@ func (e *Entity) Run(w *World) (err error) {
 		//todo: добавить логгирование
 		return nil
 	}
+
+	//уменьшаем энергию бота перед выполнение генокода
+	// "Деньги в перёд"
+	e.Energy--
+	e.Age++
 
 	//выполняем генетический код
 	//не все команды равноценны по сложности, по этому
@@ -65,16 +71,17 @@ func (e *Entity) Run(w *World) (err error) {
 		//увеличиваем программно-генетический счётчик
 		e.Pointer++
 		e.loopPointer()
+
 		//если получили ошибку - вылетаем с ошибкой
 		if err != nil {
 			//todo: добавить логгирование
-			return err
 		}
-		//проверяем, умер ли бот
-		if e.Energy <= 0 {
-			e.Live = false
-			return fmt.Errorf("I  die")
-		}
+	}
+
+	//проверяем, умер ли бот
+	if e.Energy <= 0 {
+		e.Live = false
+		return fmt.Errorf("I  die")
 	}
 	return nil
 }
@@ -97,7 +104,7 @@ func (e *Entity) move(w *World) error {
 		return fmt.Errorf("is another entity")
 	}
 	//мы не двигаемся в клетку со стеной
-	if cell.types == wallCell {
+	if cell.Types == WallCell {
 		return fmt.Errorf("is wall")
 	}
 	//двигаемся в клетку
@@ -132,19 +139,19 @@ func (e *Entity) look(w *World) (int, error) {
 	}
 
 	//Определяем тип возврата
-	switch cell.types {
-	case emptyCell:
+	switch cell.Types {
+	case EmptyCell:
 		if cell.Entity != nil {
 			return isEntity, nil
 		} else {
 			return isEmpty, nil
 		}
-	case foodCell:
+	case FoodCell:
 		return isFood, nil
-	case wallCell:
+	case WallCell:
 		return isWall, nil
 	default:
-		return isError, fmt.Errorf("[err] cell type is %v, I dont't know this type", cell.types)
+		return isError, fmt.Errorf("[err] cell type is %v, I dont't know this type", cell.Types)
 	}
 }
 
@@ -162,22 +169,22 @@ func (e *Entity) get(w *World) error {
 		return err
 	}
 	//совераем действие в зависимости от типа клетки
-	switch cell.types {
-	case emptyCell:
+	switch cell.Types {
+	case EmptyCell:
 		if cell.Entity != nil {
 			e.attack(cell)
 		}
-	case foodCell:
+	case FoodCell:
 		//сначала меняем тип клетки
-		if err = w.SetCellType(newCord, emptyCell); err != nil {
+		if err = w.SetCellType(newCord, EmptyCell); err != nil {
 			return err
 		}
 		//а потом увеличиваем энергию
 		e.Energy += energyPoint
-	case wallCell:
+	case WallCell:
 		e.Energy -= energyPoint
 	default:
-		return fmt.Errorf("[err] cell type is %v, I dont't know this type", cell.types)
+		return fmt.Errorf("[err] cell type is %v, I dont't know this type", cell.Types)
 	}
 	return nil
 }
