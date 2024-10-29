@@ -2,7 +2,9 @@ package simulation
 
 import (
 	"artificialLifeGo/internal/console"
+	l "artificialLifeGo/internal/logger"
 	"artificialLifeGo/internal/model"
+	"strconv"
 )
 
 type Simulation struct {
@@ -18,6 +20,7 @@ func New(console console.Console, endPop int) (s *Simulation) {
 }
 
 func (s *Simulation) Train(endAge, mutation int) {
+	l.Sim.Debug("start train")
 	//определяем стартовую популяцию как конечная популяция^2
 	startPopulation := s.endPopulation * s.endPopulation
 
@@ -26,6 +29,7 @@ func (s *Simulation) Train(endAge, mutation int) {
 
 	//выполняем цикл обучения
 	for w.Age < endAge {
+		l.Sim.Debug("start new cycle")
 		//очистить мир
 		w.Age = 0
 		w.Clear()
@@ -43,12 +47,16 @@ func (s *Simulation) Train(endAge, mutation int) {
 			//отрисовываем кадр мира в консоле
 			s.printer.Print(w)
 
+			l.Sim.Debug("world age " + strconv.Itoa(w.Age) + "is done!\n" +
+				"in world live now: " + strconv.Itoa(w.CountEntity))
 			//проверить, живо ли больше endPopulation сущностей
 			if w.CountEntity <= s.endPopulation {
 				break
 			}
 			w.Age++
 		}
+		l.Sim.Info("world №" + strconv.Itoa(w.ID) + " is dead!\n" +
+			w.GetPrettyStatistic())
 		w.SetGeneration(s.endPopulation, mutation)
 		w.ID++
 

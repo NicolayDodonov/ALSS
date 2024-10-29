@@ -1,7 +1,9 @@
 package model
 
 import (
+	l "artificialLifeGo/internal/logger"
 	"fmt"
+	"strconv"
 )
 
 // NewEntity возвращает живую сущность(Entity) с координатами x, y.
@@ -23,9 +25,10 @@ func NewEntity(ID, x, y, longDNA int) *Entity {
 // Run отвечает за исполнение генетического кода в DNA.Array.
 // Возвращает nil или ошибку.
 func (e *Entity) Run(w *World) (err error) {
+	l.App.Debug("id " + strconv.Itoa(e.ID) + " is run his genocode")
 	//если бот мёрт, вылетаем с ошибкой
 	if !e.Live {
-		//todo: добавить логгирование
+		l.App.Error("id " + strconv.Itoa(e.ID) + " is dead!")
 		return nil
 	}
 
@@ -43,27 +46,41 @@ func (e *Entity) Run(w *World) (err error) {
 		case move:
 			err = e.move(w)
 			frameCount += 5
+
+			l.App.Debug("id " + strconv.Itoa(e.ID) + " move")
 		case look:
 			//функционал логического перехода
 			var dPointer int
 			dPointer, err = e.look(w)
 			e.Pointer += dPointer - 1
 			frameCount += 2
+
+			l.App.Debug("id " + strconv.Itoa(e.ID) + " look")
 		case get:
 			err = e.get(w)
 			frameCount += 5
+
+			l.App.Debug("id " + strconv.Itoa(e.ID) + " get")
 		case rotatedLeft:
 			e.rotation(left)
 			frameCount++
+
+			l.App.Debug("id " + strconv.Itoa(e.ID) + " tunrs left")
 		case rotatedRight:
 			e.rotation(right)
 			frameCount++
+
+			l.App.Debug("id " + strconv.Itoa(e.ID) + " tunrs right")
 		case recycling:
 			err = e.recycling(w)
 			frameCount += 5
+
+			l.App.Debug("id " + strconv.Itoa(e.ID) + " recycling")
 		case reproduction:
 			err = e.reproduction()
 			frameCount += 12
+
+			l.App.Debug("id " + strconv.Itoa(e.ID) + " make new bot")
 		default:
 			e.jump()
 			frameCount++
@@ -74,13 +91,14 @@ func (e *Entity) Run(w *World) (err error) {
 
 		//если получили ошибку - вылетаем с ошибкой
 		if err != nil {
-			//todo: добавить логгирование
+			l.App.Error(err.Error())
 		}
 	}
 
 	//проверяем, умер ли бот
 	if e.Energy <= 0 {
 		e.Live = false
+		l.App.Info("id " + strconv.Itoa(e.ID) + " die!")
 		return fmt.Errorf("I  die")
 	}
 	return nil
@@ -151,7 +169,7 @@ func (e *Entity) look(w *World) (int, error) {
 	case WallCell:
 		return isWall, nil
 	default:
-		return isError, fmt.Errorf("[err] cell type is %v, I dont't know this type", cell.Types)
+		return isError, fmt.Errorf("cell type is %v, I dont't know this type", cell.Types)
 	}
 }
 
@@ -184,7 +202,7 @@ func (e *Entity) get(w *World) error {
 	case WallCell:
 		e.Energy -= energyPoint
 	default:
-		return fmt.Errorf("[err] cell type is %v, I dont't know this type", cell.Types)
+		return fmt.Errorf("cell type is %v, I dont't know this type", cell.Types)
 	}
 	return nil
 }

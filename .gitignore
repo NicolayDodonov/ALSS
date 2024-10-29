@@ -1,5 +1,3 @@
 
 /.idea
-/logs/errorLogs.txt
-/logs/worldInfoBig.txt
-/logs/worldInfoSmal.txt
+/logs
