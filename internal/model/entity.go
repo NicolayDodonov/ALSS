@@ -1,7 +1,9 @@
 package model
 
 import (
+	l "artificialLifeGo/internal/logger"
 	"fmt"
+	"strconv"
 )
 
 // NewEntity возвращает живую сущность(Entity) с координатами x, y.
@@ -23,10 +25,10 @@ func NewEntity(ID, x, y, longDNA int) *Entity {
 // Run отвечает за исполнение генетического кода в DNA.Array.
 // Возвращает nil или ошибку.
 func (e *Entity) Run(w *World) (err error) {
+	l.App.Debug("id " + strconv.Itoa(e.ID) + " is run his genocode")
 	//если бот мёрт, вылетаем с ошибкой
 	if !e.Live {
-		//todo: добавить логгирование
-		return nil
+		return fmt.Errorf("entity is not live")
 	}
 
 	//уменьшаем энергию бота перед выполнение генокода
@@ -43,27 +45,41 @@ func (e *Entity) Run(w *World) (err error) {
 		case move:
 			err = e.move(w)
 			frameCount += 5
+
+			l.App.Debug("id " + strconv.Itoa(e.ID) + " move")
 		case look:
 			//функционал логического перехода
 			var dPointer int
 			dPointer, err = e.look(w)
 			e.Pointer += dPointer - 1
 			frameCount += 2
+
+			l.App.Debug("id " + strconv.Itoa(e.ID) + " look")
 		case get:
 			err = e.get(w)
 			frameCount += 5
+
+			l.App.Debug("id " + strconv.Itoa(e.ID) + " get")
 		case rotatedLeft:
 			e.rotation(left)
 			frameCount++
+
+			l.App.Debug("id " + strconv.Itoa(e.ID) + " tunrs left")
 		case rotatedRight:
 			e.rotation(right)
 			frameCount++
+
+			l.App.Debug("id " + strconv.Itoa(e.ID) + " tunrs right")
 		case recycling:
 			err = e.recycling(w)
 			frameCount += 5
+
+			l.App.Debug("id " + strconv.Itoa(e.ID) + " recycling")
 		case reproduction:
 			err = e.reproduction()
 			frameCount += 12
+
+			l.App.Debug("id " + strconv.Itoa(e.ID) + " make new bot")
 		default:
 			e.jump()
 			frameCount++
@@ -74,7 +90,7 @@ func (e *Entity) Run(w *World) (err error) {
 
 		//если получили ошибку - вылетаем с ошибкой
 		if err != nil {
-			//todo: добавить логгирование
+			l.App.Error(err.Error())
 		}
 	}
 
@@ -101,11 +117,11 @@ func (e *Entity) move(w *World) error {
 	}
 	//мы не двигаемся в клетку с другим ботом
 	if cell.Entity != nil {
-		return fmt.Errorf("is another entity")
+		return fmt.Errorf("move in %v fall - another entity", cell.Coordinates)
 	}
 	//мы не двигаемся в клетку со стеной
 	if cell.Types == WallCell {
-		return fmt.Errorf("is wall")
+		return fmt.Errorf("move in %v fall - wall", cell.Coordinates)
 	}
 	//двигаемся в клетку
 	if err = w.MoveEntity(e.Coordinates, newCord, e); err != nil {
@@ -151,7 +167,7 @@ func (e *Entity) look(w *World) (int, error) {
 	case WallCell:
 		return isWall, nil
 	default:
-		return isError, fmt.Errorf("[err] cell type is %v, I dont't know this type", cell.Types)
+		return isError, fmt.Errorf("cell type is %v, I dont't know this type", cell.Types)
 	}
 }
 
@@ -171,8 +187,8 @@ func (e *Entity) get(w *World) error {
 	//совераем действие в зависимости от типа клетки
 	switch cell.Types {
 	case EmptyCell:
-		if cell.Entity != nil {
-			e.attack(cell)
+		if err = e.attack(cell); err != nil {
+			return err
 		}
 	case FoodCell:
 		//сначала меняем тип клетки
@@ -184,18 +200,22 @@ func (e *Entity) get(w *World) error {
 	case WallCell:
 		e.Energy -= energyPoint
 	default:
-		return fmt.Errorf("[err] cell type is %v, I dont't know this type", cell.Types)
+		return fmt.Errorf("cell type is %v, I dont't know this type", cell.Types)
 	}
 	return nil
 }
 
 // attack отвечает за убийство сущности(Entity) в клетке(Cell) и передачи энергии сущности(Entity),
 // вы звавщей функцию. Ничего не возвращает.
-func (e *Entity) attack(cell *Cell) {
+func (e *Entity) attack(cell *Cell) error {
+	if cell.Entity == nil {
+		return fmt.Errorf("attack is fall - not entity")
+	}
 	energy := cell.Entity.Energy
 	cell.Entity.Live = false
 	cell.Entity = nil
 	e.Energy = energy
+	return nil
 }
 
 // rotation отвечает за смену угла взгляда на заданное число.

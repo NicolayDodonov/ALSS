@@ -155,7 +155,7 @@ func (w *World) GetCellData(cord Coordinates) (*Cell, error) {
 	if checkLimit(cord, Coordinates{w.Xsize, w.Ysize}) {
 		return w.Map[cord.X][cord.Y], nil
 	}
-	return nil, fmt.Errorf("[err] coordinate %v out of range", cord)
+	return nil, fmt.Errorf("get cell data in %v is fall - out of range", cord)
 }
 
 // SetCellType изменяет тип клетки(Cell), на указанный. Возвращает nil или
@@ -165,7 +165,7 @@ func (w *World) SetCellType(cord Coordinates, types CellTypes) error {
 		w.Map[cord.X][cord.Y].Types = types
 		return nil
 	}
-	return fmt.Errorf("[err] coordinate %v out of range", cord)
+	return fmt.Errorf("set cell.Types in %v is fall - out of range", cord)
 }
 
 // SetCellPoison изменяет уровень яда в клетке(Cell). Возвращает nil или
@@ -175,7 +175,7 @@ func (w *World) SetCellPoison(cord Coordinates, dPoison int) error {
 		w.Map[cord.X][cord.Y].Poison = dPoison
 		return nil
 	}
-	return fmt.Errorf("[err] coordinate %v out of range", cord)
+	return fmt.Errorf("set cell.Poison in %v is fall - out of range", cord)
 }
 
 // SetCellEntity изменяет сущность(Entity) в клетке(Cell). Возвращает nil или
@@ -185,7 +185,7 @@ func (w *World) SetCellEntity(cord Coordinates, entity *Entity) error {
 		w.Map[cord.X][cord.Y].Entity = entity
 		return nil
 	}
-	return fmt.Errorf("[err] coordinate %v out of range", cord)
+	return fmt.Errorf("set cell.Entity in %v is fall - out of range", cord)
 }
 
 // MoveEntity передвигает сущность(Entity) из старой клетки(Cell) в новую.
@@ -198,11 +198,13 @@ func (w *World) MoveEntity(oldCord, newCord Coordinates, entity *Entity) error {
 			w.Map[newCord.X][newCord.Y].Entity = entity
 			entity.Coordinates = newCord
 			return nil
+		} else if cell.Entity != nil {
+			return fmt.Errorf("world move e in %v is fall - have entity №%v", newCord, cell.Entity.ID)
 		} else {
-			return fmt.Errorf("[err] coordinate %v have another object", newCord)
+			return fmt.Errorf("world move e in %v is fall - have wall", newCord)
 		}
 	}
-	return fmt.Errorf("[err] coordinate %v out of range", newCord)
+	return fmt.Errorf("world move e n %v is fall - out of range", newCord)
 }
 
 // UpdateStat обновляет значение World Statistic высчитывая все живые сущности(Entity),
