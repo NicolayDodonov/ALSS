@@ -28,8 +28,7 @@ func (e *Entity) Run(w *World) (err error) {
 	l.App.Debug("id " + strconv.Itoa(e.ID) + " is run his genocode")
 	//если бот мёрт, вылетаем с ошибкой
 	if !e.Live {
-		l.App.Error("id " + strconv.Itoa(e.ID) + " is dead!")
-		return nil
+		return fmt.Errorf("entity is not live")
 	}
 
 	//уменьшаем энергию бота перед выполнение генокода
@@ -98,7 +97,6 @@ func (e *Entity) Run(w *World) (err error) {
 	//проверяем, умер ли бот
 	if e.Energy <= 0 {
 		e.Live = false
-		l.App.Info("id " + strconv.Itoa(e.ID) + " die!")
 		return fmt.Errorf("I  die")
 	}
 	return nil
@@ -119,11 +117,11 @@ func (e *Entity) move(w *World) error {
 	}
 	//мы не двигаемся в клетку с другим ботом
 	if cell.Entity != nil {
-		return fmt.Errorf("is another entity")
+		return fmt.Errorf("move in %v fall - another entity", cell.Coordinates)
 	}
 	//мы не двигаемся в клетку со стеной
 	if cell.Types == WallCell {
-		return fmt.Errorf("is wall")
+		return fmt.Errorf("move in %v fall - wall", cell.Coordinates)
 	}
 	//двигаемся в клетку
 	if err = w.MoveEntity(e.Coordinates, newCord, e); err != nil {
@@ -189,8 +187,8 @@ func (e *Entity) get(w *World) error {
 	//совераем действие в зависимости от типа клетки
 	switch cell.Types {
 	case EmptyCell:
-		if cell.Entity != nil {
-			e.attack(cell)
+		if err = e.attack(cell); err != nil {
+			return err
 		}
 	case FoodCell:
 		//сначала меняем тип клетки
@@ -209,11 +207,15 @@ func (e *Entity) get(w *World) error {
 
 // attack отвечает за убийство сущности(Entity) в клетке(Cell) и передачи энергии сущности(Entity),
 // вы звавщей функцию. Ничего не возвращает.
-func (e *Entity) attack(cell *Cell) {
+func (e *Entity) attack(cell *Cell) error {
+	if cell.Entity == nil {
+		return fmt.Errorf("attack is fall - not entity")
+	}
 	energy := cell.Entity.Energy
 	cell.Entity.Live = false
 	cell.Entity = nil
 	e.Energy = energy
+	return nil
 }
 
 // rotation отвечает за смену угла взгляда на заданное число.

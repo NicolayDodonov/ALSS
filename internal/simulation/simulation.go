@@ -29,7 +29,7 @@ func (s *Simulation) Train(endAge, mutation int) {
 
 	//выполняем цикл обучения
 	for w.Age < endAge {
-		l.Sim.Debug("start new cycle")
+		l.Sim.Info("start new cycle")
 		//очистить мир
 		w.Age = 0
 		w.Clear()
@@ -47,7 +47,7 @@ func (s *Simulation) Train(endAge, mutation int) {
 			//отрисовываем кадр мира в консоле
 			s.printer.Print(w)
 
-			l.Sim.Debug("world age " + strconv.Itoa(w.Age) + "is done!\n" +
+			l.Sim.Debug("world " + strconv.Itoa(w.ID) + "age " + strconv.Itoa(w.Age) + "is done!\n" +
 				"in world live now: " + strconv.Itoa(w.CountEntity))
 			//проверить, живо ли больше endPopulation сущностей
 			if w.CountEntity <= s.endPopulation {

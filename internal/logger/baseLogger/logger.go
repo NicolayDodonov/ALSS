@@ -28,21 +28,21 @@ func MustNew(path string, level loggerType) *Logger {
 func (logger *Logger) Debug(msg string) {
 	if logger.level <= DebugLevel {
 		t := time.Now()
-		_, _ = io.WriteString(logger.file, t.String()+Debug+msg+"\n")
+		_, _ = io.WriteString(logger.file, t.String()+" "+Debug+msg+"\n")
 	}
 }
 
 func (logger *Logger) Info(msg string) {
 	if logger.level <= InfoLevel {
 		t := time.Now()
-		_, _ = io.WriteString(logger.file, t.String()+Info+msg+"\n")
+		_, _ = io.WriteString(logger.file, t.String()+" "+Info+msg+"\n")
 	}
 }
 
 func (logger *Logger) Panic(msg string) {
 	if logger.level <= ErrorLevel {
 		t := time.Now()
-		_, _ = io.WriteString(logger.file, t.String()+Panic+msg+"\n")
+		_, _ = io.WriteString(logger.file, t.String()+" "+Panic+msg+"\n")
 		panic(msg)
 	}
 }
@@ -50,14 +50,14 @@ func (logger *Logger) Panic(msg string) {
 func (logger *Logger) Error(msg string) {
 	if logger.level <= ErrorLevel {
 		t := time.Now()
-		_, _ = io.WriteString(logger.file, t.String()+Error+msg+"\n")
+		_, _ = io.WriteString(logger.file, t.String()+" "+Error+msg+"\n")
 	}
 }
 
 func (logger *Logger) Fatal(msg string) {
 	if logger.level <= ErrorLevel {
 		t := time.Now()
-		_, _ = io.WriteString(logger.file, t.String()+Fatal+msg+"\n")
+		_, _ = io.WriteString(logger.file, t.String()+" "+Fatal+msg+"\n")
 		os.Exit(1)
 	}
 }
