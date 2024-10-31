@@ -40,6 +40,6 @@ func (d *DNA) GetDNAString() string {
 
 // Mutation случайно изменяет значение одного гена в DNA.Array.
 func (d *DNA) Mutation(index int) {
-	d.Array[index] += rand.Intn(maxGen)
+	d.Array[index] = rand.Intn(maxGen)
 	d.ID = time.Now().Nanosecond() + rand.Intn(1000)
 }

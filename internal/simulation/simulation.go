@@ -19,7 +19,7 @@ func New(console console.Console, endPop int) (s *Simulation) {
 	}
 }
 
-func (s *Simulation) Train(world_X, world_Y, endAge, mutation, baseLevelPoison int) {
+func (s *Simulation) Train(world_X, world_Y, endAge, mutation, baseLevelPoison, seasonRange int) {
 	l.Sim.Debug("start train")
 	//определяем стартовую популяцию как конечная популяция^2
 	startPopulation := s.endPopulation * s.endPopulation
@@ -34,12 +34,16 @@ func (s *Simulation) Train(world_X, world_Y, endAge, mutation, baseLevelPoison i
 		w.Age = 0
 		w.Clear()
 
+		w.Update(30)
 		for {
 			//обновить состояние ресурсов
-			w.Update()
+			if w.Age%seasonRange == 0 {
+				w.Update(30)
+			}
 
 			//выполнить генокод всех сущностей
 			_ = w.Execute()
+			w.RemoveDead()
 
 			//обновляем статистику
 			w.UpdateStat()
@@ -55,13 +59,13 @@ func (s *Simulation) Train(world_X, world_Y, endAge, mutation, baseLevelPoison i
 			}
 			w.Age++
 		}
+		//Вывести информацию о мире
 		l.Sim.Info("world №" + strconv.Itoa(w.ID) + " is dead!\n" +
 			w.GetPrettyStatistic())
 		l.Sim.Info(strconv.Itoa(s.endPopulation) + " best bot's DNA:\n" +
 			w.GetPrettyEntityInfo(s.endPopulation))
 		w.SetGeneration(s.endPopulation, mutation)
+		//и обновить ID мира для следующей итерации
 		w.ID++
-
-		//todo: Логгирование
 	}
 }

@@ -88,15 +88,25 @@ func (e *Entity) Run(w *World) (err error) {
 		e.Pointer++
 		e.loopPointer()
 
+		//добавляем отравление на клетку с ботом
+		err = w.SetCellPoison(e.Coordinates, pLevel1+1)
 		//если получили ошибку - вылетаем с ошибкой
 		if err != nil {
 			l.App.Error(err.Error())
 		}
 	}
+	//Если в клетке с сущностью много яда - умираем
+	cell, _ := w.GetCellData(e.Coordinates)
+	if cell.Poison >= 80 {
+		e.Energy = 0
+		e.Live = false
+		return fmt.Errorf("I  die")
+	}
 
 	//проверяем, умер ли бот
 	if e.Energy <= 0 {
 		e.Live = false
+		_ = w.SetCellPoison(e.Coordinates, pLevel2+1)
 		return fmt.Errorf("I  die")
 	}
 	return nil
@@ -227,12 +237,6 @@ func (e *Entity) rotation(turnCount turns) {
 // recycling отвечает за получение энергии из загрязнения окружающей среды.
 // Возвращает nil или ошибку.
 func (e *Entity) recycling(w *World) error {
-	const (
-		level1 = 5
-		level2 = 25
-		level3 = 50
-		level4 = 75
-	)
 
 	//получаем координаты переработки
 	newCord := viewCell(e.turn)
@@ -247,13 +251,13 @@ func (e *Entity) recycling(w *World) error {
 
 	//Расчитываем размер очистки клетки
 	var dPoison = 0
-	if cell.Poison >= level4 {
+	if cell.Poison >= pLevel4 {
 		dPoison = energyPoint * 2
-	} else if cell.Poison >= level3 {
+	} else if cell.Poison >= pLevel3 {
 		dPoison = energyPoint
-	} else if cell.Poison >= level2 {
+	} else if cell.Poison >= pLevel2 {
 		dPoison = energyPoint / 2
-	} else if cell.Poison >= level1 {
+	} else if cell.Poison >= pLevel1 {
 		dPoison = energyPoint / 5
 	}
 

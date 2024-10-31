@@ -52,14 +52,24 @@ func newGeneration(x, y, population int) []*Entity {
 	return entityArray
 }
 
+// RemoveDead очищает мир от умерших ботов, чтобы живые с ними не взаимодействовали.
+func (w *World) RemoveDead() {
+	for _, entity := range w.ArrayEntity {
+		if !entity.Live {
+			_ = w.SetCellEntity(entity.Coordinates, nil)
+		}
+	}
+}
+
 // Sync отвечает за синхронизацию World.ArrayEntity c World.Map.
 // если несколько сущностей оказывается в одной клетке, для всех последующих
 // создаёт новое расположение.
 func (w *World) Sync() {
+	w.RemoveDead()
 	for _, entity := range w.ArrayEntity {
 		if entity.Live {
 			//если по коордитанам сущности расположена другая сущность
-			cell, _ := w.GetCellData(Coordinates{entity.X, entity.Y})
+			cell, _ := w.GetCellData(entity.Coordinates)
 			if cell.Entity != nil &&
 				cell.Entity != entity {
 				//ищем пустую клетку
@@ -71,6 +81,7 @@ func (w *World) Sync() {
 						cell.Types == EmptyCell {
 						//и записываем туда нащу сущность
 						entity.Coordinates = Coordinates{x, y}
+						cell.Entity = entity
 						break
 					}
 				}
@@ -95,8 +106,22 @@ func (w *World) Clear() {
 
 // Update обновляет состояние всех клеток(Cell) вызвавщего функцию мира(World)
 // создава новые ресурсы, удаля ресурсы из за отравления.
-func (w *World) Update() {
-	//todo: придумать нормальное обновление ресурсов с учётом типа яда в клетке
+func (w *World) Update(percent int) {
+	maxFood := percent * (w.Xsize * w.Ysize) / 100
+	if w.CountFood >= maxFood {
+		return
+	}
+
+	//Пройдёмся по всем клеткам мира
+	for countAdd := w.CountFood; countAdd < maxFood; {
+		rX := rand.Intn(w.Xsize)
+		rY := rand.Intn(w.Ysize)
+		cell, _ := w.GetCellData(Coordinates{rX, rY})
+		if cell.Types == EmptyCell {
+			cell.Types = FoodCell
+			countAdd++
+		}
+	}
 }
 
 // Execute выполняет генетический код для каждой сущности(Entity) вызвавщего
@@ -277,6 +302,58 @@ func (w *World) sortAge() {
 		for j := 0; j < len(w.ArrayEntity)-i-1; j++ {
 			if w.ArrayEntity[j].Age < w.ArrayEntity[j+1].Age {
 				w.ArrayEntity[j], w.ArrayEntity[j+1] = w.ArrayEntity[j+1], w.ArrayEntity[j]
+			}
+		}
+	}
+}
+
+// neighbors - функция клеточного автомата, смотрит на состояние соседей клетки
+// и определяет, становиться ли клетка едой или нет. True - еда, False - empty.
+// Временно не используется.
+func (w *World) neighbors(c Coordinates) bool {
+	if w.Map[c.X][c.Y].Poison >= pLevel4 {
+		//Если в самой клетке очень много яда, то она всегда пустая
+		//Если была еда = она погибает!
+		return false
+	}
+
+	if w.Map[c.X][c.Y].Types == FoodCell {
+		//Если клетка уже еда то true
+		return true
+	}
+
+	//смотрим на всех соседей во круг клетки и считаем колличество еды вокруг
+	countFood := 0
+	for i := 0; i < 8; i++ {
+		//получаем клетку соседа
+		cell, err := w.GetCellData(viewCell(turns(i)))
+		if err != nil {
+			//Выход за границу мира нас не волнует
+			//Для нас это сверх ядовитые клетки
+			continue
+		}
+		if cell.Types == FoodCell {
+			if cell.Poison <= pLevel3 {
+				//Если в клетке есть еда и уровень яда
+				//меньше половины - для нас это нормально
+				countFood++
+			}
+		}
+	}
+
+	if countFood >= 1 && countFood < 3 {
+		return true
+	}
+	return false
+}
+
+// RandomFood случайным образом распологает в мире пищу.
+// Временно не используется
+func (w *World) randomFood(percent int) {
+	for x := 0; x < w.Xsize; x++ {
+		for y := 0; y < w.Ysize; y++ {
+			if rand.Intn(100) < percent {
+				w.Map[x][y].Types = FoodCell
 			}
 		}
 	}

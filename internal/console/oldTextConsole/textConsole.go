@@ -4,7 +4,6 @@ import (
 	"artificialLifeGo/internal/model"
 	"atomicgo.dev/cursor"
 	"fmt"
-	"time"
 )
 
 type TextConsole struct {
@@ -56,7 +55,9 @@ func (tc *TextConsole) Print(world *model.World) {
 		//в конец добавляем перенос строки
 	}
 	for _, entity := range world.ArrayEntity {
-		canvas[entity.X][entity.Y] = tc.Alphabet["entity"]
+		if entity.Live {
+			canvas[entity.X][entity.Y] = tc.Alphabet["entity"]
+		}
 	}
 
 	//рисуем холст
@@ -67,5 +68,5 @@ func (tc *TextConsole) Print(world *model.World) {
 	//вернуть каретку в начало для перерисовки кадра
 	//todo: создать свою реализацию движения коретки
 	cursor.Up(world.Xsize + 6)
-	time.Sleep(100 * time.Millisecond)
+	//time.Sleep(100 * time.Millisecond)
 }
