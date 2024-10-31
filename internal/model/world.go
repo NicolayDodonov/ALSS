@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
+	"strings"
 )
 
-func NewWorld(x, y, population int) *World {
+func NewWorld(x, y, population, poison int) *World {
 	w := &World{
 		Xsize:       x,
 		Ysize:       y,
-		Map:         newMap(x, y),
-		ArrayEntity: newGeneration(population, x, y),
+		Map:         newMap(x, y, poison),
+		ArrayEntity: newGeneration(x, y, population),
 		Statistic: Statistic{
 			population,
 			0,
@@ -25,7 +26,7 @@ func NewWorld(x, y, population int) *World {
 }
 
 // newMap возвращает пустую карту мира.
-func newMap(Xsize, Ysize int) [][]*Cell {
+func newMap(Xsize, Ysize, Poison int) [][]*Cell {
 	//создаём массив карты (содержащий строки клеток)
 	Map := make([][]*Cell, Xsize)
 	for x := 0; x < Xsize; x++ {
@@ -35,7 +36,7 @@ func newMap(Xsize, Ysize int) [][]*Cell {
 			Map[x][y] = &Cell{
 				nil,
 				EmptyCell,
-				0,
+				Poison,
 			}
 		}
 	}
@@ -43,7 +44,7 @@ func newMap(Xsize, Ysize int) [][]*Cell {
 }
 
 // newGeneration создаёт стартовую популяцию сущностей(Entity). Возращает массив ссылок на Entity.
-func newGeneration(population, x, y int) []*Entity {
+func newGeneration(x, y, population int) []*Entity {
 	entityArray := make([]*Entity, population)
 	for i := 0; i < population; i++ {
 		entityArray[i] = NewEntity(i, rand.Intn(x), rand.Intn(y), lengthDNA)
@@ -78,46 +79,6 @@ func (w *World) Sync() {
 	}
 }
 
-// SetGeneration приводит отработавщую популяцию к стартовому состоянию с заменой генома.
-// разбрасывает сущности по карте в случайном порядке.
-func (w *World) SetGeneration(endPopulation, mutationCount int) {
-	//отсортируем сущности мо возрасту
-	//определив лучшие сущности
-	w.sortAge()
-	//присвоим их геном остальным ботам
-	for i := 0; i < endPopulation; i++ {
-		for j := 0; j < endPopulation; j++ {
-			w.ArrayEntity[i*endPopulation+j].DNA.Set(w.ArrayEntity[i].DNA)
-		}
-	}
-	//случайно произведём мутации в генокоде
-	length := len(w.ArrayEntity)
-	for i := 0; i < mutationCount; i++ {
-		w.ArrayEntity[rand.Intn(length)].DNA.Mutation(rand.Intn(length))
-	}
-	for _, entity := range w.ArrayEntity {
-		entity.Energy = 100
-		entity.Age = 0
-		entity.Live = true
-		entity.Coordinates = Coordinates{
-			rand.Intn(w.Xsize),
-			rand.Intn(w.Ysize),
-		}
-	}
-	w.Sync()
-}
-
-// sortAge сортирует сущности(Entity) по возрасту в вызывающем мире(World).
-func (w *World) sortAge() {
-	for i := 0; i < len(w.ArrayEntity)-1; i++ {
-		for j := 0; j < len(w.ArrayEntity)-i-1; j++ {
-			if w.ArrayEntity[j].Age < w.ArrayEntity[j+1].Age {
-				w.ArrayEntity[j], w.ArrayEntity[j+1] = w.ArrayEntity[j+1], w.ArrayEntity[j]
-			}
-		}
-	}
-}
-
 // Clear приводит все клетки(Cell) вызвавщего функцию мира(World) в стандартное состояние.
 func (w *World) Clear() {
 	for x := 0; x < len(w.Map); x++ {
@@ -147,45 +108,6 @@ func (w *World) Execute() (err []error) {
 		}
 	}
 	return err
-}
-
-// GetCellData возвращает указатель на клетку(*Cell) по заданным координатам или ошибку,
-// если координаты оказались вне мира.
-func (w *World) GetCellData(cord Coordinates) (*Cell, error) {
-	if checkLimit(cord, Coordinates{w.Xsize, w.Ysize}) {
-		return w.Map[cord.X][cord.Y], nil
-	}
-	return nil, fmt.Errorf("get cell data in %v is fall - out of range", cord)
-}
-
-// SetCellType изменяет тип клетки(Cell), на указанный. Возвращает nil или
-// ошибку выхода за границы мира.
-func (w *World) SetCellType(cord Coordinates, types CellTypes) error {
-	if checkLimit(cord, Coordinates{w.Xsize, w.Ysize}) {
-		w.Map[cord.X][cord.Y].Types = types
-		return nil
-	}
-	return fmt.Errorf("set cell.Types in %v is fall - out of range", cord)
-}
-
-// SetCellPoison изменяет уровень яда в клетке(Cell). Возвращает nil или
-// ошибку выхода за границы мира.
-func (w *World) SetCellPoison(cord Coordinates, dPoison int) error {
-	if checkLimit(cord, Coordinates{w.Xsize, w.Ysize}) {
-		w.Map[cord.X][cord.Y].Poison = dPoison
-		return nil
-	}
-	return fmt.Errorf("set cell.Poison in %v is fall - out of range", cord)
-}
-
-// SetCellEntity изменяет сущность(Entity) в клетке(Cell). Возвращает nil или
-// ошибку выхода за границы мира.
-func (w *World) SetCellEntity(cord Coordinates, entity *Entity) error {
-	if checkLimit(cord, Coordinates{w.Xsize, w.Ysize}) {
-		w.Map[cord.X][cord.Y].Entity = entity
-		return nil
-	}
-	return fmt.Errorf("set cell.Entity in %v is fall - out of range", cord)
 }
 
 // MoveEntity передвигает сущность(Entity) из старой клетки(Cell) в новую.
@@ -242,6 +164,74 @@ func (w *World) UpdateStat() {
 	w.CountPoison = Count
 }
 
+// SetGeneration приводит отработавщую популяцию к стартовому состоянию с заменой генома.
+// разбрасывает сущности по карте в случайном порядке.
+func (w *World) SetGeneration(endPopulation, mutationCount int) {
+	//отсортируем сущности мо возрасту
+	//определив лучшие сущности
+	w.sortAge()
+	//присвоим их геном остальным ботам
+	for i := 0; i < endPopulation; i++ {
+		for j := 0; j < endPopulation; j++ {
+			w.ArrayEntity[i*endPopulation+j].DNA.Set(w.ArrayEntity[i].DNA)
+		}
+	}
+	//случайно произведём мутации в генокоде
+	length := len(w.ArrayEntity)
+	for i := 0; i < mutationCount; i++ {
+		w.ArrayEntity[rand.Intn(length)].DNA.Mutation(rand.Intn(length))
+	}
+	for _, entity := range w.ArrayEntity {
+		entity.Energy = 100
+		entity.Age = 0
+		entity.Live = true
+		entity.Coordinates = Coordinates{
+			rand.Intn(w.Xsize),
+			rand.Intn(w.Ysize),
+		}
+	}
+	w.Sync()
+}
+
+// SetCellType изменяет тип клетки(Cell), на указанный. Возвращает nil или
+// ошибку выхода за границы мира.
+func (w *World) SetCellType(cord Coordinates, types CellTypes) error {
+	if checkLimit(cord, Coordinates{w.Xsize, w.Ysize}) {
+		w.Map[cord.X][cord.Y].Types = types
+		return nil
+	}
+	return fmt.Errorf("set cell.Types in %v is fall - out of range", cord)
+}
+
+// SetCellPoison изменяет уровень яда в клетке(Cell). Возвращает nil или
+// ошибку выхода за границы мира.
+func (w *World) SetCellPoison(cord Coordinates, dPoison int) error {
+	if checkLimit(cord, Coordinates{w.Xsize, w.Ysize}) {
+		w.Map[cord.X][cord.Y].Poison = dPoison
+		return nil
+	}
+	return fmt.Errorf("set cell.Poison in %v is fall - out of range", cord)
+}
+
+// SetCellEntity изменяет сущность(Entity) в клетке(Cell). Возвращает nil или
+// ошибку выхода за границы мира.
+func (w *World) SetCellEntity(cord Coordinates, entity *Entity) error {
+	if checkLimit(cord, Coordinates{w.Xsize, w.Ysize}) {
+		w.Map[cord.X][cord.Y].Entity = entity
+		return nil
+	}
+	return fmt.Errorf("set cell.Entity in %v is fall - out of range", cord)
+}
+
+// GetCellData возвращает указатель на клетку(*Cell) по заданным координатам или ошибку,
+// если координаты оказались вне мира.
+func (w *World) GetCellData(cord Coordinates) (*Cell, error) {
+	if checkLimit(cord, Coordinates{w.Xsize, w.Ysize}) {
+		return w.Map[cord.X][cord.Y], nil
+	}
+	return nil, fmt.Errorf("get cell data in %v is fall - out of range", cord)
+}
+
 // GetStatistic возвращает строку статистики типа:
 //
 // [STS] id: *** age: *** e_c: *** f_c: *** p_c: ***
@@ -261,4 +251,32 @@ func (w *World) GetPrettyStatistic() string {
 		"Entity: " + strconv.Itoa(w.CountEntity) + "\n" +
 		"Food:   " + strconv.Itoa(w.CountFood) + "\n" +
 		"Poison: " + strconv.Itoa(w.CountPoison)
+}
+
+// GetPrettyEntityInfo возвращает массив строк с лучших по возрасту
+// сущностей(Entity). Одновременно с этим сортирует весь массив
+// сущностей(Entity).
+func (w *World) GetPrettyEntityInfo(countEntity int) string {
+	w.sortAge()
+
+	var s strings.Builder
+
+	for i := 0; i < countEntity; i++ {
+		s.WriteString(
+			strconv.Itoa(w.ArrayEntity[i].Age) + " \n" +
+				w.ArrayEntity[i].DNA.GetDNAString())
+	}
+
+	return s.String()
+}
+
+// sortAge сортирует сущности(Entity) по возрасту в вызывающем мире(World).
+func (w *World) sortAge() {
+	for i := 0; i < len(w.ArrayEntity)-1; i++ {
+		for j := 0; j < len(w.ArrayEntity)-i-1; j++ {
+			if w.ArrayEntity[j].Age < w.ArrayEntity[j+1].Age {
+				w.ArrayEntity[j], w.ArrayEntity[j+1] = w.ArrayEntity[j+1], w.ArrayEntity[j]
+			}
+		}
+	}
 }
