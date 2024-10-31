@@ -263,8 +263,9 @@ func (w *World) GetPrettyEntityInfo(countEntity int) string {
 
 	for i := 0; i < countEntity; i++ {
 		s.WriteString(
-			strconv.Itoa(w.ArrayEntity[i].Age) + " \n" +
-				w.ArrayEntity[i].DNA.GetDNAString())
+			"ID:" + strconv.Itoa(w.ArrayEntity[i].Age) + " " +
+				"Age:" + strconv.Itoa(w.ArrayEntity[i].Age) + " \n" +
+				w.ArrayEntity[i].DNA.GetDNAString() + " \n")
 	}
 
 	return s.String()
