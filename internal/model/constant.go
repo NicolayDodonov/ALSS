@@ -24,3 +24,11 @@ const (
 	left  = 1
 	right = -1
 )
+
+// Poison level
+const (
+	pLevel1 = 5
+	pLevel2 = 25
+	pLevel3 = 50
+	pLevel4 = 75
+)

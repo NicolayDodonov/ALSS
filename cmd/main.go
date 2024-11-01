@@ -14,7 +14,7 @@ func main() {
 	console := oTC.New()
 	sim := simulation.New(console, 8)
 
-	sim.Train(1000, 10)
+	sim.Train(10, 30, 1000, 10, 0, 50)
 }
 
 func MustLogger() {
