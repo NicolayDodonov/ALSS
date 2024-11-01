@@ -20,7 +20,11 @@ func NewDNA(longDNA int) *DNA {
 }
 
 func (d *DNA) Set(d2 DNA) {
-	*d = d2
+	d.ID = d2.ID
+	d.Pointer = d2.Pointer
+	for i := 0; i < len(d.Array); i++ {
+		d.Array[i] = d2.Array[i]
+	}
 }
 
 // GetDNAString создаёт на основе DNA.Array строку содержащую

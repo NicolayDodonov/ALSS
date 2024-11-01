@@ -60,9 +60,9 @@ func (s *Simulation) Train(world_X, world_Y, endAge, mutation, baseLevelPoison, 
 			w.Age++
 		}
 		//Вывести информацию о мире
-		l.Sim.Info("world №" + strconv.Itoa(w.ID) + " is dead!\n" +
-			w.GetPrettyStatistic())
-		l.Sim.Info(strconv.Itoa(s.endPopulation) + " best bot's DNA:\n" +
+		l.Sim.Info("world is dead! " +
+			w.GetStatistic())
+		l.Sim.Debug(strconv.Itoa(s.endPopulation) + " best bot's DNA:\n" +
 			w.GetPrettyEntityInfo(s.endPopulation))
 		w.SetGeneration(s.endPopulation, mutation)
 		//и обновить ID мира для следующей итерации

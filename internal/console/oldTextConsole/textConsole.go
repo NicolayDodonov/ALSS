@@ -11,8 +11,8 @@ type TextConsole struct {
 }
 
 var ASCIIAlphabet = map[string]byte{
-	"empty":  '_',
-	"food":   'F',
+	"empty":  ' ',
+	"food":   '+',
 	"wall":   '#',
 	"entity": '0',
 	"nil":    '?',

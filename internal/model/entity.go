@@ -202,9 +202,7 @@ func (e *Entity) get(w *World) error {
 		}
 	case FoodCell:
 		//сначала меняем тип клетки
-		if err = w.SetCellType(newCord, EmptyCell); err != nil {
-			return err
-		}
+		cell.Types = EmptyCell
 		//а потом увеличиваем энергию
 		e.Energy += energyPoint
 	case WallCell:

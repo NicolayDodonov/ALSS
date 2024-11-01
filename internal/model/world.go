@@ -207,7 +207,7 @@ func (w *World) SetGeneration(endPopulation, mutationCount int) {
 		w.ArrayEntity[rand.Intn(length)].DNA.Mutation(rand.Intn(length))
 	}
 	for _, entity := range w.ArrayEntity {
-		entity.Energy = 100
+		entity.Energy = rand.Intn(10) + 90
 		entity.Age = 0
 		entity.Live = true
 		entity.Coordinates = Coordinates{
@@ -298,8 +298,10 @@ func (w *World) GetPrettyEntityInfo(countEntity int) string {
 
 // sortAge сортирует сущности(Entity) по возрасту в вызывающем мире(World).
 func (w *World) sortAge() {
-	for i := 0; i < len(w.ArrayEntity)-1; i++ {
-		for j := 0; j < len(w.ArrayEntity)-i-1; j++ {
+
+	n := len(w.ArrayEntity)
+	for i := 0; i < n; i++ {
+		for j := 0; j < n-i-1; j++ {
 			if w.ArrayEntity[j].Age < w.ArrayEntity[j+1].Age {
 				w.ArrayEntity[j], w.ArrayEntity[j+1] = w.ArrayEntity[j+1], w.ArrayEntity[j]
 			}
