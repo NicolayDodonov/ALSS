@@ -18,6 +18,6 @@ func main() {
 }
 
 func MustLogger() {
-	logger.App = bL.MustNew("logs\\app.log", bL.ErrorLevel)
+	logger.App = bL.MustNew("logs\\app.log", bL.OffLevel)
 	logger.Sim = bL.MustNew("logs\\sim.log", bL.InfoLevel)
 }

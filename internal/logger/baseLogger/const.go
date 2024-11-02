@@ -12,4 +12,5 @@ const (
 	DebugLevel loggerType = 1
 	InfoLevel  loggerType = 2
 	ErrorLevel loggerType = 3
+	OffLevel   loggerType = 10
 )
