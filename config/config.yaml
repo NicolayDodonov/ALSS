@@ -1,0 +1,9 @@
+# Здесь будет конфиг
+  env: "local"
+  logger:
+    simLevel: "Info"
+    appLevel: "Error"
+  modelConst:
+    maxGen: 16
+    lengthDNA: 64
+    energyPoint: 10
