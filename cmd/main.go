@@ -20,6 +20,7 @@ func main() {
 	sim.Train(10, 30, 1000, 10, 0, 50)
 }
 
+
 func MustLogger(conf *config.Logger) {
 	logger.App = bL.MustNew("logs\\app.log", bL.Convert(conf.App))
 	logger.Sim = bL.MustNew("logs\\sim.log", bL.Convert(conf.Sim))
@@ -29,4 +30,5 @@ func SetModel(conf *config.Model) {
 	model.MaxGen = conf.Max
 	model.LengthDNA = conf.Length
 	model.EnergyPoint = conf.Energy
+
 }
