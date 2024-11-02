@@ -25,10 +25,14 @@ func NewWorld(x, y, population, poison int) *World {
 	return w
 }
 
-// RemoveDead очищает мир от умерших ботов, чтобы живые с ними не взаимодействовали.
+// RemoveDead очищает мир от умерших сущностей(Entity), чтобы живые с ними не взаимодействовали.
+// Является вторым уровнем защиты от умерших сущностей(Entity).
 func (w *World) RemoveDead() {
 	for _, entity := range w.ArrayEntity {
-		if !entity.Live {
+		//если клетка не жива
+		//если у неё кончилась энергия
+		if !entity.Live ||
+			entity.Energy <= 0 {
 			_ = w.SetCellEntity(entity.Coordinates, nil)
 		}
 	}
@@ -292,7 +296,6 @@ func newGeneration(x, y, population int) []*Entity {
 // если несколько сущностей оказывается в одной клетке, для всех последующих
 // создаёт новое расположение.
 func (w *World) sync() {
-	w.RemoveDead()
 	for _, entity := range w.ArrayEntity {
 		if entity.Live {
 			//если по коордитанам сущности расположена другая сущность
