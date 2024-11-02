@@ -47,7 +47,7 @@ func newMap(Xsize, Ysize, Poison int) [][]*Cell {
 func newGeneration(x, y, population int) []*Entity {
 	entityArray := make([]*Entity, population)
 	for i := 0; i < population; i++ {
-		entityArray[i] = NewEntity(i, rand.Intn(x), rand.Intn(y), lengthDNA)
+		entityArray[i] = NewEntity(i, rand.Intn(x), rand.Intn(y), LengthDNA)
 	}
 	return entityArray
 }

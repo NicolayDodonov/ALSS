@@ -9,7 +9,9 @@ const (
 )
 
 const (
-	DebugLevel loggerType = 1
-	InfoLevel  loggerType = 2
-	ErrorLevel loggerType = 3
+	DebugLevel LoggerType = 1
+	InfoLevel  LoggerType = 2
+	ErrorLevel LoggerType = 3
+
+	UnknownLevel LoggerType = 50
 )

@@ -1,10 +1,11 @@
 package model
 
-const (
-	maxGen      = 16
-	lengthDNA   = 64
-	energyPoint = 10
+var (
+	MaxGen      = 16
+	LengthDNA   = 64
+	EnergyPoint = 10
 )
+
 const (
 	EmptyCell CellTypes = iota
 	FoodCell
