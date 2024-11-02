@@ -1,15 +1,18 @@
 package main
 
 import (
+	"artificialLifeGo/internal/config"
 	oTC "artificialLifeGo/internal/console/oldTextConsole"
 	"artificialLifeGo/internal/logger"
 	bL "artificialLifeGo/internal/logger/baseLogger"
+	"artificialLifeGo/internal/model"
 	"artificialLifeGo/internal/simulation"
 )
 
 func main() {
-
-	MustLogger()
+	conf := config.MustLoad()
+	MustLogger(&conf.Logger)
+	SetModel(&conf.Model)
 
 	console := oTC.New()
 	sim := simulation.New(console, 8)
@@ -17,7 +20,13 @@ func main() {
 	sim.Train(1000, 10)
 }
 
-func MustLogger() {
-	logger.App = bL.MustNew("logs\\app.log", bL.ErrorLevel)
-	logger.Sim = bL.MustNew("logs\\sim.log", bL.InfoLevel)
+func MustLogger(conf *config.Logger) {
+	logger.App = bL.MustNew("logs\\app.log", bL.Convert(conf.App))
+	logger.Sim = bL.MustNew("logs\\sim.log", bL.Convert(conf.Sim))
+}
+
+func SetModel(conf *config.Model) {
+	model.MaxGen = conf.Max
+	model.LengthDNA = conf.Length
+	model.EnergyPoint = conf.Energy
 }

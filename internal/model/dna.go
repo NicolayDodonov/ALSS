@@ -8,7 +8,7 @@ import (
 func NewDNA(longDNA int) *DNA {
 	var Array []int
 	for i := 0; i < longDNA; i++ {
-		Array = append(Array, rand.Intn(maxGen))
+		Array = append(Array, rand.Intn(MaxGen))
 	}
 	return &DNA{
 		time.Now().Nanosecond(),
@@ -23,5 +23,5 @@ func (d *DNA) Set(d2 DNA) {
 
 // Mutation случайно изменяет значение одного гена в DNA.Array.
 func (d *DNA) Mutation(index int) {
-	d.Array[index] += rand.Intn(maxGen)
+	d.Array[index] += rand.Intn(MaxGen)
 }

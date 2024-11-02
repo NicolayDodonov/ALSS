@@ -9,12 +9,12 @@ import (
 
 type Logger struct {
 	file  *os.File
-	level loggerType
+	level LoggerType
 }
 
-type loggerType uint8
+type LoggerType uint8
 
-func MustNew(path string, level loggerType) *Logger {
+func MustNew(path string, level LoggerType) *Logger {
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf(Fatal+"opening file: %v", err)
@@ -59,5 +59,18 @@ func (logger *Logger) Fatal(msg string) {
 		t := time.Now()
 		_, _ = io.WriteString(logger.file, t.String()+" "+Fatal+msg+"\n")
 		os.Exit(1)
+	}
+}
+
+func Convert(s string) LoggerType {
+	switch s {
+	case "Debug":
+		return DebugLevel
+	case "Info":
+		return InfoLevel
+	case "Error":
+		return ErrorLevel
+	default:
+		return UnknownLevel
 	}
 }

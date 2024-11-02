@@ -196,9 +196,9 @@ func (e *Entity) get(w *World) error {
 			return err
 		}
 		//а потом увеличиваем энергию
-		e.Energy += energyPoint
+		e.Energy += EnergyPoint
 	case WallCell:
-		e.Energy -= energyPoint
+		e.Energy -= EnergyPoint
 	default:
 		return fmt.Errorf("cell type is %v, I dont't know this type", cell.Types)
 	}
@@ -248,13 +248,13 @@ func (e *Entity) recycling(w *World) error {
 	//Расчитываем размер очистки клетки
 	var dPoison = 0
 	if cell.Poison >= level4 {
-		dPoison = energyPoint * 2
+		dPoison = EnergyPoint * 2
 	} else if cell.Poison >= level3 {
-		dPoison = energyPoint
+		dPoison = EnergyPoint
 	} else if cell.Poison >= level2 {
-		dPoison = energyPoint / 2
+		dPoison = EnergyPoint / 2
 	} else if cell.Poison >= level1 {
-		dPoison = energyPoint / 5
+		dPoison = EnergyPoint / 5
 	}
 
 	//очищаем клетку
@@ -272,10 +272,10 @@ func (e *Entity) reproduction() error {
 
 // jump обеспечивает зацикленный прыжок по DNA.Array.
 func (e *Entity) jump() {
-	e.Pointer += (e.Pointer + e.Array[e.Pointer]) % lengthDNA
+	e.Pointer += (e.Pointer + e.Array[e.Pointer]) % LengthDNA
 }
 
 // loopPointer обеспечивает зацикленность DNA.Pointer.
 func (e *Entity) loopPointer() {
-	e.Pointer = e.Pointer % lengthDNA
+	e.Pointer = e.Pointer % LengthDNA
 }
