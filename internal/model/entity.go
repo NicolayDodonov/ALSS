@@ -116,28 +116,14 @@ func (e *Entity) Run(w *World) (err error) {
 // Возвращает nil или ошибку.
 func (e *Entity) move(w *World) error {
 	//получаем координаты, куда хотим переместиться
-	newCord := viewCell(e.turn)
-	//смотрим что там
-	cell, err := w.GetCellData(
-		Sum(
-			newCord,
-			e.Coordinates))
-	if err != nil {
+	newCord := Sum(
+		viewCell(e.turn),
+		e.Coordinates,
+	)
+	//перемещаемся в новые координаты
+	if err := w.MoveEntity(e.Coordinates, newCord, e); err != nil {
 		return err
 	}
-	//мы не двигаемся в клетку с другим ботом
-	if cell.Entity != nil {
-		return fmt.Errorf("move in %v fall - another entity", cell.Coordinates)
-	}
-	//мы не двигаемся в клетку со стеной
-	if cell.Types == WallCell {
-		return fmt.Errorf("move in %v fall - wall", cell.Coordinates)
-	}
-	//двигаемся в клетку
-	if err = w.MoveEntity(e.Coordinates, newCord, e); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -154,12 +140,11 @@ func (e *Entity) look(w *World) (int, error) {
 	)
 
 	//получаем координаты, куда хотим посмотреть
-	newCord := viewCell(e.turn)
+	newCord := Sum(
+		viewCell(e.turn),
+		e.Coordinates)
 	//смотрим что там
-	cell, err := w.GetCellData(
-		Sum(
-			newCord,
-			e.Coordinates))
+	cell, err := w.GetCellData(newCord)
 	if err != nil {
 		return isError, err
 	}
@@ -185,12 +170,11 @@ func (e *Entity) look(w *World) (int, error) {
 // таким как: взять, съесть и тп. Возвращает nil или ошибку.
 func (e *Entity) get(w *World) error {
 	//получаем координаты для взятия
-	newCord := viewCell(e.turn)
+	newCord := Sum(
+		viewCell(e.turn),
+		e.Coordinates)
 	//смотрим что там
-	cell, err := w.GetCellData(
-		Sum(
-			newCord,
-			e.Coordinates))
+	cell, err := w.GetCellData(newCord)
 	if err != nil {
 		return err
 	}

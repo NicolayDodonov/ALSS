@@ -21,35 +21,8 @@ func NewWorld(x, y, population, poison int) *World {
 			0,
 		},
 	}
-	w.Sync()
+	w.sync()
 	return w
-}
-
-// newMap возвращает пустую карту мира.
-func newMap(Xsize, Ysize, Poison int) [][]*Cell {
-	//создаём массив карты (содержащий строки клеток)
-	Map := make([][]*Cell, Xsize)
-	for x := 0; x < Xsize; x++ {
-		//создаём массив строки (содеижит клетки)
-		Map[x] = make([]*Cell, Ysize)
-		for y := 0; y < Ysize; y++ {
-			Map[x][y] = &Cell{
-				nil,
-				EmptyCell,
-				Poison,
-			}
-		}
-	}
-	return Map
-}
-
-// newGeneration создаёт стартовую популяцию сущностей(Entity). Возращает массив ссылок на Entity.
-func newGeneration(x, y, population int) []*Entity {
-	entityArray := make([]*Entity, population)
-	for i := 0; i < population; i++ {
-		entityArray[i] = NewEntity(i, rand.Intn(x), rand.Intn(y), lengthDNA)
-	}
-	return entityArray
 }
 
 // RemoveDead очищает мир от умерших ботов, чтобы живые с ними не взаимодействовали.
@@ -57,35 +30,6 @@ func (w *World) RemoveDead() {
 	for _, entity := range w.ArrayEntity {
 		if !entity.Live {
 			_ = w.SetCellEntity(entity.Coordinates, nil)
-		}
-	}
-}
-
-// Sync отвечает за синхронизацию World.ArrayEntity c World.Map.
-// если несколько сущностей оказывается в одной клетке, для всех последующих
-// создаёт новое расположение.
-func (w *World) Sync() {
-	w.RemoveDead()
-	for _, entity := range w.ArrayEntity {
-		if entity.Live {
-			//если по коордитанам сущности расположена другая сущность
-			cell, _ := w.GetCellData(entity.Coordinates)
-			if cell.Entity != nil &&
-				cell.Entity != entity {
-				//ищем пустую клетку
-				for {
-					x := rand.Intn(w.Xsize)
-					y := rand.Intn(w.Ysize)
-					cell, _ := w.GetCellData(Coordinates{x, y})
-					if cell.Entity == nil &&
-						cell.Types == EmptyCell {
-						//и записываем туда нащу сущность
-						entity.Coordinates = Coordinates{x, y}
-						cell.Entity = entity
-						break
-					}
-				}
-			}
 		}
 	}
 }
@@ -136,22 +80,33 @@ func (w *World) Execute() (err []error) {
 }
 
 // MoveEntity передвигает сущность(Entity) из старой клетки(Cell) в новую.
-// Возвращает nil или ошибку.
+// Возвращает nil или ошибку перемещения.
 func (w *World) MoveEntity(oldCord, newCord Coordinates, entity *Entity) error {
-	if checkLimit(newCord, Coordinates{w.Xsize, w.Ysize}) {
-		cell, _ := w.GetCellData(newCord)
-		if cell.Entity == nil && cell.Types != WallCell {
-			w.Map[oldCord.X][oldCord.Y].Entity = nil
-			w.Map[newCord.X][newCord.Y].Entity = entity
-			entity.Coordinates = newCord
-			return nil
-		} else if cell.Entity != nil {
-			return fmt.Errorf("world move e in %v is fall - have entity №%v", newCord, cell.Entity.ID)
-		} else {
-			return fmt.Errorf("world move e in %v is fall - have wall", newCord)
-		}
+	//Смотрим что в целевой клетке
+	cell, err := w.GetCellData(newCord)
+	if err != nil {
+		//Если не можем посмотреть на клетку - выходим с ошибкой
+		return err
 	}
-	return fmt.Errorf("world move e n %v is fall - out of range", newCord)
+	if cell.Entity != nil {
+		//Если в другой клетке есть сущность - мы не можем двигаться
+		return fmt.Errorf("world move e in %v is fall - have entity №%v", newCord, cell.Entity.ID)
+	}
+	//Смотрим что в клетке
+	switch cell.Types {
+	case EmptyCell:
+		_ = w.SetCellEntity(oldCord, nil)
+		_ = w.SetCellEntity(newCord, entity)
+	case FoodCell:
+		_ = w.SetCellEntity(oldCord, nil)
+		_ = w.SetCellEntity(newCord, entity)
+		//Уничтожаем еду в клетке - сущность её затоплато
+		_ = w.SetCellType(newCord, EmptyCell)
+	case WallCell:
+		return fmt.Errorf("world move e in %v is fall - wall", newCord)
+	}
+
+	return nil
 }
 
 // UpdateStat обновляет значение World Statistic высчитывая все живые сущности(Entity),
@@ -215,7 +170,7 @@ func (w *World) SetGeneration(endPopulation, mutationCount int) {
 			rand.Intn(w.Ysize),
 		}
 	}
-	w.Sync()
+	w.sync()
 }
 
 // SetCellType изменяет тип клетки(Cell), на указанный. Возвращает nil или
@@ -278,9 +233,19 @@ func (w *World) GetPrettyStatistic() string {
 		"Poison: " + strconv.Itoa(w.CountPoison)
 }
 
-// GetPrettyEntityInfo возвращает массив строк с лучших по возрасту
-// сущностей(Entity). Одновременно с этим сортирует весь массив
-// сущностей(Entity).
+// GetEntityInfo возвращает массив строк лучших по возрасту сущностей(Entity)
+// Сортирует массив сущностей(Entity) у вызвающего мира (World).
+func (w *World) GetEntityInfo(countEntity int) []string {
+	w.sortAge()
+	s := make([]string, countEntity)
+	for i := 0; i < countEntity; i++ {
+		s = append(s, w.ArrayEntity[i].DNA.GetDNAString())
+	}
+	return s
+}
+
+// GetPrettyEntityInfo возвращает форматированную строку лучших по возрасту сущностей(Entity)
+// Сортирует массив сущностей(Entity) у вызвающего мира (World).
 func (w *World) GetPrettyEntityInfo(countEntity int) string {
 	w.sortAge()
 
@@ -294,6 +259,62 @@ func (w *World) GetPrettyEntityInfo(countEntity int) string {
 	}
 
 	return s.String()
+}
+
+// newMap возвращает пустую карту мира.
+func newMap(Xsize, Ysize, Poison int) [][]*Cell {
+	//создаём массив карты (содержащий строки клеток)
+	Map := make([][]*Cell, Xsize)
+	for x := 0; x < Xsize; x++ {
+		//создаём массив строки (содеижит клетки)
+		Map[x] = make([]*Cell, Ysize)
+		for y := 0; y < Ysize; y++ {
+			Map[x][y] = &Cell{
+				nil,
+				EmptyCell,
+				Poison,
+			}
+		}
+	}
+	return Map
+}
+
+// newGeneration создаёт стартовую популяцию сущностей(Entity). Возращает массив ссылок на Entity.
+func newGeneration(x, y, population int) []*Entity {
+	entityArray := make([]*Entity, population)
+	for i := 0; i < population; i++ {
+		entityArray[i] = NewEntity(i, rand.Intn(x), rand.Intn(y), lengthDNA)
+	}
+	return entityArray
+}
+
+// sync отвечает за синхронизацию World.ArrayEntity c World.Map.
+// если несколько сущностей оказывается в одной клетке, для всех последующих
+// создаёт новое расположение.
+func (w *World) sync() {
+	w.RemoveDead()
+	for _, entity := range w.ArrayEntity {
+		if entity.Live {
+			//если по коордитанам сущности расположена другая сущность
+			cell, _ := w.GetCellData(entity.Coordinates)
+			if cell.Entity != nil &&
+				cell.Entity != entity {
+				//ищем пустую клетку
+				for {
+					x := rand.Intn(w.Xsize)
+					y := rand.Intn(w.Ysize)
+					cell, _ := w.GetCellData(Coordinates{x, y})
+					if cell.Entity == nil &&
+						cell.Types == EmptyCell {
+						//и записываем туда нащу сущность
+						entity.Coordinates = Coordinates{x, y}
+						cell.Entity = entity
+						break
+					}
+				}
+			}
+		}
+	}
 }
 
 // sortAge сортирует сущности(Entity) по возрасту в вызывающем мире(World).
