@@ -23,8 +23,8 @@ func NewEntity(ID, x, y, longDNA int) *Entity {
 }
 
 // Run отвечает за исполнение генетического кода в DNA.Array.
-// Возвращает nil или ошибку.
-func (e *Entity) Run(w *World) (err error) {
+// Возвращает nil или критическую ошибку
+func (e *Entity) Run(w *World) error {
 	l.App.Debug("id " + strconv.Itoa(e.ID) + " is run his genocode")
 	//если бот мёрт, вылетаем с ошибкой
 	if !e.Live {
@@ -41,22 +41,26 @@ func (e *Entity) Run(w *World) (err error) {
 	//выполняем их со счётчиком frameCount. Это создёт
 	//более сложное поведение ботов.
 	for frameCount := 0; frameCount < 10; {
+		//создаём переменную некретической ошибки
+		var errGen error
+
+		//считываем генокод по указателю
 		switch e.Array[e.Pointer] {
 		case move:
-			err = e.move(w)
+			errGen = e.move(w)
 			frameCount += 5
 
 			l.App.Debug("id " + strconv.Itoa(e.ID) + " move")
 		case look:
 			//функционал логического перехода
 			var dPointer int
-			dPointer, err = e.look(w)
+			dPointer, errGen = e.look(w)
 			e.Pointer += dPointer - 1
 			frameCount += 2
 
 			l.App.Debug("id " + strconv.Itoa(e.ID) + " look")
 		case get:
-			err = e.get(w)
+			errGen = e.get(w)
 			frameCount += 5
 
 			l.App.Debug("id " + strconv.Itoa(e.ID) + " get")
@@ -71,12 +75,12 @@ func (e *Entity) Run(w *World) (err error) {
 
 			l.App.Debug("id " + strconv.Itoa(e.ID) + " tunrs right")
 		case recycling:
-			err = e.recycling(w)
+			errGen = e.recycling(w)
 			frameCount += 5
 
 			l.App.Debug("id " + strconv.Itoa(e.ID) + " recycling")
 		case reproduction:
-			err = e.reproduction()
+			errGen = e.reproduction()
 			frameCount += 12
 
 			l.App.Debug("id " + strconv.Itoa(e.ID) + " make new bot")
@@ -84,31 +88,39 @@ func (e *Entity) Run(w *World) (err error) {
 			e.jump()
 			frameCount++
 		}
+		//Логгируем некретические ошибки генокода
+		if errGen != nil {
+			l.App.Error(errGen.Error())
+		}
+
 		//увеличиваем программно-генетический счётчик
 		e.Pointer++
 		e.loopPointer()
 
 		//добавляем отравление на клетку с ботом
-		err = w.SetCellPoison(e.Coordinates, pLevel1+1)
-		//если получили ошибку - вылетаем с ошибкой
-		if err != nil {
+		if err := w.SetCellPoison(e.Coordinates, pLevel1+1); err != nil {
 			l.App.Error(err.Error())
 		}
+
 	}
-	//Если в клетке с сущностью много яда - умираем
-	cell, _ := w.GetCellData(e.Coordinates)
-	if cell.Poison >= 80 {
-		e.Energy = 0
-		e.Live = false
-		return fmt.Errorf("I  die")
+	//Берём клетку, где находиться сущность
+	cell, err := w.GetCellData(e.Coordinates)
+	if err != nil {
+		return err
 	}
 
-	//проверяем, умер ли бот
-	if e.Energy <= 0 {
-		e.Live = false
-		_ = w.SetCellPoison(e.Coordinates, pLevel2+1)
-		return fmt.Errorf("I  die")
+	//Проверяем колличество яда, много - умираем
+	if cell.Poison >= pLevel3 {
+		e.die(w)
+		return fmt.Errorf("%v die inside poison", e.ID)
 	}
+
+	//Если энергии не осталось - умираем
+	if e.Energy <= 0 {
+		e.die(w)
+		return fmt.Errorf("ID:%v die without energy", e.ID)
+	}
+
 	return nil
 }
 
@@ -116,28 +128,14 @@ func (e *Entity) Run(w *World) (err error) {
 // Возвращает nil или ошибку.
 func (e *Entity) move(w *World) error {
 	//получаем координаты, куда хотим переместиться
-	newCord := viewCell(e.turn)
-	//смотрим что там
-	cell, err := w.GetCellData(
-		Sum(
-			newCord,
-			e.Coordinates))
-	if err != nil {
+	newCord := Sum(
+		viewCell(e.turn),
+		e.Coordinates,
+	)
+	//перемещаемся в новые координаты
+	if err := w.MoveEntity(e.Coordinates, newCord, e); err != nil {
 		return err
 	}
-	//мы не двигаемся в клетку с другим ботом
-	if cell.Entity != nil {
-		return fmt.Errorf("move in %v fall - another entity", cell.Coordinates)
-	}
-	//мы не двигаемся в клетку со стеной
-	if cell.Types == WallCell {
-		return fmt.Errorf("move in %v fall - wall", cell.Coordinates)
-	}
-	//двигаемся в клетку
-	if err = w.MoveEntity(e.Coordinates, newCord, e); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -154,12 +152,11 @@ func (e *Entity) look(w *World) (int, error) {
 	)
 
 	//получаем координаты, куда хотим посмотреть
-	newCord := viewCell(e.turn)
+	newCord := Sum(
+		viewCell(e.turn),
+		e.Coordinates)
 	//смотрим что там
-	cell, err := w.GetCellData(
-		Sum(
-			newCord,
-			e.Coordinates))
+	cell, err := w.GetCellData(newCord)
 	if err != nil {
 		return isError, err
 	}
@@ -185,12 +182,11 @@ func (e *Entity) look(w *World) (int, error) {
 // таким как: взять, съесть и тп. Возвращает nil или ошибку.
 func (e *Entity) get(w *World) error {
 	//получаем координаты для взятия
-	newCord := viewCell(e.turn)
+	newCord := Sum(
+		viewCell(e.turn),
+		e.Coordinates)
 	//смотрим что там
-	cell, err := w.GetCellData(
-		Sum(
-			newCord,
-			e.Coordinates))
+	cell, err := w.GetCellData(newCord)
 	if err != nil {
 		return err
 	}
@@ -280,4 +276,13 @@ func (e *Entity) jump() {
 // loopPointer обеспечивает зацикленность DNA.Pointer.
 func (e *Entity) loopPointer() {
 	e.Pointer = e.Pointer % LengthDNA
+}
+
+// die устанавливает бота в умершее состояние.
+// Удаляет ссылку на бота из мира. Первый уровень защиты от умерших ботов.
+func (e *Entity) die(w *World) {
+	e.Live = false
+	e.Energy = 0
+	//очищаем клетку от сущности
+	_ = w.SetCellEntity(e.Coordinates, nil)
 }

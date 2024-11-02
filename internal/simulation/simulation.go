@@ -19,13 +19,14 @@ func New(console console.Console, endPop int) (s *Simulation) {
 	}
 }
 
-func (s *Simulation) Train(world_X, world_Y, endAge, mutation, baseLevelPoison, seasonRange int) {
+// Train производит обучение в заданных условиях ботов для получения лучших по геному ботов.
+func (s *Simulation) Train(worldX, worldY, endAge, mutation, baseLevelPoison, seasonRange int) []string {
 	l.Sim.Debug("start train")
 	//определяем стартовую популяцию как конечная популяция^2
 	startPopulation := s.endPopulation * s.endPopulation
 
 	//создаёсм мир
-	w := model.NewWorld(world_X, world_Y, startPopulation, baseLevelPoison)
+	w := model.NewWorld(worldX, worldY, startPopulation, baseLevelPoison)
 
 	//выполняем цикл обучения
 	for w.Age < endAge {
@@ -68,4 +69,27 @@ func (s *Simulation) Train(world_X, world_Y, endAge, mutation, baseLevelPoison, 
 		//и обновить ID мира для следующей итерации
 		w.ID++
 	}
+
+	return w.GetEntityInfo(s.endPopulation)
+}
+
+func (s *Simulation) Run() {
+	//todo: set dna in population
+
+	//todo: execute worlds
+
+	//todo: get data from worlds
+}
+
+func (s *Simulation) Experiment() {
+	//todo: train 3 type population
+
+	//todo: set parameters experiments
+
+	//todo: make big world with all type population
+
+	//todo: execute experiments
+
+	//todo: get data from experiments
+	//todo: save data to .cvs file
 }
