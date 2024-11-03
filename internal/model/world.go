@@ -1,6 +1,7 @@
 package model
 
 import (
+	l "artificialLifeGo/internal/logger"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -74,13 +75,12 @@ func (w *World) Update(percent int) {
 
 // Execute выполняет генетический код для каждой сущности(Entity) вызвавщего
 // функцию мира(World). Возвращает nil или ошибку исполнения сущности.
-func (w *World) Execute() (err []error) {
+func (w *World) Execute() {
 	for _, entity := range w.ArrayEntity {
-		if errEntity := entity.Run(w); errEntity != nil {
-			err = append(err, errEntity)
+		if err := entity.Run(w); err != nil {
+			l.App.Error(err.Error())
 		}
 	}
-	return err
 }
 
 // MoveEntity передвигает сущность(Entity) из старой клетки(Cell) в новую.
@@ -287,7 +287,7 @@ func newMap(Xsize, Ysize, Poison int) [][]*Cell {
 func newGeneration(x, y, population int) []*Entity {
 	entityArray := make([]*Entity, population)
 	for i := 0; i < population; i++ {
-		entityArray[i] = NewEntity(i, rand.Intn(x), rand.Intn(y), lengthDNA)
+		entityArray[i] = NewEntity(i, rand.Intn(x), rand.Intn(y), LengthDNA)
 	}
 	return entityArray
 }

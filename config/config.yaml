@@ -1,8 +1,10 @@
 # Здесь будет конфиг
   env: "local"
+  # уровни логгирования для основных логгеров программы
   logger:
     simLevel: "Info"
     appLevel: "Error"
+  # значение основных констант модели
   modelConst:
     maxGen: 16
     lengthDNA: 64

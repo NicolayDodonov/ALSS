@@ -4,6 +4,7 @@ import (
 	"artificialLifeGo/internal/model"
 	"atomicgo.dev/cursor"
 	"fmt"
+	"time"
 )
 
 type TextConsole struct {
@@ -68,5 +69,5 @@ func (tc *TextConsole) Print(world *model.World) {
 	//вернуть каретку в начало для перерисовки кадра
 	//todo: создать свою реализацию движения коретки
 	cursor.Up(world.Xsize + 6)
-	//time.Sleep(100 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 }

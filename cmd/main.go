@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	conf := config.MustLoad()
+	conf := config.MustLoad("config/config.yaml")
 	MustLogger(&conf.Logger)
 	SetModel(&conf.Model)
 
@@ -19,7 +19,6 @@ func main() {
 
 	sim.Train(10, 30, 1000, 10, 0, 50)
 }
-
 
 func MustLogger(conf *config.Logger) {
 	logger.App = bL.MustNew("logs\\app.log", bL.Convert(conf.App))

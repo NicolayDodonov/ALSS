@@ -23,8 +23,8 @@ type Model struct {
 	Energy int `yaml:"energyPoint" env-default:"10"`
 }
 
-func MustLoad() *Config {
-	configPath := "config/config.yaml"
+func MustLoad(path string) *Config {
+	configPath := path
 	if configPath == "" {
 		log.Fatal("config is not found")
 	}

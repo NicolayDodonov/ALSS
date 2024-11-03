@@ -43,7 +43,7 @@ func (s *Simulation) Train(worldX, worldY, endAge, mutation, baseLevelPoison, se
 			}
 
 			//выполнить генокод всех сущностей
-			_ = w.Execute()
+			w.Execute()
 			w.RemoveDead()
 
 			//обновляем статистику

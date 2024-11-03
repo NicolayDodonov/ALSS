@@ -28,7 +28,8 @@ func (e *Entity) Run(w *World) error {
 	l.App.Debug("id " + strconv.Itoa(e.ID) + " is run his genocode")
 	//если бот мёрт, вылетаем с ошибкой
 	if !e.Live {
-		return fmt.Errorf("entity is not live")
+		l.App.Debug("ID:" + strconv.Itoa(e.ID) + "cant run - dead")
+		return nil
 	}
 
 	//уменьшаем энергию бота перед выполнение генокода
@@ -90,7 +91,7 @@ func (e *Entity) Run(w *World) error {
 		}
 		//Логгируем некретические ошибки генокода
 		if errGen != nil {
-			l.App.Error(errGen.Error())
+			l.App.Debug(errGen.Error())
 		}
 
 		//увеличиваем программно-генетический счётчик
@@ -245,13 +246,13 @@ func (e *Entity) recycling(w *World) error {
 
 	//Расчитываем размер очистки клетки
 	var dPoison = 0
-  if cell.Poison >= level4 {
+	if cell.Poison >= pLevel4 {
 		dPoison = EnergyPoint * 2
-	} else if cell.Poison >= level3 {
+	} else if cell.Poison >= pLevel3 {
 		dPoison = EnergyPoint
-	} else if cell.Poison >= level2 {
+	} else if cell.Poison >= pLevel2 {
 		dPoison = EnergyPoint / 2
-	} else if cell.Poison >= level1 {
+	} else if cell.Poison >= pLevel1 {
 		dPoison = EnergyPoint / 5
 	}
 

@@ -71,6 +71,6 @@ func Convert(s string) LoggerType {
 	case "Error":
 		return ErrorLevel
 	default:
-		return UnknownLevel
+		return OffLevel
 	}
 }
