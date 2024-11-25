@@ -13,14 +13,17 @@ type Config struct {
 }
 
 type Logger struct {
-	Sim string `yaml:"simLevel" env-default:"Error"`
-	App string `yaml:"appLevel" env-default:"Error"`
+	Type string `yaml:"typeLogger" env-required:"base"`
+	App  string `yaml:"appLevel"   env-default:"Error"`
+	Ent  string `yaml:"entLevel"   env-default:"Error"`
+	Sim  string `yaml:"simLevel"   env-default:"Error"`
 }
 
 type Model struct {
-	Max    int `yaml:"maxGen" env-default:"16"`
-	Length int `yaml:"lengthDNA" env-default:"64"`
-	Energy int `yaml:"energyPoint" env-default:"10"`
+	Max    int    `yaml:"maxGen" env-default:"16"`
+	Length int    `yaml:"lengthDNA" env-default:"64"`
+	Energy int    `yaml:"energyPoint" env-default:"10"`
+	Brain  string `yaml:"brain" env-default:"brain16"`
 }
 
 func MustLoad(path string) *Config {

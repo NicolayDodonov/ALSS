@@ -21,7 +21,8 @@ func New(console console.Console, endPop int) (s *Simulation) {
 
 // Train производит обучение в заданных условиях ботов для получения лучших по геному ботов.
 func (s *Simulation) Train(worldX, worldY, endAge, mutation, baseLevelPoison, seasonRange int) []string {
-	l.Sim.Debug("start train")
+	l.Sim.Info("start train")
+	defer l.Sim.Info("end train")
 	//определяем стартовую популяцию как конечная популяция^2
 	startPopulation := s.endPopulation * s.endPopulation
 

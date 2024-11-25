@@ -46,6 +46,7 @@ type Entity struct {
 	turn   turns
 	Coordinates
 	DNA
+	brain
 }
 
 type turns int
@@ -57,4 +58,9 @@ type DNA struct {
 	ID      int
 	Pointer int
 	Array   []int
+}
+
+// brain - интерфейс обработчика генокода в DNA
+type brain interface {
+	run(*Entity, *World) error
 }

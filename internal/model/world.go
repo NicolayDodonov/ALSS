@@ -1,7 +1,6 @@
 package model
 
 import (
-	l "artificialLifeGo/internal/logger"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -77,9 +76,7 @@ func (w *World) Update(percent int) {
 // функцию мира(World). Возвращает nil или ошибку исполнения сущности.
 func (w *World) Execute() {
 	for _, entity := range w.ArrayEntity {
-		if err := entity.Run(w); err != nil {
-			l.App.Error(err.Error())
-		}
+		entity.Run(w)
 	}
 }
 

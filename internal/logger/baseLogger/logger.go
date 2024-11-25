@@ -70,6 +70,8 @@ func Convert(s string) LoggerType {
 		return InfoLevel
 	case "Error":
 		return ErrorLevel
+	case "Off":
+		return OffLevel
 	default:
 		return OffLevel
 	}

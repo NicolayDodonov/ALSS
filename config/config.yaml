@@ -1,11 +1,19 @@
 # Здесь будет конфиг
   env: "local"
-  # уровни логгирования для основных логгеров программы
+  # уровни логирования
   logger:
+    typeLogger: "base"
+    appLevel: "Info"
+    entLevel: "Debug"
     simLevel: "Info"
-    appLevel: "Error"
-  # значение основных констант модели
+  # основные константы модели
   modelConst:
     maxGen: 16
     lengthDNA: 64
     energyPoint: 10
+    brain:  "16"
+  # основные константы симуляции
+  simulation:
+    type: "train"
+    xSize: 30
+    ySize: 30
