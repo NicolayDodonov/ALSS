@@ -46,6 +46,7 @@ type Entity struct {
 	turn   turns
 	Coordinates
 	DNA
+	brain
 }
 
 type turns int

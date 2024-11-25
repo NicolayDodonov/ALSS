@@ -19,6 +19,7 @@ func NewEntity(ID, x, y, longDNA int) *Entity {
 			y,
 		},
 		*NewDNA(longDNA),
+		newBrain(),
 	}
 }
 
