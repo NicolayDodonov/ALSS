@@ -10,3 +10,4 @@ type Logger interface {
 
 var App Logger
 var Sim Logger
+var Ent Logger

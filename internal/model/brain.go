@@ -22,7 +22,7 @@ func (brain16) run(e *Entity, w *World) error {
 			errGen = e.move(w)
 			frameCount += 5
 
-			l.App.Debug("id " + strconv.Itoa(e.ID) + " move")
+			l.Ent.Debug("id " + strconv.Itoa(e.ID) + " move")
 		case look:
 			//функционал логического перехода
 			var dPointer int
@@ -30,39 +30,39 @@ func (brain16) run(e *Entity, w *World) error {
 			e.Pointer += dPointer - 1
 			frameCount += 2
 
-			l.App.Debug("id " + strconv.Itoa(e.ID) + " look")
+			l.Ent.Debug("id " + strconv.Itoa(e.ID) + " look")
 		case get:
 			errGen = e.get(w)
 			frameCount += 5
 
-			l.App.Debug("id " + strconv.Itoa(e.ID) + " get")
+			l.Ent.Debug("id " + strconv.Itoa(e.ID) + " get")
 		case rotatedLeft:
 			e.rotation(left)
 			frameCount++
 
-			l.App.Debug("id " + strconv.Itoa(e.ID) + " tunrs left")
+			l.Ent.Debug("id " + strconv.Itoa(e.ID) + " tunrs left")
 		case rotatedRight:
 			e.rotation(right)
 			frameCount++
 
-			l.App.Debug("id " + strconv.Itoa(e.ID) + " tunrs right")
+			l.Ent.Debug("id " + strconv.Itoa(e.ID) + " tunrs right")
 		case recycling:
 			errGen = e.recycling(w)
 			frameCount += 5
 
-			l.App.Debug("id " + strconv.Itoa(e.ID) + " recycling")
+			l.Ent.Debug("id " + strconv.Itoa(e.ID) + " recycling")
 		case reproduction:
 			errGen = e.reproduction()
 			frameCount += 12
 
-			l.App.Debug("id " + strconv.Itoa(e.ID) + " make new bot")
+			l.Ent.Debug("id " + strconv.Itoa(e.ID) + " make new bot")
 		default:
 			e.jump()
 			frameCount++
 		}
 		//Логгируем некретические ошибки генокода
 		if errGen != nil {
-			l.App.Debug(errGen.Error())
+			l.Ent.Debug("id:" + strconv.Itoa(e.ID) + " " + errGen.Error())
 		}
 
 		//увеличиваем программно-генетический счётчик
@@ -71,7 +71,7 @@ func (brain16) run(e *Entity, w *World) error {
 
 		//добавляем отравление на клетку с ботом
 		if err := w.SetCellPoison(e.Coordinates, pLevel1+1); err != nil {
-			l.App.Error(err.Error())
+			return err
 		}
 	}
 	return nil

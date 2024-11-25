@@ -13,8 +13,10 @@ type Config struct {
 }
 
 type Logger struct {
-	Sim string `yaml:"simLevel" env-default:"Error"`
-	App string `yaml:"appLevel" env-default:"Error"`
+	Type string `yaml:"typeLogger" env-required:"base"`
+	App  string `yaml:"appLevel"   env-default:"Error"`
+	Ent  string `yaml:"entLevel"   env-default:"Error"`
+	Sim  string `yaml:"simLevel"   env-default:"Error"`
 }
 
 type Model struct {

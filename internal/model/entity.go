@@ -25,12 +25,12 @@ func NewEntity(ID, x, y, longDNA int) *Entity {
 
 // Run отвечает за исполнение генетического кода в DNA.Array.
 // Возвращает nil или критическую ошибку
-func (e *Entity) Run(w *World) error {
-	l.App.Debug("id " + strconv.Itoa(e.ID) + " is run his genocode")
+func (e *Entity) Run(w *World) {
+	l.Ent.Debug("id " + strconv.Itoa(e.ID) + " is run his genocode")
 	//если бот мёрт, вылетаем с ошибкой
 	if !e.Live {
-		l.App.Debug("ID:" + strconv.Itoa(e.ID) + "cant run - dead")
-		return nil
+		l.Ent.Debug("ID:" + strconv.Itoa(e.ID) + "cant run - dead")
+		return
 	}
 
 	//уменьшаем энергию бота перед выполнение генокода
@@ -39,25 +39,31 @@ func (e *Entity) Run(w *World) error {
 	e.Age++
 
 	err := e.run(e, w)
+	if err != nil {
+		l.Ent.Error(strconv.Itoa(e.ID) + " " + err.Error())
+		return
+	}
+
 	//Берём клетку, где находиться сущность
 	cell, err := w.GetCellData(e.Coordinates)
 	if err != nil {
-		return err
+		l.Ent.Error(strconv.Itoa(e.ID) + " " + err.Error())
+		return
 	}
 
 	//Проверяем колличество яда, много - умираем
-	if cell.Poison >= pLevel3 {
+	if cell.Poison >= pLevelDed {
 		e.die(w)
-		return fmt.Errorf("%v die inside poison", e.ID)
+		l.Ent.Info("ID:" + strconv.Itoa(e.ID) + " die inside poison")
+		return
 	}
 
 	//Если энергии не осталось - умираем
 	if e.Energy <= 0 {
 		e.die(w)
-		return fmt.Errorf("ID:%v die without energy", e.ID)
+		l.Ent.Info("ID:" + strconv.Itoa(e.ID) + " die without energy")
+		return
 	}
-
-	return nil
 }
 
 func newBrain() brain {
