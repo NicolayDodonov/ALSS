@@ -59,3 +59,8 @@ type DNA struct {
 	Pointer int
 	Array   []int
 }
+
+// brain - интерфейс обработчика генокода в DNA
+type brain interface {
+	run(*Entity, *World) error
+}

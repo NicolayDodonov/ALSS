@@ -38,73 +38,7 @@ func (e *Entity) Run(w *World) error {
 	e.Energy--
 	e.Age++
 
-	//выполняем генетический код
-	//не все команды равноценны по сложности, по этому
-	//выполняем их со счётчиком frameCount. Это создёт
-	//более сложное поведение ботов.
-	for frameCount := 0; frameCount < 10; {
-		//создаём переменную некретической ошибки
-		var errGen error
-
-		//считываем генокод по указателю
-		switch e.Array[e.Pointer] {
-		case move:
-			errGen = e.move(w)
-			frameCount += 5
-
-			l.App.Debug("id " + strconv.Itoa(e.ID) + " move")
-		case look:
-			//функционал логического перехода
-			var dPointer int
-			dPointer, errGen = e.look(w)
-			e.Pointer += dPointer - 1
-			frameCount += 2
-
-			l.App.Debug("id " + strconv.Itoa(e.ID) + " look")
-		case get:
-			errGen = e.get(w)
-			frameCount += 5
-
-			l.App.Debug("id " + strconv.Itoa(e.ID) + " get")
-		case rotatedLeft:
-			e.rotation(left)
-			frameCount++
-
-			l.App.Debug("id " + strconv.Itoa(e.ID) + " tunrs left")
-		case rotatedRight:
-			e.rotation(right)
-			frameCount++
-
-			l.App.Debug("id " + strconv.Itoa(e.ID) + " tunrs right")
-		case recycling:
-			errGen = e.recycling(w)
-			frameCount += 5
-
-			l.App.Debug("id " + strconv.Itoa(e.ID) + " recycling")
-		case reproduction:
-			errGen = e.reproduction()
-			frameCount += 12
-
-			l.App.Debug("id " + strconv.Itoa(e.ID) + " make new bot")
-		default:
-			e.jump()
-			frameCount++
-		}
-		//Логгируем некретические ошибки генокода
-		if errGen != nil {
-			l.App.Debug(errGen.Error())
-		}
-
-		//увеличиваем программно-генетический счётчик
-		e.Pointer++
-		e.loopPointer()
-
-		//добавляем отравление на клетку с ботом
-		if err := w.SetCellPoison(e.Coordinates, pLevel1+1); err != nil {
-			l.App.Error(err.Error())
-		}
-
-	}
+	err := e.run(e, w)
 	//Берём клетку, где находиться сущность
 	cell, err := w.GetCellData(e.Coordinates)
 	if err != nil {
@@ -124,6 +58,19 @@ func (e *Entity) Run(w *World) error {
 	}
 
 	return nil
+}
+
+func newBrain() brain {
+	switch TypeBrain {
+	case "16":
+		return brain16{}
+	case "64":
+		return brain64{}
+	case "nero":
+		return brainNero{}
+	default:
+		return brain16{}
+	}
 }
 
 // move отвечает за передвижение сущности(Entity) из одной клетки(Cell) мира(World) в другую.

@@ -4,6 +4,7 @@ var (
 	MaxGen      = 16
 	LengthDNA   = 64
 	EnergyPoint = 10
+	TypeBrain   = "brain16"
 )
 
 const (

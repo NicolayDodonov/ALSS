@@ -18,9 +18,10 @@ type Logger struct {
 }
 
 type Model struct {
-	Max    int `yaml:"maxGen" env-default:"16"`
-	Length int `yaml:"lengthDNA" env-default:"64"`
-	Energy int `yaml:"energyPoint" env-default:"10"`
+	Max    int    `yaml:"maxGen" env-default:"16"`
+	Length int    `yaml:"lengthDNA" env-default:"64"`
+	Energy int    `yaml:"energyPoint" env-default:"10"`
+	Brain  string `yaml:"brain" env-default:"brain16"`
 }
 
 func MustLoad(path string) *Config {
