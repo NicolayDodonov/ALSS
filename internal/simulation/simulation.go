@@ -8,29 +8,27 @@ import (
 )
 
 type Simulation struct {
-	printer       console.Console
-	endPopulation int
+	printer console.Console
 }
 
-func New(console console.Console, endPop int) (s *Simulation) {
+func New(console console.Console) (s *Simulation) {
 	return &Simulation{
-		printer:       console,
-		endPopulation: endPop,
+		printer: console,
 	}
 }
 
 // Train производит обучение в заданных условиях ботов для получения лучших по геному ботов.
-func (s *Simulation) Train(worldX, worldY, endAge, mutation, baseLevelPoison, seasonRange int) []string {
+func (s *Simulation) Train() []string {
 	l.Sim.Info("start train")
 	defer l.Sim.Info("end train")
 	//определяем стартовую популяцию как конечная популяция^2
-	startPopulation := s.endPopulation * s.endPopulation
+	startPopulation := endPopulation * endPopulation
 
 	//создаёсм мир
-	w := model.NewWorld(worldX, worldY, startPopulation, baseLevelPoison)
+	w := model.NewWorld(worldSizeX, worldSizeY, startPopulation, basePoisonLevel)
 
 	//выполняем цикл обучения
-	for w.Age < endAge {
+	for w.Age < finalAgeTrain {
 		l.Sim.Debug("start new cycle")
 		//очистить мир
 		w.Age = 0
@@ -39,7 +37,7 @@ func (s *Simulation) Train(worldX, worldY, endAge, mutation, baseLevelPoison, se
 		w.Update(30)
 		for {
 			//обновить состояние ресурсов
-			if w.Age%seasonRange == 0 {
+			if w.Age%recurseUpdateRate == 0 {
 				w.Update(30)
 			}
 
@@ -56,7 +54,7 @@ func (s *Simulation) Train(worldX, worldY, endAge, mutation, baseLevelPoison, se
 			l.Sim.Debug("world " + strconv.Itoa(w.ID) + "age " + strconv.Itoa(w.Age) + "is done!\n" +
 				"in world live now: " + strconv.Itoa(w.CountEntity))
 			//проверить, живо ли больше endPopulation сущностей
-			if w.CountEntity <= s.endPopulation {
+			if w.CountEntity <= endPopulation {
 				break
 			}
 			w.Age++
@@ -64,14 +62,14 @@ func (s *Simulation) Train(worldX, worldY, endAge, mutation, baseLevelPoison, se
 		//Вывести информацию о мире
 		l.Sim.Info("world is dead! " +
 			w.GetStatistic())
-		l.Sim.Debug(strconv.Itoa(s.endPopulation) + " best bot's DNA:\n" +
-			w.GetPrettyEntityInfo(s.endPopulation))
-		w.SetGeneration(s.endPopulation, mutation)
+		l.Sim.Debug(strconv.Itoa(endPopulation) + " best bot's DNA:\n" +
+			w.GetPrettyEntityInfo(endPopulation))
+		w.SetGeneration(endPopulation, mutationCount)
 		//и обновить ID мира для следующей итерации
 		w.ID++
 	}
 
-	return w.GetEntityInfo(s.endPopulation)
+	return w.GetEntityInfo(endPopulation)
 }
 
 func (s *Simulation) Run() {

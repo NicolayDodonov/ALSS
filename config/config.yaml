@@ -6,6 +6,9 @@
     appLevel: "Info"
     entLevel: "Debug"
     simLevel: "Info"
+    appPath: "logs/app.log"
+    entPath: "logs/ent.log"
+    simPath: "logs/sim.log"
   # основные константы модели
   modelConst:
     maxGen: 16
@@ -14,6 +17,11 @@
     brain:  "16"
   # основные константы симуляции
   simulation:
-    type: "train"
-    xSize: 30
-    ySize: 30
+    typeSimulation: "train"
+    X: 10
+    Y: 30
+    endPop: 10
+    startPoison: 0
+    resurceUpdate: 10
+    ageExit: 1000
+    mutation: 10
