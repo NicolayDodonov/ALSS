@@ -6,7 +6,7 @@ import (
 	l "artificialLifeGo/internal/logger"
 	bL "artificialLifeGo/internal/logger/baseLogger"
 	"artificialLifeGo/internal/model"
-	"artificialLifeGo/internal/simulation"
+	sim "artificialLifeGo/internal/simulation"
 	"log"
 )
 
@@ -18,12 +18,12 @@ func main() {
 
 	//Включаем консоль
 	console := oTC.New()
-	sim := simulation.New(console)
+	simulation := sim.New(console)
 	l.App.Info("Console init")
 
 	//начинаем обучение
 	l.App.Info("Simulation is run")
-	_ = sim.Train()
+	_ = simulation.Train()
 }
 
 func MustInit() {
@@ -47,4 +47,11 @@ func MustInit() {
 	model.EnergyPoint = conf.Energy
 	model.TypeBrain = conf.Brain
 
+	sim.TypeSimulation = conf.Simulation.Type
+	sim.WorldSizeX = conf.Simulation.WorldSizeX
+	sim.WorldSizeY = conf.Simulation.WorldSizeY
+	sim.EndPopulation = conf.Simulation.EndPopulation
+	sim.RecurseUpdateRate = conf.Simulation.RecurseUpdateRate
+	sim.FinalAgeTrain = conf.Simulation.FinalAgeTrain
+	sim.MutationCount = conf.Simulation.MutationCount
 }

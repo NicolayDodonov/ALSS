@@ -2,11 +2,11 @@ package simulation
 
 var (
 	TypeSimulation    = ""
-	worldSizeX        = 10
-	worldSizeY        = 30
-	endPopulation     = 10
-	basePoisonLevel   = 0
-	recurseUpdateRate = 10
-	finalAgeTrain     = 1000
-	mutationCount     = 10
+	WorldSizeX        = 5
+	WorldSizeY        = 5
+	EndPopulation     = 1
+	BasePoisonLevel   = 5
+	RecurseUpdateRate = 10
+	FinalAgeTrain     = 1000
+	MutationCount     = 1
 )

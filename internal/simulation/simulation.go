@@ -22,14 +22,14 @@ func (s *Simulation) Train() []string {
 	l.Sim.Info("start train")
 	defer l.Sim.Info("end train")
 	//определяем стартовую популяцию как конечная популяция^2
-	startPopulation := endPopulation * endPopulation
+	startPopulation := EndPopulation * EndPopulation
 
 	//создаёсм мир
-	w := model.NewWorld(worldSizeX, worldSizeY, startPopulation, basePoisonLevel)
+	w := model.NewWorld(WorldSizeX, WorldSizeY, startPopulation, BasePoisonLevel)
 
 	//выполняем цикл обучения
-	for w.Age < finalAgeTrain {
-		l.Sim.Debug("start new cycle")
+	for w.Age < FinalAgeTrain {
+		l.Sim.Info("Start world№" + strconv.Itoa(w.ID))
 		//очистить мир
 		w.Age = 0
 		w.Clear()
@@ -37,7 +37,7 @@ func (s *Simulation) Train() []string {
 		w.Update(30)
 		for {
 			//обновить состояние ресурсов
-			if w.Age%recurseUpdateRate == 0 {
+			if w.Age%RecurseUpdateRate == 0 {
 				w.Update(30)
 			}
 
@@ -54,7 +54,7 @@ func (s *Simulation) Train() []string {
 			l.Sim.Debug("world " + strconv.Itoa(w.ID) + "age " + strconv.Itoa(w.Age) + "is done!\n" +
 				"in world live now: " + strconv.Itoa(w.CountEntity))
 			//проверить, живо ли больше endPopulation сущностей
-			if w.CountEntity <= endPopulation {
+			if w.CountEntity <= EndPopulation {
 				break
 			}
 			w.Age++
@@ -62,14 +62,14 @@ func (s *Simulation) Train() []string {
 		//Вывести информацию о мире
 		l.Sim.Info("world is dead! " +
 			w.GetStatistic())
-		l.Sim.Debug(strconv.Itoa(endPopulation) + " best bot's DNA:\n" +
-			w.GetPrettyEntityInfo(endPopulation))
-		w.SetGeneration(endPopulation, mutationCount)
+		l.Sim.Debug(strconv.Itoa(EndPopulation) + " best bot's DNA:\n" +
+			w.GetPrettyEntityInfo(EndPopulation))
+		w.SetGeneration(EndPopulation, MutationCount)
 		//и обновить ID мира для следующей итерации
 		w.ID++
 	}
 
-	return w.GetEntityInfo(endPopulation)
+	return w.GetEntityInfo(EndPopulation)
 }
 
 func (s *Simulation) Run() {

@@ -35,7 +35,7 @@ type Simulation struct {
 	WorldSizeX        int    `yaml:"X" env-default:"10"`
 	WorldSizeY        int    `yaml:"Y" env-default:"10"`
 	EndPopulation     int    `yaml:"endPop" env-default:""`
-	recurseUpdateRate int    `yaml:"resurceUpdate" env-default:""`
+	RecurseUpdateRate int    `yaml:"resourceUpdate" env-default:""`
 	FinalAgeTrain     int    `yaml:"ageExit" env-default:""`
 	MutationCount     int    `yaml:"mutation" env-default:""`
 }

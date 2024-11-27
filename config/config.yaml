@@ -4,7 +4,7 @@
   logger:
     typeLogger: "base"
     appLevel: "Info"
-    entLevel: "Debug"
+    entLevel: "Error"
     simLevel: "Info"
     appPath: "logs/app.log"
     entPath: "logs/ent.log"
@@ -22,6 +22,6 @@
     Y: 30
     endPop: 10
     startPoison: 0
-    resurceUpdate: 10
+    resourceUpdate: 10
     ageExit: 1000
     mutation: 10
