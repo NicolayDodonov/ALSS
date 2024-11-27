@@ -6,7 +6,8 @@ import (
 	l "artificialLifeGo/internal/logger"
 	bL "artificialLifeGo/internal/logger/baseLogger"
 	"artificialLifeGo/internal/model"
-	"artificialLifeGo/internal/simulation"
+	sim "artificialLifeGo/internal/simulation"
+	"log"
 )
 
 func main() {
@@ -17,22 +18,40 @@ func main() {
 
 	//Включаем консоль
 	console := oTC.New()
-	sim := simulation.New(console, 8)
+	simulation := sim.New(console)
 	l.App.Info("Console init")
 
 	//начинаем обучение
 	l.App.Info("Simulation is run")
-	sim.Train(10, 30, 1000, 10, 0, 50)
+	_ = simulation.Train()
 }
 
 func MustInit() {
+	var err error
 	conf := config.MustLoad("config/config.yaml")
-	l.App = bL.MustNew("logs\\app.log", bL.Convert(conf.App))
-	l.Ent = bL.MustNew("logs\\ent.log", bL.Convert(conf.Ent))
-	l.Sim = bL.MustNew("logs\\sim.log", bL.Convert(conf.Sim))
+	l.App, err = bL.New("logs/app.log", bL.Convert(conf.App))
+	if err != nil {
+		log.Fatal(err)
+	}
+	l.Ent, err = bL.New("logs/ent.log", bL.Convert(conf.Ent))
+	if err != nil {
+		log.Fatal(err)
+	}
+	l.Sim, err = bL.New("logs/sim.log", bL.Convert(conf.Sim))
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	model.MaxGen = conf.Max
 	model.LengthDNA = conf.Length
 	model.EnergyPoint = conf.Energy
 	model.TypeBrain = conf.Brain
+
+	sim.TypeSimulation = conf.Simulation.Type
+	sim.WorldSizeX = conf.Simulation.WorldSizeX
+	sim.WorldSizeY = conf.Simulation.WorldSizeY
+	sim.EndPopulation = conf.Simulation.EndPopulation
+	sim.RecurseUpdateRate = conf.Simulation.RecurseUpdateRate
+	sim.FinalAgeTrain = conf.Simulation.FinalAgeTrain
+	sim.MutationCount = conf.Simulation.MutationCount
 }

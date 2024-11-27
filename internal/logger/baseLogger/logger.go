@@ -2,7 +2,6 @@ package baseLogger
 
 import (
 	"io"
-	"log"
 	"os"
 	"time"
 )
@@ -14,15 +13,15 @@ type Logger struct {
 
 type LoggerType uint8
 
-func MustNew(path string, level LoggerType) *Logger {
+func New(path string, level LoggerType) (*Logger, error) {
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-		log.Fatalf(Fatal+"opening file: %v", err)
+		return &Logger{}, err
 	}
 	return &Logger{
 		file:  file,
 		level: level,
-	}
+	}, nil
 }
 
 func (logger *Logger) Debug(msg string) {
