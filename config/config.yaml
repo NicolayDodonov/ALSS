@@ -14,7 +14,7 @@
     maxGen: 16
     lengthDNA: 64
     energyPoint: 10
-    brain:  "16"
+    brain:  ""
   # основные константы симуляции
   simulation:
     typeSimulation: "train"

@@ -75,7 +75,7 @@ func newBrain() brain {
 	case "nero":
 		return brainNero{}
 	default:
-		return brain16{}
+		return brain0{}
 	}
 }
 

@@ -6,6 +6,14 @@ import (
 	"strconv"
 )
 
+type brain0 struct{}
+
+func (brain0) run(e *Entity, w *World) error {
+	_ = e.move(w)
+	e.rotation(left)
+	return nil
+}
+
 type brain16 struct{}
 
 func (brain16) run(e *Entity, w *World) error {
