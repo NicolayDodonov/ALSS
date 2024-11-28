@@ -25,6 +25,11 @@ const (
 
 	left  = 1
 	right = -1
+
+	maxFC    = 10
+	middleFC = 5
+	smallFC  = 2
+	minFC    = 1
 )
 
 // Poison level

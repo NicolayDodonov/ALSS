@@ -40,7 +40,7 @@ func (e *Entity) Run(w *World) {
 
 	err := e.run(e, w)
 	if err != nil {
-		l.Ent.Error(strconv.Itoa(e.ID) + " " + err.Error())
+		l.Ent.Error("id" + strconv.Itoa(e.ID) + " " + err.Error())
 		return
 	}
 
