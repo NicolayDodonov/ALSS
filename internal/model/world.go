@@ -296,35 +296,44 @@ func newGeneration(x, y, population int) []*Entity {
 // создаёт новое расположение.
 func (w *World) sync() {
 	for _, entity := range w.ArrayEntity {
-		//todo: Если бот живой, а по его координатам другой бот
+		cell, err := w.GetCellData(entity.Coordinates)
+		if err != nil {
+			//Если бот вне мира
+			//Как ты там мог оказаться дурочок!
 
-		//todo: Если бот живой, а по его координатам пусто
-
-		//todo: Если бот мёртв, а он по координатам есть
-
-		//todo: Если бот вне мира
-
-		//старый код
+		}
 		if entity.Live {
-			//если по коордитанам сущности расположена другая сущность
-			cell, _ := w.GetCellData(entity.Coordinates)
-			if cell.Entity != nil &&
-				cell.Entity != entity {
+			//Если бот живой, а по его координатам другой бот
+			if cell.Entity != nil && cell.Entity != entity {
 				//ищем пустую клетку
 				for {
-					x := rand.Intn(w.Xsize)
-					y := rand.Intn(w.Ysize)
-					cell, _ := w.GetCellData(Coordinates{x, y})
-					if cell.Entity == nil &&
-						cell.Types == EmptyCell {
+					newCoord := Coordinates{
+						rand.Intn(w.Xsize),
+						rand.Intn(w.Ysize),
+					}
+
+					newCell, _ := w.GetCellData(newCoord)
+					if newCell.Entity == nil &&
+						newCell.Types == EmptyCell {
 						//и записываем туда нащу сущность
-						entity.Coordinates = Coordinates{x, y}
-						cell.Entity = entity
+						entity.Coordinates = newCoord
+						newCell.Entity = entity
 						break
 					}
 				}
 			}
+			//Если бот живой, а по его координатам пусто
+			if cell.Entity == nil {
+				cell.Entity = entity
+				//todo: есть малая вероятность, что бот может оказаться в нескольких клетках
+			}
+		} else {
+			//Если бот мёртв, а он по координатам есть
+			if cell.Entity == entity {
+				cell.Entity = nil
+			}
 		}
+
 	}
 }
 
