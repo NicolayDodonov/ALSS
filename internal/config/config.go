@@ -34,10 +34,11 @@ type Simulation struct {
 	Type              string `yaml:"typeSimulation" env-required:"true"`
 	WorldSizeX        int    `yaml:"X" env-default:"10"`
 	WorldSizeY        int    `yaml:"Y" env-default:"10"`
-	EndPopulation     int    `yaml:"endPop" env-default:""`
-	RecurseUpdateRate int    `yaml:"resourceUpdate" env-default:""`
-	FinalAgeTrain     int    `yaml:"ageExit" env-default:""`
-	MutationCount     int    `yaml:"mutation" env-default:""`
+	StartPopulation   int    `yaml:"startPop" env-default:"0"`
+	EndPopulation     int    `yaml:"endPop" env-default:"0"`
+	RecurseUpdateRate int    `yaml:"resourceUpdate" env-default:"0"`
+	FinalAgeTrain     int    `yaml:"ageExit" env-default:"0"`
+	MutationCount     int    `yaml:"mutation" env-default:"0"`
 }
 
 func MustLoad(path string) *Config {

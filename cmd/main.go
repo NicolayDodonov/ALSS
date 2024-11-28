@@ -50,6 +50,7 @@ func MustInit() {
 	sim.TypeSimulation = conf.Simulation.Type
 	sim.WorldSizeX = conf.Simulation.WorldSizeX
 	sim.WorldSizeY = conf.Simulation.WorldSizeY
+	sim.StartPopulation = conf.Simulation.StartPopulation
 	sim.EndPopulation = conf.Simulation.EndPopulation
 	sim.RecurseUpdateRate = conf.Simulation.RecurseUpdateRate
 	sim.FinalAgeTrain = conf.Simulation.FinalAgeTrain

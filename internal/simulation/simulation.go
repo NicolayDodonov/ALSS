@@ -22,7 +22,7 @@ func (s *Simulation) Train() []string {
 	l.Sim.Info("start train")
 	defer l.Sim.Info("end train")
 	//определяем стартовую популяцию как конечная популяция^2
-	startPopulation := EndPopulation * EndPopulation
+	startPopulation := StartPopulation
 
 	//создаёсм мир
 	w := model.NewWorld(WorldSizeX, WorldSizeY, startPopulation, BasePoisonLevel)
