@@ -96,9 +96,11 @@ func (w *World) MoveEntity(oldCord, newCord Coordinates, entity *Entity) error {
 	//Смотрим что в клетке
 	switch cell.Types {
 	case EmptyCell:
+		//todo добавить проверку на ошибку
 		_ = w.SetCellEntity(oldCord, nil)
 		_ = w.SetCellEntity(newCord, entity)
 	case FoodCell:
+		//todo добавить проверку на ошибку
 		_ = w.SetCellEntity(oldCord, nil)
 		_ = w.SetCellEntity(newCord, entity)
 		//Уничтожаем еду в клетке - сущность её затоплато
@@ -294,6 +296,15 @@ func newGeneration(x, y, population int) []*Entity {
 // создаёт новое расположение.
 func (w *World) sync() {
 	for _, entity := range w.ArrayEntity {
+		//todo: Если бот живой, а по его координатам другой бот
+
+		//todo: Если бот живой, а по его координатам пусто
+
+		//todo: Если бот мёртв, а он по координатам есть
+
+		//todo: Если бот вне мира
+
+		//старый код
 		if entity.Live {
 			//если по коордитанам сущности расположена другая сущность
 			cell, _ := w.GetCellData(entity.Coordinates)
