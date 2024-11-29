@@ -18,8 +18,8 @@
   # основные константы симуляции
   simulation:
     typeSimulation: "train"
-    X: 15
-    Y: 50
+    X: 5
+    Y: 40
     startPop: 100
     endPop: 10
     startPoison: 0
