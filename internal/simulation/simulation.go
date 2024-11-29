@@ -32,7 +32,6 @@ func (s *Simulation) Train() []string {
 		l.Sim.Info("Start world№" + strconv.Itoa(w.ID))
 		//очистить мир
 		w.Age = 0
-		w.Clear()
 
 		w.Update(30)
 		for {

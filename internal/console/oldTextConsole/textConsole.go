@@ -53,7 +53,7 @@ func (tc *TextConsole) Print(world *model.World) {
 				canvas[x][y] = tc.Alphabet["nil"]
 			}
 			if cell.Entity != nil {
-				canvas[x][y] = '1'
+				canvas[x][y] = tc.Alphabet["entity"]
 			}
 		}
 		//в конец добавляем перенос строки
