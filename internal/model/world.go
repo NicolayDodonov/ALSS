@@ -83,6 +83,7 @@ func (w *World) Execute() {
 // MoveEntity передвигает сущность(Entity) из старой клетки(Cell) в новую.
 // Возвращает nil или ошибку перемещения.
 func (w *World) MoveEntity(oldCord, newCord Coordinates, entity *Entity) error {
+
 	//Смотрим что в целевой клетке
 	cell, err := w.GetCellData(newCord)
 	if err != nil {
@@ -325,14 +326,9 @@ func (w *World) sortAge() {
 	}
 }
 
-// RandomFood случайным образом распологает в мире пищу.
-// Временно не используется
-func (w *World) randomFood(percent int) {
-	for x := 0; x < w.Xsize; x++ {
-		for y := 0; y < w.Ysize; y++ {
-			if rand.Intn(100) < percent {
-				w.Map[x][y].Types = FoodCell
-			}
-		}
+func (w World) loopCoord(old Coordinates) (new Coordinates) {
+	return Coordinates{
+		old.X % w.Xsize,
+		old.Y % w.Ysize,
 	}
 }
