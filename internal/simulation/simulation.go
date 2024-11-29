@@ -64,6 +64,8 @@ func (s *Simulation) Train() []string {
 			w.GetStatistic())
 		l.Sim.Debug(strconv.Itoa(EndPopulation) + " best bot's DNA:\n" +
 			w.GetPrettyEntityInfo(EndPopulation))
+
+		w.Clear()
 		w.SetGeneration(EndPopulation, MutationCount)
 		//и обновить ID мира для следующей итерации
 		w.ID++

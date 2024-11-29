@@ -14,12 +14,12 @@
     maxGen: 16
     lengthDNA: 64
     energyPoint: 10
-    brain:  ""
+    brain:  "16"
   # основные константы симуляции
   simulation:
     typeSimulation: "train"
-    X: 10
-    Y: 30
+    X: 15
+    Y: 50
     startPop: 100
     endPop: 10
     startPoison: 0
