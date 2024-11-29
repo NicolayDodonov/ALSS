@@ -327,8 +327,19 @@ func (w *World) sortAge() {
 }
 
 func (w World) loopCoord(old Coordinates) (new Coordinates) {
-	return Coordinates{
-		old.X % w.Xsize,
-		old.Y % w.Ysize,
+	//todo: просто сделать лучше и чтобы работало
+	if old.X < 0 {
+		new.X = w.Xsize - (old.X % w.Xsize)
 	}
+	if old.Y < 0 {
+		new.Y = w.Ysize - (old.Y % w.Ysize)
+	}
+	if old.X > w.Xsize {
+		new.X = old.X % w.Xsize
+	}
+	if old.Y > 0 {
+		new.Y = old.Y % w.Ysize
+	}
+
+	return old
 }
