@@ -96,9 +96,11 @@ func (w *World) MoveEntity(oldCord, newCord Coordinates, entity *Entity) error {
 	//Смотрим что в клетке
 	switch cell.Types {
 	case EmptyCell:
+		//todo добавить проверку на ошибку
 		_ = w.SetCellEntity(oldCord, nil)
 		_ = w.SetCellEntity(newCord, entity)
 	case FoodCell:
+		//todo добавить проверку на ошибку
 		_ = w.SetCellEntity(oldCord, nil)
 		_ = w.SetCellEntity(newCord, entity)
 		//Уничтожаем еду в клетке - сущность её затоплато
@@ -160,7 +162,7 @@ func (w *World) SetGeneration(endPopulation, mutationCount int) {
 	//случайно произведём мутации в генокоде
 	length := len(w.ArrayEntity)
 	for i := 0; i < mutationCount; i++ {
-		w.ArrayEntity[rand.Intn(length)].DNA.Mutation(rand.Intn(length))
+		w.ArrayEntity[rand.Intn(length)].DNA.Mutation(rand.Intn(MaxGen))
 	}
 	for _, entity := range w.ArrayEntity {
 		entity.Energy = rand.Intn(10) + 90
@@ -227,10 +229,10 @@ func (w *World) GetStatistic() string {
 // GetPrettyStatistic возвращает статистически данные
 // в удобном форматировании.
 func (w *World) GetPrettyStatistic() string {
-	return "World №" + strconv.Itoa(w.ID) + "\n" +
-		"Age:    " + strconv.Itoa(w.Age) + "\n" +
-		"Entity: " + strconv.Itoa(w.CountEntity) + "\n" +
-		"Food:   " + strconv.Itoa(w.CountFood) + "\n" +
+	return "World №" + strconv.Itoa(w.ID) + "    \n" +
+		"Age:    " + strconv.Itoa(w.Age) + "    \n" +
+		"Entity: " + strconv.Itoa(w.CountEntity) + "    \n" +
+		"Food:   " + strconv.Itoa(w.CountFood) + "    \n" +
 		"Poison: " + strconv.Itoa(w.CountPoison)
 }
 
@@ -280,6 +282,27 @@ func newMap(Xsize, Ysize, Poison int) [][]*Cell {
 	return Map
 }
 
+// sync - функция базовой синхронизации пустого! мира(World) и массива сущностей(Entity[]).
+// Если сущность(Entity) оказалась за краем мира - рандомного размещает в мире. Ничего не возвращает
+func (w *World) sync() {
+	for _, entity := range w.ArrayEntity {
+		err := w.SetCellEntity(entity.Coordinates, entity)
+		if err != nil {
+			for {
+				newCoord := Coordinates{
+					rand.Intn(w.Xsize),
+					rand.Intn(w.Ysize),
+				}
+				cell, _ := w.GetCellData(newCoord)
+				if cell.Entity == nil {
+					_ = w.SetCellEntity(entity.Coordinates, entity)
+					break
+				}
+			}
+		}
+	}
+}
+
 // newGeneration создаёт стартовую популяцию сущностей(Entity). Возращает массив ссылок на Entity.
 func newGeneration(x, y, population int) []*Entity {
 	entityArray := make([]*Entity, population)
@@ -287,34 +310,6 @@ func newGeneration(x, y, population int) []*Entity {
 		entityArray[i] = NewEntity(i, rand.Intn(x), rand.Intn(y), LengthDNA)
 	}
 	return entityArray
-}
-
-// sync отвечает за синхронизацию World.ArrayEntity c World.Map.
-// если несколько сущностей оказывается в одной клетке, для всех последующих
-// создаёт новое расположение.
-func (w *World) sync() {
-	for _, entity := range w.ArrayEntity {
-		if entity.Live {
-			//если по коордитанам сущности расположена другая сущность
-			cell, _ := w.GetCellData(entity.Coordinates)
-			if cell.Entity != nil &&
-				cell.Entity != entity {
-				//ищем пустую клетку
-				for {
-					x := rand.Intn(w.Xsize)
-					y := rand.Intn(w.Ysize)
-					cell, _ := w.GetCellData(Coordinates{x, y})
-					if cell.Entity == nil &&
-						cell.Types == EmptyCell {
-						//и записываем туда нащу сущность
-						entity.Coordinates = Coordinates{x, y}
-						cell.Entity = entity
-						break
-					}
-				}
-			}
-		}
-	}
 }
 
 // sortAge сортирует сущности(Entity) по возрасту в вызывающем мире(World).
@@ -328,46 +323,6 @@ func (w *World) sortAge() {
 			}
 		}
 	}
-}
-
-// neighbors - функция клеточного автомата, смотрит на состояние соседей клетки
-// и определяет, становиться ли клетка едой или нет. True - еда, False - empty.
-// Временно не используется.
-func (w *World) neighbors(c Coordinates) bool {
-	if w.Map[c.X][c.Y].Poison >= pLevel4 {
-		//Если в самой клетке очень много яда, то она всегда пустая
-		//Если была еда = она погибает!
-		return false
-	}
-
-	if w.Map[c.X][c.Y].Types == FoodCell {
-		//Если клетка уже еда то true
-		return true
-	}
-
-	//смотрим на всех соседей во круг клетки и считаем колличество еды вокруг
-	countFood := 0
-	for i := 0; i < 8; i++ {
-		//получаем клетку соседа
-		cell, err := w.GetCellData(viewCell(turns(i)))
-		if err != nil {
-			//Выход за границу мира нас не волнует
-			//Для нас это сверх ядовитые клетки
-			continue
-		}
-		if cell.Types == FoodCell {
-			if cell.Poison <= pLevel3 {
-				//Если в клетке есть еда и уровень яда
-				//меньше половины - для нас это нормально
-				countFood++
-			}
-		}
-	}
-
-	if countFood >= 1 && countFood < 3 {
-		return true
-	}
-	return false
 }
 
 // RandomFood случайным образом распологает в мире пищу.

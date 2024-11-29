@@ -91,6 +91,7 @@ func (e *Entity) move(w *World) error {
 	if err := w.MoveEntity(e.Coordinates, newCord, e); err != nil {
 		return err
 	}
+	e.Coordinates = newCord
 	return nil
 }
 
