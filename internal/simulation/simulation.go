@@ -22,7 +22,7 @@ func (s *Simulation) Train() []string {
 	l.Sim.Info("start train")
 	defer l.Sim.Info("end train")
 	//определяем стартовую популяцию как конечная популяция^2
-	startPopulation := EndPopulation * EndPopulation
+	startPopulation := StartPopulation
 
 	//создаёсм мир
 	w := model.NewWorld(WorldSizeX, WorldSizeY, startPopulation, BasePoisonLevel)
@@ -32,7 +32,6 @@ func (s *Simulation) Train() []string {
 		l.Sim.Info("Start world№" + strconv.Itoa(w.ID))
 		//очистить мир
 		w.Age = 0
-		w.Clear()
 
 		w.Update(30)
 		for {
@@ -64,6 +63,8 @@ func (s *Simulation) Train() []string {
 			w.GetStatistic())
 		l.Sim.Debug(strconv.Itoa(EndPopulation) + " best bot's DNA:\n" +
 			w.GetPrettyEntityInfo(EndPopulation))
+
+		w.Clear()
 		w.SetGeneration(EndPopulation, MutationCount)
 		//и обновить ID мира для следующей итерации
 		w.ID++

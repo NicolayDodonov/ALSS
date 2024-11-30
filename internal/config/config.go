@@ -28,16 +28,23 @@ type Model struct {
 	Length int    `yaml:"lengthDNA" env-default:"64"`
 	Energy int    `yaml:"energyPoint" env-default:"10"`
 	Brain  string `yaml:"brain" env-default:"brain16"`
+	Loop   `yaml:"loop"`
+}
+
+type Loop struct {
+	X bool `yaml:"x" env-default:"false"`
+	Y bool `yaml:"y" env-default:"false"`
 }
 
 type Simulation struct {
 	Type              string `yaml:"typeSimulation" env-required:"true"`
 	WorldSizeX        int    `yaml:"X" env-default:"10"`
 	WorldSizeY        int    `yaml:"Y" env-default:"10"`
-	EndPopulation     int    `yaml:"endPop" env-default:""`
-	RecurseUpdateRate int    `yaml:"resourceUpdate" env-default:""`
-	FinalAgeTrain     int    `yaml:"ageExit" env-default:""`
-	MutationCount     int    `yaml:"mutation" env-default:""`
+	StartPopulation   int    `yaml:"startPop" env-default:"0"`
+	EndPopulation     int    `yaml:"endPop" env-default:"0"`
+	RecurseUpdateRate int    `yaml:"resourceUpdate" env-default:"0"`
+	FinalAgeTrain     int    `yaml:"ageExit" env-default:"0"`
+	MutationCount     int    `yaml:"mutation" env-default:"0"`
 }
 
 func MustLoad(path string) *Config {

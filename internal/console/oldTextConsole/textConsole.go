@@ -52,13 +52,11 @@ func (tc *TextConsole) Print(world *model.World) {
 			default:
 				canvas[x][y] = tc.Alphabet["nil"]
 			}
+			if cell.Entity != nil {
+				canvas[x][y] = tc.Alphabet["entity"]
+			}
 		}
 		//в конец добавляем перенос строки
-	}
-	for _, entity := range world.ArrayEntity {
-		if entity.Live {
-			canvas[entity.X][entity.Y] = tc.Alphabet["entity"]
-		}
 	}
 
 	//рисуем холст
@@ -68,6 +66,6 @@ func (tc *TextConsole) Print(world *model.World) {
 	fmt.Print(world.GetPrettyStatistic() + "\n")
 	//вернуть каретку в начало для перерисовки кадра
 	//todo: создать свою реализацию движения коретки
-	cursor.Up(world.Xsize + 6)
+	cursor.Up(world.Xsize + 5)
 	time.Sleep(100 * time.Millisecond)
 }
