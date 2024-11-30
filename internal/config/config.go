@@ -28,6 +28,12 @@ type Model struct {
 	Length int    `yaml:"lengthDNA" env-default:"64"`
 	Energy int    `yaml:"energyPoint" env-default:"10"`
 	Brain  string `yaml:"brain" env-default:"brain16"`
+	Loop   `yaml:"loop"`
+}
+
+type Loop struct {
+	X bool `yaml:"x" env-default:"false"`
+	Y bool `yaml:"y" env-default:"false"`
 }
 
 type Simulation struct {

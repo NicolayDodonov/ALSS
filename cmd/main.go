@@ -46,6 +46,8 @@ func MustInit() {
 	model.LengthDNA = conf.Length
 	model.EnergyPoint = conf.Energy
 	model.TypeBrain = conf.Brain
+	model.LoopX = conf.Loop.X
+	model.LoopY = conf.Loop.Y
 
 	sim.TypeSimulation = conf.Simulation.Type
 	sim.WorldSizeX = conf.Simulation.WorldSizeX

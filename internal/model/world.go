@@ -82,8 +82,9 @@ func (w *World) Execute() {
 
 // MoveEntity передвигает сущность(Entity) из старой клетки(Cell) в новую.
 // Возвращает nil или ошибку перемещения.
-func (w *World) MoveEntity(oldCord, newCord Coordinates, entity *Entity) error {
-	newCord, _ = w.loopCoord(false, true, newCord)
+func (w *World) MoveEntity(oldCord, newCord Coordinates, entity *Entity) (err error) {
+	newCord, err = w.loopCoord(newCord)
+
 	//Смотрим что в целевой клетке
 	cell, err := w.GetCellData(newCord)
 	if err != nil {
@@ -326,30 +327,28 @@ func (w *World) sortAge() {
 	}
 }
 
-// loopCoord - отвечает за перенос координат, выходящих за границу мира. Принимает 2 логических значение и координату.
-// Возвращает новую координату, скорректированную по логическим значениям, или ошибку, если входная координата
-// уходит слишком далеко за край мира.
-func (w World) loopCoord(loopX, loopY bool, old Coordinates) (Coordinates, error) {
+// loopCoord - отвечает за перенос координат, выходящих за границу мира.
+func (w World) loopCoord(old Coordinates) (Coordinates, error) {
 	//todo: просто сделать лучше и чтобы работало
 	new := Coordinates{
 		old.X,
 		old.Y,
 	}
-	if loopX {
+	if LoopX {
 		if old.X < 0 {
-			new.X = w.Xsize - (old.X % w.Xsize)
+			new.X = w.Xsize + (old.X % w.Xsize)
 		} else if old.X > w.Xsize {
 			new.X = old.X % w.Xsize
 		}
 	}
-	if loopY {
+	if LoopY {
 		if old.Y < 0 {
 			new.Y = w.Ysize + (old.Y % w.Ysize)
 		} else if old.Y > w.Ysize {
 			new.Y = old.X % w.Ysize
 		}
 	}
-	if !checkLimit(old, Coordinates{w.Xsize, w.Ysize}) {
+	if !checkLimit(new, Coordinates{w.Xsize, w.Ysize}) {
 		return old, fmt.Errorf("У нас тут ошибка!")
 	}
 	return new, nil

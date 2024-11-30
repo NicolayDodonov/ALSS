@@ -15,6 +15,9 @@
     lengthDNA: 64
     energyPoint: 10
     brain:  "16"
+    loop:
+        x: false
+        y: true
   # основные константы симуляции
   simulation:
     typeSimulation: "train"

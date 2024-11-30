@@ -5,6 +5,8 @@ var (
 	LengthDNA   = 64
 	EnergyPoint = 10
 	TypeBrain   = "brain16"
+	LoopX       = false
+	LoopY       = false
 )
 
 const (
