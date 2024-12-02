@@ -5,6 +5,8 @@ var (
 	LengthDNA   = 64
 	EnergyPoint = 10
 	TypeBrain   = "brain16"
+	LoopX       = false
+	LoopY       = false
 )
 
 const (
@@ -25,6 +27,11 @@ const (
 
 	left  = 1
 	right = -1
+
+	maxFC    = 10
+	middleFC = 5
+	smallFC  = 2
+	minFC    = 1
 )
 
 // Poison level

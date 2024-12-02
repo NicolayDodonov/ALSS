@@ -4,16 +4,28 @@
   logger:
     typeLogger: "base"
     appLevel: "Info"
-    entLevel: "Debug"
+    entLevel: "Error"
     simLevel: "Info"
+    appPath: "logs/app.log"
+    entPath: "logs/ent.log"
+    simPath: "logs/sim.log"
   # основные константы модели
   modelConst:
     maxGen: 16
     lengthDNA: 64
     energyPoint: 10
     brain:  "16"
+    loop:
+        x: false
+        y: true
   # основные константы симуляции
   simulation:
-    type: "train"
-    xSize: 30
-    ySize: 30
+    typeSimulation: "train"
+    X: 5
+    Y: 40
+    startPop: 100
+    endPop: 10
+    startPoison: 0
+    resourceUpdate: 10
+    ageExit: 1000
+    mutation: 10

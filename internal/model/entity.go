@@ -40,7 +40,7 @@ func (e *Entity) Run(w *World) {
 
 	err := e.run(e, w)
 	if err != nil {
-		l.Ent.Error(strconv.Itoa(e.ID) + " " + err.Error())
+		l.Ent.Error("id" + strconv.Itoa(e.ID) + " " + err.Error())
 		return
 	}
 
@@ -75,7 +75,7 @@ func newBrain() brain {
 	case "nero":
 		return brainNero{}
 	default:
-		return brain16{}
+		return brain0{}
 	}
 }
 
@@ -91,6 +91,7 @@ func (e *Entity) move(w *World) error {
 	if err := w.MoveEntity(e.Coordinates, newCord, e); err != nil {
 		return err
 	}
+	e.Coordinates = newCord
 	return nil
 }
 
