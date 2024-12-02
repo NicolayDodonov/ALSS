@@ -7,6 +7,7 @@ import (
 	bL "artificialLifeGo/internal/logger/baseLogger"
 	"artificialLifeGo/internal/model"
 	sim "artificialLifeGo/internal/simulation"
+	"artificialLifeGo/internal/storage/fileSt"
 	"log"
 )
 
@@ -18,7 +19,8 @@ func main() {
 
 	//Включаем консоль
 	console := oTC.New()
-	simulation := sim.New(console)
+	storage := fileSt.New("log/age.txt", "log/train.txt")
+	simulation := sim.New(console, storage)
 	l.App.Info("Console init")
 
 	//начинаем обучение
