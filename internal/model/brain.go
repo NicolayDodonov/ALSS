@@ -77,11 +77,6 @@ func (brain16) run(e *Entity, w *World) error {
 		//увеличиваем программно-генетический счётчик
 		e.Pointer++
 		e.loopPointer()
-
-		//добавляем отравление на клетку с ботом
-		if err := w.SetCellPoison(e.Coordinates, pLevel1+1); err != nil {
-			return err
-		}
 	}
 	return nil
 }

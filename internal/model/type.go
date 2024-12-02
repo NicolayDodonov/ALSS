@@ -12,11 +12,12 @@ type World struct {
 
 // Statistic позволяет сохранять статистические данные о мире.
 type Statistic struct {
-	CountEntity int
-	CountFood   int
-	CountPoison int
-	Age         int
-	ID          int
+	CountEntity   int
+	CountFood     int
+	CountPoison   int
+	PercentPoison float32
+	Age           int
+	ID            int
 }
 
 // todo: Изменить структуру типов клеток

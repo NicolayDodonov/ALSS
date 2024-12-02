@@ -19,6 +19,7 @@ func NewWorld(x, y, population, poison int) *World {
 			0,
 			0,
 			0,
+			0,
 		},
 	}
 	w.sync()
@@ -50,6 +51,7 @@ func (w *World) Clear() {
 	w.CountFood = 0
 	w.CountEntity = 0
 	w.CountPoison = 0
+	w.PercentPoison = 0
 }
 
 // Update обновляет состояние всех клеток(Cell) вызвавщего функцию мира(World)
@@ -147,6 +149,10 @@ func (w *World) UpdateStat() {
 		}
 	}
 	w.CountPoison = Count
+
+	//Рассчитаем на сколько мир отравлен
+	Count = w.Xsize * w.Ysize * PLevelMax
+	w.PercentPoison = float32(w.CountPoison * 100.0 / Count)
 }
 
 // SetGeneration приводит отработавщую популяцию к стартовому состоянию с заменой генома.
@@ -192,7 +198,10 @@ func (w *World) SetCellType(cord Coordinates, types CellTypes) error {
 // ошибку выхода за границы мира.
 func (w *World) SetCellPoison(cord Coordinates, dPoison int) error {
 	if checkLimit(cord, Coordinates{w.Xsize, w.Ysize}) {
-		w.Map[cord.X][cord.Y].Poison = dPoison
+		w.Map[cord.X][cord.Y].Poison += dPoison
+		if w.Map[cord.X][cord.Y].Poison == PLevelMax {
+			w.Map[cord.X][cord.Y].Poison = PLevelMax
+		}
 		return nil
 	}
 	return fmt.Errorf("set cell.Poison in %v is fall - out of range", cord)
@@ -235,7 +244,7 @@ func (w *World) GetPrettyStatistic() string {
 		"Age:    " + strconv.Itoa(w.Age) + "    \n" +
 		"Entity: " + strconv.Itoa(w.CountEntity) + "    \n" +
 		"Food:   " + strconv.Itoa(w.CountFood) + "    \n" +
-		"Poison: " + strconv.Itoa(w.CountPoison)
+		"Poison: " + strconv.Itoa(int(w.PercentPoison))
 }
 
 // GetEntityInfo возвращает массив строк лучших по возрасту сущностей(Entity)
