@@ -47,6 +47,12 @@ type Simulation struct {
 	MutationCount     int    `yaml:"mutation" env-default:"0"`
 }
 
+type Storage struct {
+	Type      string `yaml:"typeLogger" env-required:"true"`
+	PathAge   string `yaml:"pathAge"`
+	PathTrain string `yaml:"pathTrain"`
+}
+
 func MustLoad(path string) *Config {
 	configPath := path
 	if configPath == "" {

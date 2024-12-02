@@ -19,7 +19,7 @@ func main() {
 
 	//Включаем консоль
 	console := oTC.New()
-	storage := fileSt.New("log/age.txt", "log/train.txt")
+	storage := fileSt.New("logs/age.txt", "logs/train.txt")
 	simulation := sim.New(console, storage)
 	l.App.Info("Console init")
 
