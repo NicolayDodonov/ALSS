@@ -4,16 +4,19 @@ import (
 	"artificialLifeGo/internal/console"
 	l "artificialLifeGo/internal/logger"
 	"artificialLifeGo/internal/model"
+	"artificialLifeGo/internal/storage"
 	"strconv"
 )
 
 type Simulation struct {
 	printer console.Console
+	storage.Storage
 }
 
-func New(console console.Console) (s *Simulation) {
+func New(console console.Console, storage storage.Storage) (s *Simulation) {
 	return &Simulation{
-		printer: console,
+		console,
+		storage,
 	}
 }
 
@@ -58,7 +61,11 @@ func (s *Simulation) Train() []string {
 			}
 			w.Age++
 		}
-		//Вывести информацию о мире
+		//Сохранить
+		err := s.WorldAgeSave(w.Age)
+		if err != nil {
+			l.Sim.Error(err.Error())
+		}
 		l.Sim.Info("world is dead! " +
 			w.GetStatistic())
 		l.Sim.Debug(strconv.Itoa(EndPopulation) + " best bot's DNA:\n" +
@@ -69,7 +76,12 @@ func (s *Simulation) Train() []string {
 		//и обновить ID мира для следующей итерации
 		w.ID++
 	}
-
+	//сохраняем данные итогов обучения
+	err := s.TrainGenSave(w.GetEntityInfo(EndPopulation))
+	if err != nil {
+		l.Sim.Error(err.Error())
+		return nil
+	}
 	return w.GetEntityInfo(EndPopulation)
 }
 
@@ -91,5 +103,5 @@ func (s *Simulation) Experiment() {
 	//todo: execute experiments
 
 	//todo: get data from experiments
-	//todo: save data to .cvs file
+	//todo: save data to .cvs fileSt
 }
