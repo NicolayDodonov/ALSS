@@ -1,8 +1,8 @@
-# Здесь будет конфиг
+# конфиг приложения
   env: "local"
   # уровни логирования
   logger:
-    typeLogger: "base"
+    type: "base"
     appLevel: "Info"
     entLevel: "Error"
     simLevel: "Info"
@@ -20,7 +20,7 @@
         y: true
   # основные константы симуляции
   simulation:
-    typeSimulation: "train"
+    type: "train"
     X: 5
     Y: 40
     startPop: 100
@@ -29,6 +29,7 @@
     resourceUpdate: 10
     ageExit: 1000
     mutation: 10
+  # место сохранения результатов обучения
   storage:
     type: "file"
     pathAge: "logs/age.txt"
