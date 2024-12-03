@@ -10,7 +10,7 @@ import (
 
 // Simulation структура описывающая симуляцию
 type Simulation struct {
-	printer console.Console
+	console.Console
 	storage.Storage
 }
 
@@ -23,6 +23,8 @@ func New(console console.Console, storage storage.Storage) (s *Simulation) {
 
 // Train производит обучение в заданных условиях ботов для получения лучших по геному ботов.
 func (s *Simulation) Train() []string {
+	var succses int = 0
+
 	l.Sim.Info("start train")
 	defer l.Sim.Info("end train")
 	//определяем стартовую популяцию как конечная популяция^2
@@ -32,7 +34,7 @@ func (s *Simulation) Train() []string {
 	w := alModel.NewWorld(WorldSizeX, WorldSizeY, startPopulation, BasePoisonLevel)
 
 	//выполняем цикл обучения
-	for w.Age < FinalAgeTrain {
+	for check(&succses, w.Age) {
 		l.Sim.Info("Start world№" + strconv.Itoa(w.ID))
 		//очистить мир
 		w.Age = 0
@@ -51,7 +53,7 @@ func (s *Simulation) Train() []string {
 			w.StatisticUpdate()
 
 			//отрисовываем кадр мира в консоле
-			s.printer.Print(w)
+			s.Print(w)
 
 			l.Sim.Debug("world " + strconv.Itoa(w.ID) + "age " + strconv.Itoa(w.Age) + "is done!\n" +
 				"in world live now: " + strconv.Itoa(w.CountEntity))
