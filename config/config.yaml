@@ -12,17 +12,17 @@
   # основные константы модели
   modelConst:
     maxGen: 16
-    foodPercent: 50
+    foodPercent: 10
     lengthDNA: 64
     energyPoint: 10
     brain:  "16"
     loop:
-        x: false
-        y: true
+        x: true
+        y: false
   # основные константы симуляции
   simulation:
     type: "train"
-    X: 5
+    X: 15
     Y: 40
     startPop: 100
     endPop: 10

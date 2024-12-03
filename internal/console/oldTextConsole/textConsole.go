@@ -15,7 +15,7 @@ type TextConsole struct {
 var ASCIIAlphabet = map[string]rune{
 	"empty":  ' ',
 	"food":   '▞',
-	"wall":   '▓',
+	"wall":   '█',
 	"entity": '0',
 	"nil":    '?',
 	"poison": '░',
@@ -70,7 +70,7 @@ func (tc *TextConsole) Print(world *alModel.World) {
 
 	//рисуем холст
 	for i := 0; i < len(canvas); i++ {
-		fmt.Print("▓" + string(canvas[i]) + "▓    \n")
+		fmt.Print("█" + string(canvas[i]) + "█    \n")
 	}
 	fmt.Print(world.GetPrettyStatistic() + "\n")
 	//вернуть каретку в начало для перерисовки кадра

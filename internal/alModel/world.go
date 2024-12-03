@@ -192,3 +192,32 @@ func (w *World) MoveEntity(newCord Coordinates, entity *Entity) (err error) {
 
 	return nil
 }
+
+// Wall в случайном порядке создаёт стены. Принимает в качесте аргумента колличество стен.
+func (w *World) Wall(count int) {
+	for i := 0; i < count; i++ {
+		direction := rand.Intn(10)
+		cord := Coordinates{
+			X: rand.Intn(w.Xsize),
+			Y: rand.Intn(w.Ysize),
+		}
+		if direction%2 == 0 {
+			long := rand.Intn(w.Xsize/2) + 5
+
+			for j := 0; j < long; j++ {
+				cord.X++
+				if err := w.SetCellType(cord, WallCell); err != nil {
+					break
+				}
+			}
+		} else {
+			long := rand.Intn(w.Ysize/2) + 5
+			for j := 0; j < long; j++ {
+				cord.Y++
+				if err := w.SetCellType(cord, WallCell); err != nil {
+					break
+				}
+			}
+		}
+	}
+}

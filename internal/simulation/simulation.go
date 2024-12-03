@@ -36,8 +36,9 @@ func (s *Simulation) Train() []string {
 		l.Sim.Info("Start world№" + strconv.Itoa(w.ID))
 		//очистить мир
 		w.Age = 0
-
+		w.Wall(5)
 		w.Update(true)
+
 		for {
 			//обновить состояние ресурсов
 			w.Update(w.Age%RecurseUpdateRate == 0)
