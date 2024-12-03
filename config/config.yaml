@@ -12,6 +12,7 @@
   # основные константы модели
   modelConst:
     maxGen: 16
+    foodPercent: 50
     lengthDNA: 64
     energyPoint: 10
     brain:  "16"

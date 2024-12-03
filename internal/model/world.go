@@ -19,6 +19,7 @@ func NewWorld(x, y, population, poison int) *World {
 			0,
 			0,
 			0,
+			0,
 		},
 	}
 	w.sync()
@@ -50,24 +51,58 @@ func (w *World) Clear() {
 	w.CountFood = 0
 	w.CountEntity = 0
 	w.CountPoison = 0
+	w.PercentPoison = 0
 }
 
 // Update обновляет состояние всех клеток(Cell) вызвавщего функцию мира(World)
 // создава новые ресурсы, удаля ресурсы из за отравления.
-func (w *World) Update(percent int) {
-	maxFood := percent * (w.Xsize * w.Ysize) / 100
-	if w.CountFood >= maxFood {
-		return
+func (w *World) Update(addFood bool) {
+	// Проход по всем клеткам удаляя еду из за отравления или ботов
+	for _, cells := range w.Map {
+		for _, cell := range cells {
+			if cell.Poison >= pLevel4 && cell.Types == FoodCell {
+				cell.Types = EmptyCell
+				w.CountFood--
+			}
+			if cell.Entity != nil && cell.Types == FoodCell {
+				cell.Types = EmptyCell
+				cell.Entity.Energy++
+				w.CountFood--
+			}
+		}
 	}
-
-	//Пройдёмся по всем клеткам мира
-	for countAdd := w.CountFood; countAdd < maxFood; {
-		rX := rand.Intn(w.Xsize)
-		rY := rand.Intn(w.Ysize)
-		cell, _ := w.GetCellData(Coordinates{rX, rY})
-		if cell.Types == EmptyCell {
-			cell.Types = FoodCell
-			countAdd++
+	//Если надо добавить в мир еды, то:
+	if addFood {
+		//Считаем, сколько еды максимум может быть в мире
+		maxFood := (w.Xsize * w.Ysize) * MaxFoodPercent / 100
+		//Если больше - выходим
+		if w.CountFood >= maxFood {
+			return
+		}
+		//Добавляем в мир еды
+		for attempt := 0; attempt < maxFood*2; attempt++ {
+			// Берём случайную клетку
+			cell, err := w.GetCellData(
+				Coordinates{
+					rand.Intn(w.Xsize),
+					rand.Intn(w.Ysize),
+				})
+			if err != nil {
+				break
+			}
+			//Если там есть еда - следующий цикл
+			if cell.Types == FoodCell {
+				continue
+			}
+			//Если нет бота, она пустая и не сильно отравлена, то добавляем еду
+			if cell.Entity != nil && cell.Types == EmptyCell && cell.Poison < pLevel4 {
+				cell.Types = FoodCell
+				w.CountFood++
+			}
+			//Если еды много, выходим
+			if w.CountFood >= maxFood {
+				break
+			}
 		}
 	}
 }
@@ -147,6 +182,10 @@ func (w *World) UpdateStat() {
 		}
 	}
 	w.CountPoison = Count
+
+	//Рассчитаем на сколько мир отравлен
+	Count = w.Xsize * w.Ysize * PLevelMax
+	w.PercentPoison = float32(w.CountPoison * 100.0 / Count)
 }
 
 // SetGeneration приводит отработавщую популяцию к стартовому состоянию с заменой генома.
@@ -192,7 +231,10 @@ func (w *World) SetCellType(cord Coordinates, types CellTypes) error {
 // ошибку выхода за границы мира.
 func (w *World) SetCellPoison(cord Coordinates, dPoison int) error {
 	if checkLimit(cord, Coordinates{w.Xsize, w.Ysize}) {
-		w.Map[cord.X][cord.Y].Poison = dPoison
+		w.Map[cord.X][cord.Y].Poison += dPoison
+		if w.Map[cord.X][cord.Y].Poison == PLevelMax {
+			w.Map[cord.X][cord.Y].Poison = PLevelMax
+		}
 		return nil
 	}
 	return fmt.Errorf("set cell.Poison in %v is fall - out of range", cord)
@@ -235,7 +277,7 @@ func (w *World) GetPrettyStatistic() string {
 		"Age:    " + strconv.Itoa(w.Age) + "    \n" +
 		"Entity: " + strconv.Itoa(w.CountEntity) + "    \n" +
 		"Food:   " + strconv.Itoa(w.CountFood) + "    \n" +
-		"Poison: " + strconv.Itoa(w.CountPoison)
+		"Poison: " + strconv.Itoa(int(w.PercentPoison))
 }
 
 // GetEntityInfo возвращает массив строк лучших по возрасту сущностей(Entity)
@@ -328,7 +370,7 @@ func (w *World) sortAge() {
 }
 
 // loopCoord - отвечает за перенос координат, выходящих за границу мира.
-func (w World) loopCoord(old Coordinates) (Coordinates, error) {
+func (w *World) loopCoord(old Coordinates) (Coordinates, error) {
 	//todo: просто сделать лучше и чтобы работало
 	new := Coordinates{
 		old.X,

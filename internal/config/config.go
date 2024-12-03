@@ -25,7 +25,8 @@ type Logger struct {
 }
 
 type Model struct {
-	Max    int    `yaml:"maxGen"`
+	MaxGen  int    `yaml:"maxGen"`
+	MaxFood int    `yaml:"foodPercent"`
 	Length int    `yaml:"lengthDNA"`
 	Energy int    `yaml:"energyPoint"`
 	Brain  string `yaml:"brain"`

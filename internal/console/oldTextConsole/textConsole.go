@@ -8,15 +8,16 @@ import (
 )
 
 type TextConsole struct {
-	Alphabet map[string]byte
+	Alphabet map[string]rune
 }
 
-var ASCIIAlphabet = map[string]byte{
+var ASCIIAlphabet = map[string]rune{
 	"empty":  ' ',
-	"food":   '+',
-	"wall":   '#',
+	"food":   '▞',
+	"wall":   '▓',
 	"entity": '0',
 	"nil":    '?',
+	"poison": '░',
 }
 
 func New() *TextConsole {
@@ -28,10 +29,10 @@ func New() *TextConsole {
 // Print выводит на экран кадр мира + статистическую информацию
 func (tc *TextConsole) Print(world *model.World) {
 	//создаём холст
-	var canvas = make([][]byte, world.Xsize)
+	var canvas = make([][]rune, world.Xsize)
 	//заполняем хост
 	for x := 0; x < world.Xsize; x++ {
-		canvas[x] = make([]byte, world.Ysize)
+		canvas[x] = make([]rune, world.Ysize)
 		//заполняем строку холста
 		for y := 0; y < world.Ysize; y++ {
 			//получаем клетку мира
@@ -52,6 +53,9 @@ func (tc *TextConsole) Print(world *model.World) {
 			default:
 				canvas[x][y] = tc.Alphabet["nil"]
 			}
+			if cell.Poison > model.PLevelMax/2 {
+				canvas[x][y] = tc.Alphabet["poison"]
+			}
 			if cell.Entity != nil {
 				canvas[x][y] = tc.Alphabet["entity"]
 			}
@@ -61,7 +65,7 @@ func (tc *TextConsole) Print(world *model.World) {
 
 	//рисуем холст
 	for i := 0; i < len(canvas); i++ {
-		fmt.Print("|" + string(canvas[i]) + "|\n")
+		fmt.Print("▓" + string(canvas[i]) + "▓\n")
 	}
 	fmt.Print(world.GetPrettyStatistic() + "\n")
 	//вернуть каретку в начало для перерисовки кадра

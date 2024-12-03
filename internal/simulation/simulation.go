@@ -36,12 +36,10 @@ func (s *Simulation) Train() []string {
 		//очистить мир
 		w.Age = 0
 
-		w.Update(30)
+		w.Update(true)
 		for {
 			//обновить состояние ресурсов
-			if w.Age%RecurseUpdateRate == 0 {
-				w.Update(30)
-			}
+			w.Update(w.Age%RecurseUpdateRate == 0)
 
 			//выполнить генокод всех сущностей
 			w.Execute()

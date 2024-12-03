@@ -44,7 +44,8 @@ func MustInit() *config.Config {
 		log.Fatal(err)
 	}
 
-	model.MaxGen = conf.Max
+	model.MaxGen = conf.MaxGen
+	model.MaxFoodPercent = conf.MaxFood
 	model.LengthDNA = conf.Length
 	model.EnergyPoint = conf.Energy
 	model.TypeBrain = conf.Brain

@@ -43,23 +43,12 @@ func (e *Entity) Run(w *World) {
 		l.Ent.Error("id" + strconv.Itoa(e.ID) + " " + err.Error())
 		return
 	}
-
-	//Берём клетку, где находиться сущность
-	cell, err := w.GetCellData(e.Coordinates)
-	if err != nil {
-		l.Ent.Error(strconv.Itoa(e.ID) + " " + err.Error())
-		return
-	}
-
-	//Проверяем колличество яда, много - умираем
-	if cell.Poison >= pLevelDed {
-		e.die(w)
-		l.Ent.Info("ID:" + strconv.Itoa(e.ID) + " die inside poison")
-		return
-	}
+	//проверяем клетку бота на уровень яда
+	//тут бот может умереть, но код ниже это всё равно обработает
+	err = e.poisonHandler(w)
 
 	//Если энергии не осталось - умираем
-	if e.Energy <= 0 {
+	if e.Energy <= 0 || !e.Live {
 		e.die(w)
 		l.Ent.Info("ID:" + strconv.Itoa(e.ID) + " die without energy")
 		return
@@ -77,6 +66,29 @@ func newBrain() brain {
 	default:
 		return brain0{}
 	}
+}
+
+func (e *Entity) poisonHandler(w *World) error {
+	//Добавляем отравление на клетку, где находиться бот
+	if err := w.SetCellPoison(e.Coordinates, pLevel1+1); err != nil {
+		return err
+	}
+
+	//получаем исчерпывающую информацию о клетке, где находится бот
+	cell, err := w.GetCellData(e.Coordinates)
+	if err != nil {
+		return err
+	}
+
+	//проверяем уровень яда
+	if cell.Poison >= pLevelDed {
+		e.Live = false
+		return nil
+	} else if cell.Poison >= pLevel3 {
+		e.Energy -= pLevel1 * 5
+		return nil
+	}
+	return nil
 }
 
 // move отвечает за передвижение сущности(Entity) из одной клетки(Cell) мира(World) в другую.

@@ -1,12 +1,13 @@
 package model
 
 var (
-	MaxGen      = 16
-	LengthDNA   = 64
-	EnergyPoint = 10
-	TypeBrain   = "brain16"
-	LoopX       = false
-	LoopY       = false
+	MaxGen         = 16
+	MaxFoodPercent = 50
+	LengthDNA      = 64
+	EnergyPoint    = 10
+	TypeBrain      = "brain16"
+	LoopX          = false
+	LoopY          = false
 )
 
 const (
@@ -36,9 +37,10 @@ const (
 
 // Poison level
 const (
-	pLevel1   = 5
-	pLevel2   = 25
-	pLevel3   = 50
-	pLevel4   = 75
-	pLevelDed = 100
+	pLevel1   = 1
+	pLevel2   = 5
+	pLevel3   = 25
+	pLevel4   = 50
+	pLevelDed = 75
+	PLevelMax = 100
 )
