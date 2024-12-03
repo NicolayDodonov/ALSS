@@ -1,4 +1,4 @@
-package model
+package alModel
 
 func Sum(a, b Coordinates) Coordinates {
 	SumCord := Coordinates{

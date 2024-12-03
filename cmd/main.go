@@ -1,13 +1,13 @@
 package main
 
 import (
+	"artificialLifeGo/internal/alModel"
 	"artificialLifeGo/internal/config"
-	oldTextConsole "artificialLifeGo/internal/console/oldTextConsole"
+	oldConsole "artificialLifeGo/internal/console/oldTextConsole"
 	loggers "artificialLifeGo/internal/logger"
 	bLogger "artificialLifeGo/internal/logger/baseLogger"
-	"artificialLifeGo/internal/model"
 	sim "artificialLifeGo/internal/simulation"
-	"artificialLifeGo/internal/storage/fileSt"
+	"artificialLifeGo/internal/storage/file"
 	"log"
 )
 
@@ -18,8 +18,8 @@ func main() {
 	defer loggers.App.Info("Application exit")
 
 	//Включаем консоль
-	console := oldTextConsole.New()
-	storage := fileSt.New(conf.Storage.PathAge, conf.PathTrain)
+	console := oldConsole.New()
+	storage := file.New(conf.Storage.PathAge, conf.PathTrain)
 	simulation := sim.New(console, storage)
 	loggers.App.Info("Console init")
 
@@ -44,13 +44,13 @@ func MustInit() *config.Config {
 		log.Fatal(err)
 	}
 
-	model.MaxGen = conf.MaxGen
-	model.MaxFoodPercent = conf.MaxFood
-	model.LengthDNA = conf.Length
-	model.EnergyPoint = conf.Energy
-	model.TypeBrain = conf.Brain
-	model.LoopX = conf.Loop.X
-	model.LoopY = conf.Loop.Y
+	alModel.MaxGen = conf.MaxGen
+	alModel.MaxFoodPercent = conf.MaxFood
+	alModel.LengthDNA = conf.Length
+	alModel.EnergyPoint = conf.Energy
+	alModel.TypeBrain = conf.Brain
+	alModel.LoopX = conf.Loop.X
+	alModel.LoopY = conf.Loop.Y
 
 	sim.TypeSimulation = conf.Simulation.Type
 	sim.WorldSizeX = conf.Simulation.WorldSizeX

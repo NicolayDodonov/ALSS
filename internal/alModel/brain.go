@@ -1,10 +1,15 @@
-package model
+package alModel
 
 import (
 	l "artificialLifeGo/internal/logger"
 	"fmt"
 	"strconv"
 )
+
+// brain - интерфейс обработчика генокода в DNA
+type brain interface {
+	run(*Entity, *World) error
+}
 
 type brain0 struct{}
 

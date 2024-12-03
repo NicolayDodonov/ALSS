@@ -1,21 +1,23 @@
-package model
+package alModel
 
 // World описывает базисную структуру мира, его линейные размеры,
 // а так же содержит массивы карты, сущностей мира и статистики.
 type World struct {
 	Xsize       int
 	Ysize       int
-	Map         [][]*Cell
+	Map         Map
 	ArrayEntity []*Entity
 	Statistic
 }
+
+type Map [][]*Cell
 
 // Statistic позволяет сохранять статистические данные о мире.
 type Statistic struct {
 	CountEntity   int
 	CountFood     int
 	CountPoison   int
-	PercentPoison float32
+	PercentPoison int
 	Age           int
 	ID            int
 }
@@ -59,9 +61,4 @@ type DNA struct {
 	ID      int
 	Pointer int
 	Array   []int
-}
-
-// brain - интерфейс обработчика генокода в DNA
-type brain interface {
-	run(*Entity, *World) error
 }

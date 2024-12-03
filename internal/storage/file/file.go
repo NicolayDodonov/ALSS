@@ -1,25 +1,25 @@
-package fileSt
+package file
 
 import (
 	"os"
 	"strconv"
 )
 
-type FileSt struct {
+type Storage struct {
 	pathAge   string
 	pathTrain string
 }
 
-func New(pathAge, pathTrain string) *FileSt {
-	return &FileSt{
+func New(pathAge, pathTrain string) *Storage {
+	return &Storage{
 		pathAge,
 		pathTrain,
 	}
 }
 
-func (fs *FileSt) WorldAgeSave(year int) error {
+func (s *Storage) WorldAgeSave(year int) error {
 	//открыть файл
-	file, err := os.OpenFile(fs.pathAge, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	file, err := os.OpenFile(s.pathAge, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		return err
 	}
@@ -33,9 +33,9 @@ func (fs *FileSt) WorldAgeSave(year int) error {
 	return nil
 }
 
-func (fs *FileSt) TrainGenSave(data []string) error {
+func (s *Storage) TrainGenSave(data []string) error {
 	//открыть файл
-	file, err := os.OpenFile(fs.pathAge, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	file, err := os.OpenFile(s.pathAge, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		return err
 	}

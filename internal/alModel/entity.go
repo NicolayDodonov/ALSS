@@ -1,4 +1,4 @@
-package model
+package alModel
 
 import (
 	l "artificialLifeGo/internal/logger"
@@ -99,7 +99,7 @@ func (e *Entity) move(w *World) error {
 		viewCell(e.turn),
 		e.Coordinates,
 	)
-	newCord, _ = w.loopCoord(newCord)
+	newCord, _ = w.loopCord(newCord)
 	//перемещаемся в новые координаты
 	if err := w.MoveEntity(newCord, e); err != nil {
 		return err
@@ -124,7 +124,7 @@ func (e *Entity) look(w *World) (int, error) {
 	newCord := Sum(
 		viewCell(e.turn),
 		e.Coordinates)
-	newCord, _ = w.loopCoord(newCord)
+	newCord, _ = w.loopCord(newCord)
 	//смотрим что там
 	cell, err := w.GetCellData(newCord)
 	if err != nil {
@@ -155,7 +155,7 @@ func (e *Entity) get(w *World) error {
 	newCord := Sum(
 		viewCell(e.turn),
 		e.Coordinates)
-	newCord, _ = w.loopCoord(newCord)
+	newCord, _ = w.loopCord(newCord)
 	//смотрим что там
 	cell, err := w.GetCellData(newCord)
 	if err != nil {
@@ -205,7 +205,7 @@ func (e *Entity) recycling(w *World) error {
 
 	//получаем координаты переработки
 	newCord := viewCell(e.turn)
-	newCord, _ = w.loopCoord(newCord)
+	newCord, _ = w.loopCord(newCord)
 	//смотрим что там
 	cell, err := w.GetCellData(
 		Sum(

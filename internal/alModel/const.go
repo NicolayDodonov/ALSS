@@ -1,4 +1,4 @@
-package model
+package alModel
 
 var (
 	MaxGen         = 16

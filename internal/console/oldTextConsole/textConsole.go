@@ -1,7 +1,7 @@
 package oldTextConsole
 
 import (
-	"artificialLifeGo/internal/model"
+	"artificialLifeGo/internal/alModel"
 	"atomicgo.dev/cursor"
 	"fmt"
 	"time"
@@ -27,7 +27,7 @@ func New() *TextConsole {
 }
 
 // Print выводит на экран кадр мира + статистическую информацию
-func (tc *TextConsole) Print(world *model.World) {
+func (tc *TextConsole) Print(world *alModel.World) {
 	//создаём холст
 	var canvas = make([][]rune, world.Xsize)
 	//заполняем хост
@@ -36,7 +36,7 @@ func (tc *TextConsole) Print(world *model.World) {
 		//заполняем строку холста
 		for y := 0; y < world.Ysize; y++ {
 			//получаем клетку мира
-			cell, err := world.GetCellData(model.Coordinates{X: x, Y: y})
+			cell, err := world.GetCellData(alModel.Coordinates{X: x, Y: y})
 			if err != nil {
 				//если почему то не можем получить - пропускаем её
 				continue
@@ -44,16 +44,16 @@ func (tc *TextConsole) Print(world *model.World) {
 			//смотрим что в ней и соотвественно доавляем на холст
 
 			switch cell.Types {
-			case model.EmptyCell:
+			case alModel.EmptyCell:
 				canvas[x][y] = tc.Alphabet["empty"]
-			case model.FoodCell:
+			case alModel.FoodCell:
 				canvas[x][y] = tc.Alphabet["food"]
-			case model.WallCell:
+			case alModel.WallCell:
 				canvas[x][y] = tc.Alphabet["wall"]
 			default:
 				canvas[x][y] = tc.Alphabet["nil"]
 			}
-			if cell.Poison > model.PLevelMax/2 {
+			if cell.Poison > alModel.PLevelMax/2 {
 				canvas[x][y] = tc.Alphabet["poison"]
 			}
 			//if cell.Entity != nil {

@@ -27,10 +27,10 @@ type Logger struct {
 type Model struct {
 	MaxGen  int    `yaml:"maxGen"`
 	MaxFood int    `yaml:"foodPercent"`
-	Length int    `yaml:"lengthDNA"`
-	Energy int    `yaml:"energyPoint"`
-	Brain  string `yaml:"brain"`
-	Loop   `yaml:"loop"`
+	Length  int    `yaml:"lengthDNA"`
+	Energy  int    `yaml:"energyPoint"`
+	Brain   string `yaml:"brain"`
+	Loop    `yaml:"loop"`
 }
 
 type Loop struct {
@@ -62,7 +62,7 @@ func MustLoad(path string) *Config {
 	}
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		log.Fatalf("config fileSt does not exist: %s", configPath)
+		log.Fatalf("config file does not exist: %s", configPath)
 	}
 
 	var cfg Config

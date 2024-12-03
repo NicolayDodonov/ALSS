@@ -1,9 +1,9 @@
 package simulation
 
 import (
+	"artificialLifeGo/internal/alModel"
 	"artificialLifeGo/internal/console"
 	l "artificialLifeGo/internal/logger"
-	"artificialLifeGo/internal/model"
 	"artificialLifeGo/internal/storage"
 	"strconv"
 )
@@ -28,7 +28,7 @@ func (s *Simulation) Train() []string {
 	startPopulation := StartPopulation
 
 	//создаёсм мир
-	w := model.NewWorld(WorldSizeX, WorldSizeY, startPopulation, BasePoisonLevel)
+	w := alModel.NewWorld(WorldSizeX, WorldSizeY, startPopulation, BasePoisonLevel)
 
 	//выполняем цикл обучения
 	for w.Age < FinalAgeTrain {
@@ -46,7 +46,7 @@ func (s *Simulation) Train() []string {
 			w.RemoveDead()
 
 			//обновляем статистику
-			w.UpdateStat()
+			w.StatisticUpdate()
 
 			//отрисовываем кадр мира в консоле
 			s.printer.Print(w)
@@ -101,5 +101,5 @@ func (s *Simulation) Experiment() {
 	//todo: execute experiments
 
 	//todo: get data from experiments
-	//todo: save data to .cvs fileSt
+	//todo: save data to .cvs file
 }

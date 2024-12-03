@@ -1,7 +1,7 @@
 package console
 
-import "artificialLifeGo/internal/model"
+import "artificialLifeGo/internal/alModel"
 
 type Console interface {
-	Print(*model.World)
+	Print(*alModel.World)
 }

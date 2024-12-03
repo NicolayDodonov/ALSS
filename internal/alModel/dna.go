@@ -1,4 +1,4 @@
-package model
+package alModel
 
 import (
 	"math/rand"
@@ -27,9 +27,9 @@ func (d *DNA) Set(d2 DNA) {
 	}
 }
 
-// GetDNAString создаёт на основе DNA.Array строку содержащую
+// String создаёт на основе DNA.Array строку содержащую
 // информацию об id генокода и его битовую составляющую.
-func (d *DNA) GetDNAString() string {
+func (d *DNA) String() string {
 	var s strings.Builder
 	s.WriteString("DNA id: " + strconv.Itoa(d.ID) + "\n")
 	for i, gen := range d.Array {
@@ -44,7 +44,6 @@ func (d *DNA) GetDNAString() string {
 
 // Mutation случайно изменяет значение одного гена в DNA.Array.
 func (d *DNA) Mutation(index int) {
-
 	d.Array[index] = rand.Intn(MaxGen)
 	d.ID = time.Now().Nanosecond() + rand.Intn(1000)
 }
