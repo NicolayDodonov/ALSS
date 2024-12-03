@@ -24,11 +24,12 @@ type Logger struct {
 }
 
 type Model struct {
-	Max    int    `yaml:"maxGen" env-default:"16"`
-	Length int    `yaml:"lengthDNA" env-default:"64"`
-	Energy int    `yaml:"energyPoint" env-default:"10"`
-	Brain  string `yaml:"brain" env-default:"brain16"`
-	Loop   `yaml:"loop"`
+	MaxGen  int    `yaml:"maxGen" env-default:"16"`
+	MaxFood int    `yaml:"foodPercent"`
+	Length  int    `yaml:"lengthDNA" env-default:"64"`
+	Energy  int    `yaml:"energyPoint" env-default:"10"`
+	Brain   string `yaml:"brain" env-default:"brain16"`
+	Loop    `yaml:"loop"`
 }
 
 type Loop struct {

@@ -7,7 +7,7 @@ var (
 	StartPopulation   = 1
 	EndPopulation     = 1
 	BasePoisonLevel   = 5
-	RecurseUpdateRate = 10
+	RecurseUpdateRate = 5
 	FinalAgeTrain     = 1000
 	MutationCount     = 1
 )

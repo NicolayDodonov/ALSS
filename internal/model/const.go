@@ -1,12 +1,13 @@
 package model
 
 var (
-	MaxGen      = 16
-	LengthDNA   = 64
-	EnergyPoint = 10
-	TypeBrain   = "brain16"
-	LoopX       = false
-	LoopY       = false
+	MaxGen         = 16
+	MaxFoodPercent = 50
+	LengthDNA      = 64
+	EnergyPoint    = 10
+	TypeBrain      = "brain16"
+	LoopX          = false
+	LoopY          = false
 )
 
 const (
