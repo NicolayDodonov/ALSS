@@ -87,11 +87,6 @@ func (e *Entity) poisonHandler(w *World) error {
 	return nil
 }
 
-// loopPointer обеспечивает зацикленность DNA.Pointer.
-func (e *Entity) loopPointer() {
-	e.Pointer = e.Pointer % LengthDNA
-}
-
 // die устанавливает бота в умершее состояние.
 // Удаляет ссылку на бота из мира. Первый уровень защиты от умерших ботов.
 func (e *Entity) die(w *World) {

@@ -43,6 +43,11 @@ func (d *DNA) jump() {
 	d.Pointer += (d.Pointer + d.Array[d.Pointer]) % LengthDNA
 }
 
+// loopPointer обеспечивает зацикленность DNA.Pointer.
+func (d *DNA) loopPointer() {
+	d.Pointer = d.Pointer % LengthDNA
+}
+
 // String создаёт на основе DNA.Array строку содержащую
 // информацию об id генокода и его битовую составляющую.
 // Реализация стандартного интерфейса Stringer.
