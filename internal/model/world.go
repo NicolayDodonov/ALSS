@@ -95,7 +95,7 @@ func (w *World) Update(addFood bool) {
 				continue
 			}
 			//Если нет бота, она пустая и не сильно отравлена, то добавляем еду
-			if cell.Entity != nil && cell.Types == EmptyCell && cell.Poison < pLevel4 {
+			if cell.Entity == nil && cell.Types == EmptyCell && cell.Poison < pLevel4 {
 				cell.Types = FoodCell
 				w.CountFood++
 			}
@@ -118,8 +118,6 @@ func (w *World) Execute() {
 // MoveEntity передвигает сущность(Entity) из старой клетки(Cell) в новую.
 // Возвращает nil или ошибку перемещения.
 func (w *World) MoveEntity(newCord Coordinates, entity *Entity) (err error) {
-	newCord, err = w.loopCoord(newCord)
-
 	//Смотрим что в целевой клетке
 	cell, err := w.GetCellData(newCord)
 	if err != nil {
@@ -140,7 +138,6 @@ func (w *World) MoveEntity(newCord Coordinates, entity *Entity) (err error) {
 			return err
 		}
 	case FoodCell:
-		//todo добавить проверку на ошибку
 		if err = w.SetCellEntity(entity.Coordinates, nil); err != nil {
 			return err
 		}

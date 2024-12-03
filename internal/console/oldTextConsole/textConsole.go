@@ -56,6 +56,9 @@ func (tc *TextConsole) Print(world *model.World) {
 			if cell.Poison > model.PLevelMax/2 {
 				canvas[x][y] = tc.Alphabet["poison"]
 			}
+			//if cell.Entity != nil {
+			//	canvas[x][y] = tc.Alphabet["entity"]
+			//}
 			if cell.Entity != nil {
 				canvas[x][y] = tc.Alphabet["entity"]
 			}
@@ -65,7 +68,7 @@ func (tc *TextConsole) Print(world *model.World) {
 
 	//рисуем холст
 	for i := 0; i < len(canvas); i++ {
-		fmt.Print("▓" + string(canvas[i]) + "▓\n")
+		fmt.Print("▓" + string(canvas[i]) + "▓    \n")
 	}
 	fmt.Print(world.GetPrettyStatistic() + "\n")
 	//вернуть каретку в начало для перерисовки кадра
