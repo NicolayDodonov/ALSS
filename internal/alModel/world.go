@@ -5,6 +5,7 @@ import (
 	"math/rand"
 )
 
+// NewWorld возвращает структуру мира(World).
 func NewWorld(x, y, population, poison int) *World {
 	w := &World{
 		Xsize:       x,
@@ -28,8 +29,8 @@ func NewWorld(x, y, population, poison int) *World {
 // Является вторым уровнем защиты от умерших сущностей(Entity).
 func (w *World) RemoveDead() {
 	for _, entity := range w.ArrayEntity {
-		//если клетка не жива
-		//если у неё кончилась энергия
+		// Если клетка не жива
+		// Если у неё кончилась энергия
 		if !entity.Live ||
 			entity.Energy <= 0 {
 			_ = w.SetCellEntity(entity.Coordinates, nil)
@@ -71,13 +72,13 @@ func (w *World) Update(addFood bool) {
 	}
 	//Если надо добавить в мир еды, то:
 	if addFood {
-		//Считаем, сколько еды максимум может быть в мире
+		// Считаем, сколько еды максимум может быть в мире
 		maxFood := (w.Xsize * w.Ysize) * MaxFoodPercent / 100
-		//Если больше - выходим
+		// Если больше - выходим
 		if w.CountFood >= maxFood {
 			return
 		}
-		//Добавляем в мир еды
+		// Добавляем в мир еды
 		for attempt := 0; attempt < maxFood*2; attempt++ {
 			// Берём случайную клетку
 			cell, err := w.GetCellData(
@@ -88,16 +89,16 @@ func (w *World) Update(addFood bool) {
 			if err != nil {
 				break
 			}
-			//Если там есть еда - следующий цикл
+			// Если там есть еда - следующий цикл
 			if cell.Types == FoodCell {
 				continue
 			}
-			//Если нет бота, она пустая и не сильно отравлена, то добавляем еду
+			// Если нет бота, она пустая и не сильно отравлена, то добавляем еду
 			if cell.Entity == nil && cell.Types == EmptyCell && cell.Poison < pLevel4 {
 				cell.Types = FoodCell
 				w.CountFood++
 			}
-			//Если еды много, выходим
+			// Если еды много, выходим
 			if w.CountFood >= maxFood {
 				break
 			}
@@ -108,7 +109,7 @@ func (w *World) Update(addFood bool) {
 // StatisticUpdate обновляет значение World Statistic высчитывая все живые сущности(Entity),
 // подсчитывая клетки с едой и собирая общее коллличество яда в мире.
 func (w *World) StatisticUpdate() {
-	//собрать данные по колличеству сущностей
+	// Собрать данные по колличеству сущностей
 	Count := 0
 	for _, entity := range w.ArrayEntity {
 		if entity.Live {
@@ -117,7 +118,7 @@ func (w *World) StatisticUpdate() {
 	}
 	w.CountEntity = Count
 
-	//Собрать данные по пище
+	// Собрать данные по пище
 	Count = 0
 	for x := 0; x < len(w.Map); x++ {
 		for y := 0; y < len(w.Map[x]); y++ {
@@ -129,7 +130,7 @@ func (w *World) StatisticUpdate() {
 	}
 	w.CountFood = Count
 
-	//Собрать данные по отравлению
+	// Собрать данные по отравлению
 	Count = 0
 	for x := 0; x < len(w.Map); x++ {
 		for y := 0; y < len(w.Map[x]); y++ {
@@ -139,7 +140,7 @@ func (w *World) StatisticUpdate() {
 	}
 	w.CountPoison = Count
 
-	//Рассчитаем на сколько мир отравлен
+	// Рассчитаем на сколько мир отравлен
 	Count = w.Xsize * w.Ysize * PLevelMax
 	w.PercentPoison = w.CountPoison * 100.0 / Count
 }
@@ -155,7 +156,7 @@ func (w *World) Execute() {
 // MoveEntity передвигает сущность(Entity) из старой клетки(Cell) в новую.
 // Возвращает nil или ошибку перемещения.
 func (w *World) MoveEntity(newCord Coordinates, entity *Entity) (err error) {
-	//Смотрим что в целевой клетке
+	// Смотрим что в целевой клетке
 	cell, err := w.GetCellData(newCord)
 	if err != nil {
 		//Если не можем посмотреть на клетку - выходим с ошибкой
@@ -165,7 +166,7 @@ func (w *World) MoveEntity(newCord Coordinates, entity *Entity) (err error) {
 		//Если в другой клетке есть сущность - мы не можем двигаться
 		return fmt.Errorf("world move e in %v is fall - have entity №%v", newCord, cell.Entity.ID)
 	}
-	//Смотрим что в клетке
+	// Смотрим что в клетке
 	switch cell.Types {
 	case EmptyCell:
 		if err = w.SetCellEntity(entity.Coordinates, nil); err != nil {
@@ -181,7 +182,7 @@ func (w *World) MoveEntity(newCord Coordinates, entity *Entity) (err error) {
 		if err = w.SetCellEntity(newCord, entity); err != nil {
 			return err
 		}
-		//Уничтожаем еду в клетке - сущность её затоплато
+		// Уничтожаем еду в клетке - сущность её затоплато
 		if err = w.SetCellType(newCord, EmptyCell); err != nil {
 			return err
 		}

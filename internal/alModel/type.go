@@ -10,6 +10,7 @@ type World struct {
 	Statistic
 }
 
+// Map это тип карты. Слайс слайса указателей клеток(*Cell)
 type Map [][]*Cell
 
 // Statistic позволяет сохранять статистические данные о мире.
@@ -22,8 +23,6 @@ type Statistic struct {
 	ID            int
 }
 
-// todo: Изменить структуру типов клеток
-
 // Cell описывает базовый эллемент карты мира - его клетку.
 type Cell struct {
 	*Entity
@@ -31,6 +30,7 @@ type Cell struct {
 	Poison int
 }
 
+// CellTypes это тип клетки.
 type CellTypes int
 
 // Coordinates - универсальная структура координат любого объекта в мире.
@@ -52,6 +52,7 @@ type Entity struct {
 	brain
 }
 
+// turns это угол поворота.
 type turns int
 
 // DNA - генокод. Array - область программного кода,

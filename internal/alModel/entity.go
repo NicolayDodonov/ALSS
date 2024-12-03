@@ -2,7 +2,6 @@ package alModel
 
 import (
 	l "artificialLifeGo/internal/logger"
-	"fmt"
 	"strconv"
 )
 
@@ -18,7 +17,7 @@ func NewEntity(ID, x, y, longDNA int) *Entity {
 			x,
 			y,
 		},
-		*NewDNA(longDNA),
+		*newDNA(longDNA),
 		newBrain(),
 	}
 }
@@ -27,27 +26,29 @@ func NewEntity(ID, x, y, longDNA int) *Entity {
 // Возвращает nil или критическую ошибку
 func (e *Entity) Run(w *World) {
 	l.Ent.Debug("id " + strconv.Itoa(e.ID) + " is run his genocode")
-	//если бот мёрт, вылетаем с ошибкой
+	// Если бот мёрт, вылетаем с ошибкой
 	if !e.Live {
 		l.Ent.Debug("ID:" + strconv.Itoa(e.ID) + "cant run - dead")
 		return
 	}
 
-	//уменьшаем энергию бота перед выполнение генокода
+	// Уменьшаем энергию бота перед выполнение генокода
 	// "Деньги в перёд"
 	e.Energy--
 	e.Age++
 
+	// Вызываем мозг бота для исполнения команды
 	err := e.run(e, w)
 	if err != nil {
 		l.Ent.Error("id" + strconv.Itoa(e.ID) + " " + err.Error())
 		return
 	}
-	//проверяем клетку бота на уровень яда
-	//тут бот может умереть, но код ниже это всё равно обработает
+
+	// Проверяем клетку бота на уровень яда
+	// Тут бот может умереть, но код ниже это всё равно обработает
 	err = e.poisonHandler(w)
 
-	//Если энергии не осталось - умираем
+	// Если энергии не осталось - умираем
 	if e.Energy <= 0 || !e.Live {
 		e.die(w)
 		l.Ent.Info("ID:" + strconv.Itoa(e.ID) + " die without energy")
@@ -55,32 +56,21 @@ func (e *Entity) Run(w *World) {
 	}
 }
 
-func newBrain() brain {
-	switch TypeBrain {
-	case "16":
-		return brain16{}
-	case "64":
-		return brain64{}
-	case "nero":
-		return brainNero{}
-	default:
-		return brain0{}
-	}
-}
-
+// poisonHandler обрабатывает все условия взаимодействия бота с отравлением на месности.
+// Возвращает nil или ошибку выхода за границы мира
 func (e *Entity) poisonHandler(w *World) error {
-	//Добавляем отравление на клетку, где находиться бот
+	// Добавляем отравление на клетку, где находиться бот
 	if err := w.SetCellPoison(e.Coordinates, pLevel1+1); err != nil {
 		return err
 	}
 
-	//получаем исчерпывающую информацию о клетке, где находится бот
+	// Получаем исчерпывающую информацию о клетке, где находится бот
 	cell, err := w.GetCellData(e.Coordinates)
 	if err != nil {
 		return err
 	}
 
-	//проверяем уровень яда
+	// Проверяем уровень яда
 	if cell.Poison >= pLevelDed {
 		e.Live = false
 		return nil
@@ -89,160 +79,6 @@ func (e *Entity) poisonHandler(w *World) error {
 		return nil
 	}
 	return nil
-}
-
-// move отвечает за передвижение сущности(Entity) из одной клетки(Cell) мира(World) в другую.
-// Возвращает nil или ошибку.
-func (e *Entity) move(w *World) error {
-	//получаем координаты, куда хотим переместиться
-	newCord := Sum(
-		viewCell(e.turn),
-		e.Coordinates,
-	)
-	newCord, _ = w.loopCord(newCord)
-	//перемещаемся в новые координаты
-	if err := w.MoveEntity(newCord, e); err != nil {
-		return err
-	}
-	e.Coordinates = newCord
-	return nil
-}
-
-// look отвечает за получение данных из другой клетки(Cell). Возвращает номер
-// сдвига Entity.DNA.Pointer или ошибку.
-func (e *Entity) look(w *World) (int, error) {
-	//константы ответов на что мы смотрим
-	const (
-		isError = iota
-		isEmpty
-		isFood
-		isWall
-		isEntity
-	)
-
-	//получаем координаты, куда хотим посмотреть
-	newCord := Sum(
-		viewCell(e.turn),
-		e.Coordinates)
-	newCord, _ = w.loopCord(newCord)
-	//смотрим что там
-	cell, err := w.GetCellData(newCord)
-	if err != nil {
-		return isError, err
-	}
-
-	//Определяем тип возврата
-	switch cell.Types {
-	case EmptyCell:
-		if cell.Entity != nil {
-			return isEntity, nil
-		} else {
-			return isEmpty, nil
-		}
-	case FoodCell:
-		return isFood, nil
-	case WallCell:
-		return isWall, nil
-	default:
-		return isError, fmt.Errorf("cell type is %v, I dont't know this type", cell.Types)
-	}
-}
-
-// get отвечает за взаимодействие сущности(Entity) с окружением
-// таким как: взять, съесть и тп. Возвращает nil или ошибку.
-func (e *Entity) get(w *World) error {
-	//получаем координаты для взятия
-	newCord := Sum(
-		viewCell(e.turn),
-		e.Coordinates)
-	newCord, _ = w.loopCord(newCord)
-	//смотрим что там
-	cell, err := w.GetCellData(newCord)
-	if err != nil {
-		return err
-	}
-	//совераем действие в зависимости от типа клетки
-	switch cell.Types {
-	case EmptyCell:
-		if err = e.attack(cell); err != nil {
-			return err
-		}
-	case FoodCell:
-		//сначала меняем тип клетки
-		cell.Types = EmptyCell
-		//а потом увеличиваем энергию
-		e.Energy += EnergyPoint
-	case WallCell:
-		e.Energy -= EnergyPoint
-	default:
-		return fmt.Errorf("cell type is %v, I dont't know this type", cell.Types)
-	}
-	return nil
-}
-
-// attack отвечает за убийство сущности(Entity) в клетке(Cell) и передачи энергии сущности(Entity),
-// вы звавщей функцию. Ничего не возвращает.
-func (e *Entity) attack(cell *Cell) error {
-	if cell.Entity == nil {
-		return fmt.Errorf("attack is fall - not entity")
-	}
-	energy := cell.Entity.Energy
-	cell.Entity.Live = false
-	cell.Entity = nil
-	e.Energy = energy
-	return nil
-}
-
-// rotation отвечает за смену угла взгляда на заданное число.
-// Повороты зациклены.
-func (e *Entity) rotation(turnCount turns) {
-	e.turn = (e.turn + turnCount) % 8
-}
-
-// recycling отвечает за получение энергии из загрязнения окружающей среды.
-// Возвращает nil или ошибку.
-func (e *Entity) recycling(w *World) error {
-
-	//получаем координаты переработки
-	newCord := viewCell(e.turn)
-	newCord, _ = w.loopCord(newCord)
-	//смотрим что там
-	cell, err := w.GetCellData(
-		Sum(
-			newCord,
-			e.Coordinates))
-	if err != nil {
-		return err
-	}
-
-	//Расчитываем размер очистки клетки
-	var dPoison = 0
-	if cell.Poison >= pLevel4 {
-		dPoison = EnergyPoint * 2
-	} else if cell.Poison >= pLevel3 {
-		dPoison = EnergyPoint
-	} else if cell.Poison >= pLevel2 {
-		dPoison = EnergyPoint / 2
-	} else if cell.Poison >= pLevel1 {
-		dPoison = EnergyPoint / 5
-	}
-
-	//очищаем клетку
-	if err = w.SetCellPoison(newCord, cell.Poison-dPoison); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// reproduction is todo!
-func (e *Entity) reproduction() error {
-	return nil
-}
-
-// jump обеспечивает зацикленный прыжок по DNA.Array.
-func (e *Entity) jump() {
-	e.Pointer += (e.Pointer + e.Array[e.Pointer]) % LengthDNA
 }
 
 // loopPointer обеспечивает зацикленность DNA.Pointer.
@@ -255,6 +91,6 @@ func (e *Entity) loopPointer() {
 func (e *Entity) die(w *World) {
 	e.Live = false
 	e.Energy = 0
-	//очищаем клетку от сущности
+	// Очищаем клетку от сущности
 	_ = w.SetCellEntity(e.Coordinates, nil)
 }

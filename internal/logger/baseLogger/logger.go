@@ -6,13 +6,16 @@ import (
 	"time"
 )
 
+// Logger структура базового логгера, хранит в себе адрес хрангилища логгеров и уровень логгирования.
 type Logger struct {
 	file  *os.File
 	level LoggerType
 }
 
+// LoggerType это уровень логгирования.
 type LoggerType uint8
 
+// New создаёт новый логгер и возвращает или указатель на него или ошибку.
 func New(path string, level LoggerType) (*Logger, error) {
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {

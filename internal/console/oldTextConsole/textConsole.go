@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// TextConsole простой визуализатор мира.
 type TextConsole struct {
 	Alphabet map[string]rune
 }
@@ -20,13 +21,14 @@ var ASCIIAlphabet = map[string]rune{
 	"poison": '░',
 }
 
+// New возвращает указатель на TextConsole.
 func New() *TextConsole {
 	return &TextConsole{
 		ASCIIAlphabet,
 	}
 }
 
-// Print выводит на экран кадр мира + статистическую информацию
+// Print выводит на экран кадр мира + статистическую информацию.
 func (tc *TextConsole) Print(world *alModel.World) {
 	//создаём холст
 	var canvas = make([][]rune, world.Xsize)

@@ -8,6 +8,7 @@ import (
 	"strconv"
 )
 
+// Simulation структура описывающая симуляцию
 type Simulation struct {
 	printer console.Console
 	storage.Storage

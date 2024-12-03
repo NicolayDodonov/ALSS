@@ -10,22 +10,22 @@ import (
 // SetGeneration приводит отработавщую популяцию к стартовому состоянию с заменой генома.
 // разбрасывает сущности по карте в случайном порядке.
 func (w *World) SetGeneration(endPopulation, mutationCount int) {
-	//отсортируем сущности мо возрасту
-	//определив лучшие сущности
+	// Отсортируем сущности мо возрасту
+	// Определив лучшие сущности
 	w.sortAge()
-	//присвоим их геном остальным ботам
+	// Присвоим их геном остальным ботам
 	for i := 0; i < endPopulation; i++ {
 		for j := 0; j < endPopulation; j++ {
-			w.ArrayEntity[i*endPopulation+j].DNA.Set(w.ArrayEntity[i].DNA)
+			w.ArrayEntity[i*endPopulation+j].DNA.set(&w.ArrayEntity[i].DNA)
 		}
 	}
-	//случайно произведём мутации в генокоде
+	// Случайно произведём мутации в генокоде
 	length := len(w.ArrayEntity)
 	for i := 0; i < mutationCount; i++ {
-		w.ArrayEntity[rand.Intn(length)].DNA.Mutation(rand.Intn(MaxGen))
+		w.ArrayEntity[rand.Intn(length)].DNA.mutation(rand.Intn(MaxGen))
 	}
 	for _, entity := range w.ArrayEntity {
-		entity.Energy = rand.Intn(10) + 90
+		entity.Energy = 100
 		entity.Age = 0
 		entity.Live = true
 		entity.Coordinates = Coordinates{

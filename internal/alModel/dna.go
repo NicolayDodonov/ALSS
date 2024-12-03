@@ -7,7 +7,8 @@ import (
 	"time"
 )
 
-func NewDNA(longDNA int) *DNA {
+// newDNA принимает длинну генокода и возвращает структуру генокода с укикальный id.
+func newDNA(longDNA int) *DNA {
 	var Array []int
 	for i := 0; i < longDNA; i++ {
 		Array = append(Array, rand.Intn(MaxGen))
@@ -19,16 +20,32 @@ func NewDNA(longDNA int) *DNA {
 	}
 }
 
-func (d *DNA) Set(d2 DNA) {
-	d.ID = d2.ID
-	d.Pointer = d2.Pointer
+// set устанавливает все поля DNA в значении input.
+func (d *DNA) set(input *DNA) {
+	d.ID = input.ID
+	d.Pointer = input.Pointer
 	for i := 0; i < len(d.Array); i++ {
-		d.Array[i] = d2.Array[i]
+		d.Array[i] = input.Array[i]
 	}
+}
+
+// mutation случайно изменяет значение одного гена в DNA.Array.
+func (d *DNA) mutation(index int) {
+	d.Array[index] = rand.Intn(MaxGen)
+	d.ID = time.Now().Nanosecond() + rand.Intn(1000)
+}
+
+// jump обеспечивает зацикленный прыжок по DNA.Array.
+//
+// В качесте аргумента принимает байт в DNA.Array на который
+// указывает DNA.Pointer.
+func (d *DNA) jump() {
+	d.Pointer += (d.Pointer + d.Array[d.Pointer]) % LengthDNA
 }
 
 // String создаёт на основе DNA.Array строку содержащую
 // информацию об id генокода и его битовую составляющую.
+// Реализация стандартного интерфейса Stringer.
 func (d *DNA) String() string {
 	var s strings.Builder
 	s.WriteString("DNA id: " + strconv.Itoa(d.ID) + "\n")
@@ -40,10 +57,4 @@ func (d *DNA) String() string {
 	}
 	s.WriteString("\n")
 	return s.String()
-}
-
-// Mutation случайно изменяет значение одного гена в DNA.Array.
-func (d *DNA) Mutation(index int) {
-	d.Array[index] = rand.Intn(MaxGen)
-	d.ID = time.Now().Nanosecond() + rand.Intn(1000)
 }
