@@ -100,7 +100,7 @@ func (e *Entity) move(w *World) error {
 		e.Coordinates,
 	)
 	//перемещаемся в новые координаты
-	if err := w.MoveEntity(e.Coordinates, newCord, e); err != nil {
+	if err := w.MoveEntity(newCord, e); err != nil {
 		return err
 	}
 	e.Coordinates = newCord

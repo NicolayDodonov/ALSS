@@ -117,7 +117,7 @@ func (w *World) Execute() {
 
 // MoveEntity передвигает сущность(Entity) из старой клетки(Cell) в новую.
 // Возвращает nil или ошибку перемещения.
-func (w *World) MoveEntity(oldCord, newCord Coordinates, entity *Entity) (err error) {
+func (w *World) MoveEntity(newCord Coordinates, entity *Entity) (err error) {
 	newCord, err = w.loopCoord(newCord)
 
 	//Смотрим что в целевой клетке
@@ -133,15 +133,24 @@ func (w *World) MoveEntity(oldCord, newCord Coordinates, entity *Entity) (err er
 	//Смотрим что в клетке
 	switch cell.Types {
 	case EmptyCell:
-		//todo добавить проверку на ошибку
-		_ = w.SetCellEntity(oldCord, nil)
-		_ = w.SetCellEntity(newCord, entity)
+		if err = w.SetCellEntity(entity.Coordinates, nil); err != nil {
+			return err
+		}
+		if err = w.SetCellEntity(newCord, entity); err != nil {
+			return err
+		}
 	case FoodCell:
 		//todo добавить проверку на ошибку
-		_ = w.SetCellEntity(oldCord, nil)
-		_ = w.SetCellEntity(newCord, entity)
+		if err = w.SetCellEntity(entity.Coordinates, nil); err != nil {
+			return err
+		}
+		if err = w.SetCellEntity(newCord, entity); err != nil {
+			return err
+		}
 		//Уничтожаем еду в клетке - сущность её затоплато
-		_ = w.SetCellType(newCord, EmptyCell)
+		if err = w.SetCellType(newCord, EmptyCell); err != nil {
+			return err
+		}
 	case WallCell:
 		return fmt.Errorf("world move e in %v is fall - wall", newCord)
 	}
