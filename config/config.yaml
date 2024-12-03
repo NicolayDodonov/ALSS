@@ -11,11 +11,11 @@
     simPath: "logs/sim.log"
   # основные константы модели
   modelConst:
-    maxGen: 16
-    foodPercent: 10
+    maxGen: 64
+    foodPercent: 30
     lengthDNA: 64
     energyPoint: 10
-    brain:  "16"
+    brain:  "64"
     loop:
         x: true
         y: false
@@ -29,7 +29,11 @@
     startPoison: 0
     resourceUpdate: 10
     ageExit: 1000
-    mutation: 10
+    mutation: 100
+    # основные константы симуляции
+    console:
+        type: "old"
+        timeOut: 100
   # место сохранения результатов обучения
   storage:
     type: "file"

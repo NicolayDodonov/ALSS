@@ -10,6 +10,7 @@ import (
 // TextConsole простой визуализатор мира.
 type TextConsole struct {
 	Alphabet map[string]rune
+	timeOut  int
 }
 
 var ASCIIAlphabet = map[string]rune{
@@ -22,9 +23,10 @@ var ASCIIAlphabet = map[string]rune{
 }
 
 // New возвращает указатель на TextConsole.
-func New() *TextConsole {
+func New(timeOut int) *TextConsole {
 	return &TextConsole{
 		ASCIIAlphabet,
+		timeOut,
 	}
 }
 
@@ -76,5 +78,5 @@ func (tc *TextConsole) Print(world *alModel.World) {
 	//вернуть каретку в начало для перерисовки кадра
 	//todo: создать свою реализацию движения коретки
 	cursor.Up(world.Xsize + 5)
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(time.Duration(tc.timeOut) * time.Millisecond)
 }

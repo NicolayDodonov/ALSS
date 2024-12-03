@@ -47,6 +47,12 @@ type Simulation struct {
 	RecurseUpdateRate int    `yaml:"resourceUpdate"`
 	FinalAgeTrain     int    `yaml:"ageExit"`
 	MutationCount     int    `yaml:"mutation"`
+	Console           `yaml:"console"`
+}
+
+type Console struct {
+	Type    string `yaml:"type" env-required:"true"`
+	TimeOut int    `yaml:"timeOut"`
 }
 
 type Storage struct {

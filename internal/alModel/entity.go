@@ -32,6 +32,12 @@ func (e *Entity) Run(w *World) {
 		return
 	}
 
+	if e.Energy <= 0 {
+		e.die(w)
+		l.Ent.Info("ID:" + strconv.Itoa(e.ID) + " die without energy")
+		return
+	}
+
 	// Уменьшаем энергию бота перед выполнение генокода
 	// "Деньги в перёд"
 	e.Energy--

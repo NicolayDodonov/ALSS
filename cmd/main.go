@@ -18,7 +18,7 @@ func main() {
 	defer loggers.App.Info("Application exit")
 
 	//Включаем консоль
-	console := oldConsole.New()
+	console := oldConsole.New(conf.Console.TimeOut)
 	storage := file.New(conf.Storage.PathAge, conf.PathTrain)
 	simulation := sim.New(console, storage)
 	loggers.App.Info("Console init")
