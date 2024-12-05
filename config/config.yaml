@@ -23,7 +23,7 @@
   simulation:
     type: "train"
     X: 15
-    Y: 40
+    Y: 100
     startPop: 100
     endPop: 10
     resourceUpdate: 5
