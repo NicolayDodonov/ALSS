@@ -6,11 +6,11 @@ import (
 )
 
 // NewWorld возвращает структуру мира(World).
-func NewWorld(x, y, population, poison int) *World {
+func NewWorld(x, y, population int) *World {
 	w := &World{
 		Xsize:       x,
 		Ysize:       y,
-		Map:         newMap(x, y, poison),
+		Map:         newMap(x, y, BasePoisonLevel),
 		ArrayEntity: newGeneration(x, y, population),
 		Statistic: Statistic{
 			population,
@@ -44,7 +44,7 @@ func (w *World) Clear() {
 		for y := 0; y < len(w.Map[x]); y++ {
 			w.Map[x][y].Entity = nil
 			w.Map[x][y].Types = EmptyCell
-			w.Map[x][y].Poison = 0
+			w.Map[x][y].Poison = BasePoisonLevel
 		}
 	}
 	w.CountFood = 0

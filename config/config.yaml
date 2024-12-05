@@ -12,13 +12,13 @@
   # основные константы модели
   modelConst:
     maxGen: 64
-    foodPercent: 30
+    foodPercent: 25
     lengthDNA: 64
-    energyPoint: 10
+    energyPoint: 5
     brain:  "64"
     loop:
         x: true
-        y: false
+        y: true
   # основные константы симуляции
   simulation:
     type: "train"
@@ -26,14 +26,16 @@
     Y: 40
     startPop: 100
     endPop: 10
-    startPoison: 0
-    resourceUpdate: 10
+    resourceUpdate: 5
     ageExit: 1000
-    mutation: 100
+    mutation: 10
+    poison:
+        enable: false
+        startLevel: 0
     # основные константы симуляции
     console:
         type: "old"
-        timeOut: 100
+        timeOut: 0
   # место сохранения результатов обучения
   storage:
     type: "file"

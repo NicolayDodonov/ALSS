@@ -155,7 +155,16 @@ func (brain64) run(e *Entity, w *World) error {
 			frameCount += minFC
 
 			l.Ent.Debug("id " + strconv.Itoa(e.ID) + " turns left")
-		default: //32 to 64
+		case 4: //32 to 39
+			nowTurn := e.turn
+			e.rotation(turns(command % 8))
+
+			errGen = e.recycling(w)
+			e.turn = nowTurn
+			frameCount += middleFC
+
+			l.Ent.Debug("id " + strconv.Itoa(e.ID) + " recycling")
+		default: //39 to 72
 			e.jump()
 			frameCount += minFC
 		}

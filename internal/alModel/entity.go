@@ -65,6 +65,9 @@ func (e *Entity) Run(w *World) {
 // poisonHandler обрабатывает все условия взаимодействия бота с отравлением на месности.
 // Возвращает nil или ошибку выхода за границы мира
 func (e *Entity) poisonHandler(w *World) error {
+	if !PoisonEnable {
+		return nil
+	}
 	// Добавляем отравление на клетку, где находиться бот
 	if err := w.SetCellPoison(e.Coordinates, pLevel1+1); err != nil {
 		return err

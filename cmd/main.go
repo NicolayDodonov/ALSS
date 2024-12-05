@@ -51,6 +51,8 @@ func MustInit() *config.Config {
 	alModel.TypeBrain = conf.Brain
 	alModel.LoopX = conf.Loop.X
 	alModel.LoopY = conf.Loop.Y
+	alModel.PoisonEnable = conf.PoisonEnable
+	alModel.BasePoisonLevel = conf.BaseLevel
 
 	sim.TypeSimulation = conf.Simulation.Type
 	sim.WorldSizeX = conf.Simulation.WorldSizeX

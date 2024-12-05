@@ -30,6 +30,7 @@ func (s *Storage) WorldAgeSave(year int) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 

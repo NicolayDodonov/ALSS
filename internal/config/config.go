@@ -47,7 +47,13 @@ type Simulation struct {
 	RecurseUpdateRate int    `yaml:"resourceUpdate"`
 	FinalAgeTrain     int    `yaml:"ageExit"`
 	MutationCount     int    `yaml:"mutation"`
+	Poison            `yaml:"poison"`
 	Console           `yaml:"console"`
+}
+
+type Poison struct {
+	PoisonEnable bool `yaml:"enable" env-default:"false"`
+	BaseLevel    int  `yaml:"startLevel"`
 }
 
 type Console struct {

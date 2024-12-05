@@ -49,6 +49,9 @@ func (w *World) SetCellType(cord Coordinates, types CellTypes) error {
 // SetCellPoison изменяет уровень яда в клетке(Cell). Возвращает nil или
 // ошибку выхода за границы мира.
 func (w *World) SetCellPoison(cord Coordinates, dPoison int) error {
+	if !PoisonEnable {
+		return nil
+	}
 	if checkLimit(cord, Coordinates{w.Xsize, w.Ysize}) {
 		w.Map[cord.X][cord.Y].Poison += dPoison
 		if w.Map[cord.X][cord.Y].Poison == PLevelMax {

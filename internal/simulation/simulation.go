@@ -31,7 +31,7 @@ func (s *Simulation) Train() []string {
 	startPopulation := StartPopulation
 
 	//создаёсм мир
-	w := alModel.NewWorld(WorldSizeX, WorldSizeY, startPopulation, BasePoisonLevel)
+	w := alModel.NewWorld(WorldSizeX, WorldSizeY, startPopulation)
 
 	//выполняем цикл обучения
 	for check(&succses, w.Age) {
