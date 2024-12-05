@@ -25,6 +25,46 @@ func NewWorld(x, y, population int) *World {
 	return w
 }
 
+// Execute выполняет генетический код для каждой сущности(Entity) вызвавщего
+// функцию мира(World). Возвращает nil или ошибку исполнения сущности.
+func (w *World) Execute() {
+	for _, entity := range w.ArrayEntity {
+		entity.Run(w)
+	}
+}
+
+// FitnessFunc это фитнес функция модели
+func (w *World) FitnessFunc(endPopulation, mutationCount int) {
+	// Сортируем массив сущностей по возрасту
+	w.sortAge()
+
+	// Присвоим их геном остальным ботам
+	for i := 0; i < endPopulation; i++ {
+		for j := 1; j < endPopulation; j++ {
+			w.ArrayEntity[j*endPopulation+i].DNA.set(&w.ArrayEntity[i].DNA)
+		}
+	}
+
+	// Случайно переберём mutationCount ботов
+	for i := 0; i < mutationCount; i++ {
+		// Выбираем случайного бота и изменяем ему 1 байт в генокоде
+		w.ArrayEntity[rand.Intn(LengthDNA)].mutation(rand.Intn(LengthDNA))
+	}
+
+	// Производим настройку всех ботов
+	// Для нового мира
+	for _, entity := range w.ArrayEntity {
+		entity.Energy = 100
+		entity.Age = 0
+		entity.Live = true
+		entity.Coordinates = Coordinates{
+			rand.Intn(w.Xsize),
+			rand.Intn(w.Ysize),
+		}
+	}
+	w.sync()
+}
+
 // RemoveDead очищает мир от умерших сущностей(Entity), чтобы живые с ними не взаимодействовали.
 // Является вторым уровнем защиты от умерших сущностей(Entity).
 func (w *World) RemoveDead() {
@@ -143,14 +183,6 @@ func (w *World) StatisticUpdate() {
 	// Рассчитаем на сколько мир отравлен
 	Count = w.Xsize * w.Ysize * PLevelMax
 	w.PercentPoison = w.CountPoison * 100.0 / Count
-}
-
-// Execute выполняет генетический код для каждой сущности(Entity) вызвавщего
-// функцию мира(World). Возвращает nil или ошибку исполнения сущности.
-func (w *World) Execute() {
-	for _, entity := range w.ArrayEntity {
-		entity.Run(w)
-	}
 }
 
 // MoveEntity передвигает сущность(Entity) из старой клетки(Cell) в новую.

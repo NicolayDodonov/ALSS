@@ -74,7 +74,7 @@ func (s *Simulation) Train() []string {
 			w.GetPrettyEntityInfo(EndPopulation))
 
 		w.Clear()
-		w.SetGeneration(EndPopulation, MutationCount)
+		w.FitnessFunc(EndPopulation, MutationCount)
 		//и обновить ID мира для следующей итерации
 		w.ID++
 	}

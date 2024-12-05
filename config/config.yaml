@@ -35,7 +35,7 @@
     # основные константы симуляции
     console:
         type: "old"
-        timeOut: 0
+        timeOut: 10
   # место сохранения результатов обучения
   storage:
     type: "file"

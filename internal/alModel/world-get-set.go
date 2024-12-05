@@ -2,39 +2,9 @@ package alModel
 
 import (
 	"fmt"
-	"math/rand"
 	"strconv"
 	"strings"
 )
-
-// SetGeneration приводит отработавщую популяцию к стартовому состоянию с заменой генома.
-// разбрасывает сущности по карте в случайном порядке.
-func (w *World) SetGeneration(endPopulation, mutationCount int) {
-	// Отсортируем сущности мо возрасту
-	// Определив лучшие сущности
-	w.sortAge()
-	// Присвоим их геном остальным ботам
-	for i := 0; i < endPopulation; i++ {
-		for j := 0; j < endPopulation; j++ {
-			w.ArrayEntity[i*endPopulation+j].DNA.set(&w.ArrayEntity[i].DNA)
-		}
-	}
-	// Случайно произведём мутации в генокоде
-	length := len(w.ArrayEntity)
-	for i := 0; i < mutationCount; i++ {
-		w.ArrayEntity[rand.Intn(length)].DNA.mutation(rand.Intn(MaxGen))
-	}
-	for _, entity := range w.ArrayEntity {
-		entity.Energy = 100
-		entity.Age = 0
-		entity.Live = true
-		entity.Coordinates = Coordinates{
-			rand.Intn(w.Xsize),
-			rand.Intn(w.Ysize),
-		}
-	}
-	w.sync()
-}
 
 // SetCellType изменяет тип клетки(Cell), на указанный. Возвращает nil или
 // ошибку выхода за границы мира.
