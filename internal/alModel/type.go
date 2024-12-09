@@ -1,25 +1,27 @@
-package model
+package alModel
 
 // World описывает базисную структуру мира, его линейные размеры,
 // а так же содержит массивы карты, сущностей мира и статистики.
 type World struct {
 	Xsize       int
 	Ysize       int
-	Map         [][]*Cell
+	Map         Map
 	ArrayEntity []*Entity
 	Statistic
 }
 
+// Map это тип карты. Слайс слайса указателей клеток(*Cell)
+type Map [][]*Cell
+
 // Statistic позволяет сохранять статистические данные о мире.
 type Statistic struct {
-	CountEntity int
-	CountFood   int
-	CountPoison int
-	Age         int
-	ID          int
+	CountEntity   int
+	CountFood     int
+	CountPoison   int
+	PercentPoison int
+	Age           int
+	ID            int
 }
-
-// todo: Изменить структуру типов клеток
 
 // Cell описывает базовый эллемент карты мира - его клетку.
 type Cell struct {
@@ -28,6 +30,7 @@ type Cell struct {
 	Poison int
 }
 
+// CellTypes это тип клетки.
 type CellTypes int
 
 // Coordinates - универсальная структура координат любого объекта в мире.
@@ -49,6 +52,7 @@ type Entity struct {
 	brain
 }
 
+// turns это угол поворота.
 type turns int
 
 // DNA - генокод. Array - область программного кода,
@@ -58,9 +62,4 @@ type DNA struct {
 	ID      int
 	Pointer int
 	Array   []int
-}
-
-// brain - интерфейс обработчика генокода в DNA
-type brain interface {
-	run(*Entity, *World) error
 }

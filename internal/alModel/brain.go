@@ -1,4 +1,4 @@
-package model
+package alModel
 
 import (
 	l "artificialLifeGo/internal/logger"
@@ -6,6 +6,26 @@ import (
 	"strconv"
 )
 
+// brain - интерфейс обработчика генокода в DNA
+type brain interface {
+	run(*Entity, *World) error
+}
+
+// newBrain создаёт структуру brain в зависимости от состояния TypeBrain.
+func newBrain() brain {
+	switch TypeBrain {
+	case "16":
+		return brain16{}
+	case "64":
+		return brain64{}
+	case "nero":
+		return brainNero{}
+	default:
+		return brain0{}
+	}
+}
+
+// brain0 структура заглушка
 type brain0 struct{}
 
 func (brain0) run(e *Entity, w *World) error {
@@ -14,13 +34,17 @@ func (brain0) run(e *Entity, w *World) error {
 	return nil
 }
 
+// brain16 представляет числа от 0 до 7 как команды
+// остальные числа как безусловный переход
 type brain16 struct{}
 
 func (brain16) run(e *Entity, w *World) error {
-	//выполняем генетический код
-	//не все команды равноценны по сложности, по этому
-	//выполняем их со счётчиком frameCount. Это создёт
-	//более сложное поведение ботов.
+	/*
+		выполняем генетический код
+		не все команды равноценны по сложности, по этому
+		выполняем их со счётчиком frameCount. Это создёт
+		более сложное поведение ботов.
+	*/
 	for frameCount := 0; frameCount < maxFC; {
 		//создаём переменную некретической ошибки
 		var errGen error
@@ -77,15 +101,13 @@ func (brain16) run(e *Entity, w *World) error {
 		//увеличиваем программно-генетический счётчик
 		e.Pointer++
 		e.loopPointer()
-
-		//добавляем отравление на клетку с ботом
-		if err := w.SetCellPoison(e.Coordinates, pLevel1+1); err != nil {
-			return err
-		}
 	}
 	return nil
 }
 
+// brain64 представляет первые 32 числа как команды четырёх групп:
+// движение (0-7), взгляд (8-15), взять (16-23) и поворот (24-31).
+// остальные команды как безусловный переход.
 type brain64 struct{}
 
 func (brain64) run(e *Entity, w *World) error {
@@ -133,6 +155,18 @@ func (brain64) run(e *Entity, w *World) error {
 			frameCount += minFC
 
 			l.Ent.Debug("id " + strconv.Itoa(e.ID) + " turns left")
+		/*
+			case 4: //32 to 39
+
+				nowTurn := e.turn
+				e.rotation(turns(command % 8))
+
+				errGen = e.recycling(w)
+				e.turn = nowTurn
+				frameCount += middleFC
+
+				l.Ent.Debug("id " + strconv.Itoa(e.ID) + " recycling")
+		*/
 		default: //32 to 64
 			e.jump()
 			frameCount += minFC
@@ -148,6 +182,7 @@ func (brain64) run(e *Entity, w *World) error {
 	return nil
 }
 
+// brainNero заглушка на будующее. Интерпритатор на основе нейросети.
 type brainNero struct{}
 
 func (brainNero) run(e *Entity, w *World) error {

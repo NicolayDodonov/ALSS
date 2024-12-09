@@ -1,54 +1,59 @@
 package simulation
 
 import (
+	"artificialLifeGo/internal/alModel"
 	"artificialLifeGo/internal/console"
 	l "artificialLifeGo/internal/logger"
-	"artificialLifeGo/internal/model"
+	"artificialLifeGo/internal/storage"
 	"strconv"
 )
 
+// Simulation структура описывающая симуляцию
 type Simulation struct {
-	printer console.Console
+	console.Console
+	storage.Storage
 }
 
-func New(console console.Console) (s *Simulation) {
+func New(console console.Console, storage storage.Storage) (s *Simulation) {
 	return &Simulation{
-		printer: console,
+		console,
+		storage,
 	}
 }
 
 // Train производит обучение в заданных условиях ботов для получения лучших по геному ботов.
 func (s *Simulation) Train() []string {
+	var succses int = 0
+
 	l.Sim.Info("start train")
 	defer l.Sim.Info("end train")
 	//определяем стартовую популяцию как конечная популяция^2
 	startPopulation := StartPopulation
 
 	//создаёсм мир
-	w := model.NewWorld(WorldSizeX, WorldSizeY, startPopulation, BasePoisonLevel)
+	w := alModel.NewWorld(WorldSizeX, WorldSizeY, startPopulation)
 
 	//выполняем цикл обучения
-	for w.Age < FinalAgeTrain {
+	for check(&succses, w.Age) {
 		l.Sim.Info("Start world№" + strconv.Itoa(w.ID))
 		//очистить мир
 		w.Age = 0
+		w.Wall(5)
+		w.Update(true)
 
-		w.Update(30)
 		for {
 			//обновить состояние ресурсов
-			if w.Age%RecurseUpdateRate == 0 {
-				w.Update(30)
-			}
+			w.Update(w.Age%RecurseUpdateRate == 0)
 
 			//выполнить генокод всех сущностей
 			w.Execute()
 			w.RemoveDead()
 
 			//обновляем статистику
-			w.UpdateStat()
+			w.StatisticUpdate()
 
 			//отрисовываем кадр мира в консоле
-			s.printer.Print(w)
+			s.Print(w)
 
 			l.Sim.Debug("world " + strconv.Itoa(w.ID) + "age " + strconv.Itoa(w.Age) + "is done!\n" +
 				"in world live now: " + strconv.Itoa(w.CountEntity))
@@ -58,18 +63,27 @@ func (s *Simulation) Train() []string {
 			}
 			w.Age++
 		}
-		//Вывести информацию о мире
+		//Сохранить
+		err := s.WorldAgeSave(w.Age)
+		if err != nil {
+			l.Sim.Error(err.Error())
+		}
 		l.Sim.Info("world is dead! " +
 			w.GetStatistic())
 		l.Sim.Debug(strconv.Itoa(EndPopulation) + " best bot's DNA:\n" +
 			w.GetPrettyEntityInfo(EndPopulation))
 
 		w.Clear()
-		w.SetGeneration(EndPopulation, MutationCount)
+		w.FitnessFunc(EndPopulation, MutationCount)
 		//и обновить ID мира для следующей итерации
 		w.ID++
 	}
-
+	//сохраняем данные итогов обучения
+	err := s.TrainGenSave(w.GetEntityInfo(EndPopulation))
+	if err != nil {
+		l.Sim.Error(err.Error())
+		return nil
+	}
 	return w.GetEntityInfo(EndPopulation)
 }
 

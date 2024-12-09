@@ -1,41 +1,46 @@
 package oldTextConsole
 
 import (
-	"artificialLifeGo/internal/model"
+	"artificialLifeGo/internal/alModel"
 	"atomicgo.dev/cursor"
 	"fmt"
 	"time"
 )
 
+// TextConsole простой визуализатор мира.
 type TextConsole struct {
-	Alphabet map[string]byte
+	Alphabet map[string]rune
+	timeOut  int
 }
 
-var ASCIIAlphabet = map[string]byte{
+var ASCIIAlphabet = map[string]rune{
 	"empty":  ' ',
-	"food":   '+',
-	"wall":   '#',
+	"food":   '▞',
+	"wall":   '█',
 	"entity": '0',
 	"nil":    '?',
+	"poison": '░',
 }
 
-func New() *TextConsole {
+// New возвращает указатель на TextConsole.
+func New(timeOut int) *TextConsole {
 	return &TextConsole{
 		ASCIIAlphabet,
+		timeOut,
 	}
 }
 
-// Print выводит на экран кадр мира + статистическую информацию
-func (tc *TextConsole) Print(world *model.World) {
+// Print выводит на экран кадр мира + статистическую информацию.
+func (tc *TextConsole) Print(world *alModel.World) {
 	//создаём холст
-	var canvas = make([][]byte, world.Xsize)
+	var canvas = make([][]rune, world.Xsize)
 	//заполняем хост
 	for x := 0; x < world.Xsize; x++ {
-		canvas[x] = make([]byte, world.Ysize)
+		canvas[x] = make([]rune, world.Ysize)
 		//заполняем строку холста
 		for y := 0; y < world.Ysize; y++ {
 			//получаем клетку мира
-			cell, err := world.GetCellData(model.Coordinates{X: x, Y: y})
+			cell, err := world.GetCellData(alModel.Coordinates{X: x, Y: y})
 			if err != nil {
 				//если почему то не можем получить - пропускаем её
 				continue
@@ -43,15 +48,21 @@ func (tc *TextConsole) Print(world *model.World) {
 			//смотрим что в ней и соотвественно доавляем на холст
 
 			switch cell.Types {
-			case model.EmptyCell:
+			case alModel.EmptyCell:
 				canvas[x][y] = tc.Alphabet["empty"]
-			case model.FoodCell:
+			case alModel.FoodCell:
 				canvas[x][y] = tc.Alphabet["food"]
-			case model.WallCell:
+			case alModel.WallCell:
 				canvas[x][y] = tc.Alphabet["wall"]
 			default:
 				canvas[x][y] = tc.Alphabet["nil"]
 			}
+			if cell.Poison > alModel.PLevelMax/2 {
+				canvas[x][y] = tc.Alphabet["poison"]
+			}
+			//if cell.Entity != nil {
+			//	canvas[x][y] = tc.Alphabet["entity"]
+			//}
 			if cell.Entity != nil {
 				canvas[x][y] = tc.Alphabet["entity"]
 			}
@@ -61,11 +72,11 @@ func (tc *TextConsole) Print(world *model.World) {
 
 	//рисуем холст
 	for i := 0; i < len(canvas); i++ {
-		fmt.Print("|" + string(canvas[i]) + "|\n")
+		fmt.Print("█" + string(canvas[i]) + "█    \n")
 	}
 	fmt.Print(world.GetPrettyStatistic() + "\n")
 	//вернуть каретку в начало для перерисовки кадра
 	//todo: создать свою реализацию движения коретки
 	cursor.Up(world.Xsize + 5)
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(time.Duration(tc.timeOut) * time.Millisecond)
 }

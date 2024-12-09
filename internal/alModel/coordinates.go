@@ -1,6 +1,7 @@
-package model
+package alModel
 
-func Sum(a, b Coordinates) Coordinates {
+// sum складывает коордианты a и b, возвращая результа
+func sum(a, b Coordinates) Coordinates {
 	SumCord := Coordinates{
 		a.X + b.X,
 		a.Y + b.Y,
@@ -8,7 +9,8 @@ func Sum(a, b Coordinates) Coordinates {
 	return SumCord
 }
 
-func Del(a, b Coordinates) Coordinates {
+// del вычитает из координаты a - b, возвращая результат
+func del(a, b Coordinates) Coordinates {
 	DelCord := Coordinates{
 		a.X - b.X,
 		a.Y - b.Y,
@@ -16,6 +18,16 @@ func Del(a, b Coordinates) Coordinates {
 	return DelCord
 }
 
+// viewCell принимает угол взора и возвращает координату взгляда.
+// Взгляд расчитывается по следующей схеме:
+//
+// 123
+//
+// 0*4
+//
+// 765
+//
+// Где * - бот, смотрящий в указанную сторону.
 func viewCell(turn turns) Coordinates {
 	cordTurn := Coordinates{
 		0,

@@ -1,8 +1,8 @@
-# Здесь будет конфиг
+# конфиг приложения
   env: "local"
   # уровни логирования
   logger:
-    typeLogger: "base"
+    type: "base"
     appLevel: "Info"
     entLevel: "Error"
     simLevel: "Info"
@@ -11,21 +11,33 @@
     simPath: "logs/sim.log"
   # основные константы модели
   modelConst:
-    maxGen: 16
+    maxGen: 64
+    foodPercent: 25
     lengthDNA: 64
-    energyPoint: 10
-    brain:  "16"
+    energyPoint: 5
+    brain:  "64"
     loop:
-        x: false
+        x: true
         y: true
   # основные константы симуляции
   simulation:
-    typeSimulation: "train"
-    X: 5
-    Y: 40
+    type: "train"
+    X: 15
+    Y: 100
     startPop: 100
     endPop: 10
-    startPoison: 0
-    resourceUpdate: 10
+    resourceUpdate: 5
     ageExit: 1000
     mutation: 10
+    poison:
+        enable: false
+        startLevel: 0
+    # основные константы симуляции
+    console:
+        type: "old"
+        timeOut: 10
+  # место сохранения результатов обучения
+  storage:
+    type: "file"
+    pathAge: "logs/age.txt"
+    pathTrain: "logs/train.txt"

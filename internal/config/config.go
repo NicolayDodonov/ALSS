@@ -11,24 +11,26 @@ type Config struct {
 	Logger     `yaml:"logger"`
 	Model      `yaml:"modelConst"`
 	Simulation `yaml:"simulation"`
+	Storage    `yaml:"storage"`
 }
 
 type Logger struct {
-	Type    string `yaml:"typeLogger" env-required:"true"`
-	App     string `yaml:"appLevel" env-default:"Error"`
-	Ent     string `yaml:"entLevel" env-default:"Error"`
-	Sim     string `yaml:"simLevel" env-default:"Error"`
-	AppPath string `yaml:"appPath" env-default:"log/all.log"`
-	EntPath string `yaml:"entPath" env-default:"log/all.log"`
-	SimPath string `yaml:"simPath" env-default:"log/all.log"`
+	Type    string `yaml:"type" env-required:"true"`
+	App     string `yaml:"appLevel" env-default:"Off"`
+	Ent     string `yaml:"entLevel" env-default:"Off"`
+	Sim     string `yaml:"simLevel" env-default:"Off"`
+	PathAge string `yaml:"appPath"`
+	PathEnt string `yaml:"entPath"`
+	PathSim string `yaml:"simPath"`
 }
 
 type Model struct {
-	Max    int    `yaml:"maxGen" env-default:"16"`
-	Length int    `yaml:"lengthDNA" env-default:"64"`
-	Energy int    `yaml:"energyPoint" env-default:"10"`
-	Brain  string `yaml:"brain" env-default:"brain16"`
-	Loop   `yaml:"loop"`
+	MaxGen  int    `yaml:"maxGen"`
+	MaxFood int    `yaml:"foodPercent"`
+	Length  int    `yaml:"lengthDNA"`
+	Energy  int    `yaml:"energyPoint"`
+	Brain   string `yaml:"brain"`
+	Loop    `yaml:"loop"`
 }
 
 type Loop struct {
@@ -37,14 +39,32 @@ type Loop struct {
 }
 
 type Simulation struct {
-	Type              string `yaml:"typeSimulation" env-required:"true"`
+	Type              string `yaml:"type" env-required:"true"`
 	WorldSizeX        int    `yaml:"X" env-default:"10"`
 	WorldSizeY        int    `yaml:"Y" env-default:"10"`
-	StartPopulation   int    `yaml:"startPop" env-default:"0"`
-	EndPopulation     int    `yaml:"endPop" env-default:"0"`
-	RecurseUpdateRate int    `yaml:"resourceUpdate" env-default:"0"`
-	FinalAgeTrain     int    `yaml:"ageExit" env-default:"0"`
-	MutationCount     int    `yaml:"mutation" env-default:"0"`
+	StartPopulation   int    `yaml:"startPop"`
+	EndPopulation     int    `yaml:"endPop"`
+	RecurseUpdateRate int    `yaml:"resourceUpdate"`
+	FinalAgeTrain     int    `yaml:"ageExit"`
+	MutationCount     int    `yaml:"mutation"`
+	Poison            `yaml:"poison"`
+	Console           `yaml:"console"`
+}
+
+type Poison struct {
+	PoisonEnable bool `yaml:"enable" env-default:"false"`
+	BaseLevel    int  `yaml:"startLevel"`
+}
+
+type Console struct {
+	Type    string `yaml:"type" env-required:"true"`
+	TimeOut int    `yaml:"timeOut"`
+}
+
+type Storage struct {
+	Type      string `yaml:"type" env-required:"true"`
+	PathAge   string `yaml:"pathAge"`
+	PathTrain string `yaml:"pathTrain"`
 }
 
 func MustLoad(path string) *Config {
