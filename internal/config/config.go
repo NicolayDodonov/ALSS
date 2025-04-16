@@ -7,64 +7,7 @@ import (
 )
 
 type Config struct {
-	Env        string `yaml:"env" env-required:"true"`
-	Logger     `yaml:"logger"`
-	Model      `yaml:"modelConst"`
-	Simulation `yaml:"simulation"`
-	Storage    `yaml:"storage"`
-}
-
-type Logger struct {
-	Type    string `yaml:"type" env-required:"true"`
-	App     string `yaml:"appLevel" env-default:"Off"`
-	Ent     string `yaml:"entLevel" env-default:"Off"`
-	Sim     string `yaml:"simLevel" env-default:"Off"`
-	PathAge string `yaml:"appPath"`
-	PathEnt string `yaml:"entPath"`
-	PathSim string `yaml:"simPath"`
-}
-
-type Model struct {
-	MaxGen  int    `yaml:"maxGen"`
-	MaxFood int    `yaml:"foodPercent"`
-	Length  int    `yaml:"lengthDNA"`
-	Energy  int    `yaml:"energyPoint"`
-	Brain   string `yaml:"brain"`
-	Loop    `yaml:"loop"`
-}
-
-type Loop struct {
-	X bool `yaml:"x" env-default:"false"`
-	Y bool `yaml:"y" env-default:"false"`
-}
-
-type Simulation struct {
-	Type              string `yaml:"type" env-required:"true"`
-	WorldSizeX        int    `yaml:"X" env-default:"10"`
-	WorldSizeY        int    `yaml:"Y" env-default:"10"`
-	StartPopulation   int    `yaml:"startPop"`
-	EndPopulation     int    `yaml:"endPop"`
-	RecurseUpdateRate int    `yaml:"resourceUpdate"`
-	FinalAgeTrain     int    `yaml:"ageExit"`
-	MutationCount     int    `yaml:"mutation"`
-	Poison            `yaml:"poison"`
-	Console           `yaml:"console"`
-}
-
-type Poison struct {
-	PoisonEnable bool `yaml:"enable" env-default:"false"`
-	BaseLevel    int  `yaml:"startLevel"`
-}
-
-type Console struct {
-	Type    string `yaml:"type" env-required:"true"`
-	TimeOut int    `yaml:"timeOut"`
-}
-
-type Storage struct {
-	Type      string `yaml:"type" env-required:"true"`
-	PathAge   string `yaml:"pathAge"`
-	PathTrain string `yaml:"pathTrain"`
+	//todo: make config in end of dev branch
 }
 
 func MustLoad(path string) *Config {
