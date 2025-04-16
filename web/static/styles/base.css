@@ -1,0 +1,9 @@
+/*тут будет задан стиль сайта*/
+
+h1 {
+    font-size: 5rem;
+    color: blue;
+}
+h1 span {
+    color: green;
+}
