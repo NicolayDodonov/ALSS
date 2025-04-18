@@ -2,8 +2,19 @@ package ALSS
 
 // файл содержит все обработчики действий агента
 
-func (a *agent) move(angle int, c *Controller) {
+func (a *agent) move(angle angle, c *Controller) error {
+	newCoord := offset(&a.coordinates, angle)
 
+	newCell := c.world.getCell(newCoord)
+	if newCell.Agent != nil {
+		return nil
+	}
+
+	c.world.getCell(&a.coordinates).Agent = nil
+
+	a.coordinates = *newCoord
+	c.world.getCell(newCoord).Agent = a
+	return nil
 }
 
 func (a *agent) turnLeft() {

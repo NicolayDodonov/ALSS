@@ -10,7 +10,7 @@ type Controller struct {
 	world  *world
 	agents *[]*agent //todo: change type array to linked-list
 	mStat
-	mParam
+	Parameters mParam
 }
 
 type mStat struct {
@@ -19,6 +19,11 @@ type mStat struct {
 
 type mParam struct {
 	//todo: add model parameters
+	baseHP        int
+	maxAge        int
+	typeGenome    string
+	sizeGenome    int
+	countMutation int
 }
 
 func NewController(conf config.Config) *Controller {

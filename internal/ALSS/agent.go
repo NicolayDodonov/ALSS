@@ -1,7 +1,9 @@
 package ALSS
 
+import "math/rand/v2"
+
 type agent struct {
-	ID     int
+	ID     string
 	Age    int
 	Energy int
 	Angle  angle
@@ -9,8 +11,18 @@ type agent struct {
 	Genome *genome
 }
 
-func newAgent(id int, age int, energy int, angle angle) *agent {
-	return &agent{}
+func newAgent(c *Controller) *agent {
+	return &agent{
+		makeID(typeOfAgent),
+		0,
+		c.Parameters.baseHP,
+		0,
+		coordinates{
+			X: rand.IntN(c.world.MaxX),
+			Y: rand.IntN(c.world.MaxY),
+		},
+		newGenome(c.Parameters.typeGenome, c.Parameters.sizeGenome),
+	}
 }
 
 func (a *agent) run(c *Controller) error {
@@ -26,15 +38,16 @@ func (a *agent) run(c *Controller) error {
 		return err
 	}
 
+	a.deathHandler(c)
 	return nil
 }
 
 func (a *agent) interpretationGenome(c *Controller) error {
 	switch a.Genome.getGen() {
 	case 0, 1, 2, 3, 4, 5, 6, 7:
-		a.move(a.Genome.Pointer, c)
+		a.move(angle(a.Genome.Pointer), c)
 	case 8:
-		a.move(int(a.Angle), c)
+		a.move(a.Angle, c)
 	case 9:
 		a.turnLeft()
 	case 10:
@@ -68,14 +81,37 @@ func (a *agent) pollution(c *Controller) error {
 	return nil
 }
 
-func (a *agent) death(c *Controller) {
-	//todo: remove agent from c.agents
-	//todo: add cell minerals
-	//todo: add cell-neighbour minerals/2
+func (a *agent) deathHandler(c *Controller) {
+	if a.Energy <= 0 || a.Age >= c.Parameters.maxAge {
+		//todo: remove agent from c.agents
+
+		//add cell minerals
+		pollutionUnit := a.Energy / 10
+		if a.Energy <= 0 {
+			pollutionUnit = 1
+		}
+		for i := angle(0); i < 8; i++ {
+			_ = c.world.addLocalMinerals(offset(&a.coordinates, i), pollutionUnit)
+		}
+		_ = c.world.addLocalMinerals(&a.coordinates, pollutionUnit*2)
+
+		a.Energy = 0
+		a.Age = -1
+	}
 }
 
 func (a *agent) birth(c *Controller) {
-	//todo: make new agent
-	//todo: add agent before themself in c.agents
+	//make new agent
+	newA := agent{
+		makeID(typeOfAgent),
+		0,
+		a.Energy / 2,
+		a.Angle,
+		a.coordinates,
+		a.Genome,
+	}
+	newA.Genome.mutation(c.Parameters.countMutation)
+
+	//todo: add newAgent before themself in c.agents
 
 }

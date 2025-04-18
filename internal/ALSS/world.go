@@ -1,8 +1,10 @@
 package ALSS
 
 type cell struct {
-	Agent *agent
-	//todo: other info
+	Agent         *agent
+	Height        int
+	localMinerals int
+	localGrass    int
 }
 
 type wGlobal struct {
@@ -13,13 +15,21 @@ type wGlobal struct {
 }
 
 type wStat struct {
-	Number     int
 	Year       int
 	LiveAgent  int
 	DeathAgent int
-	AllAgent   int
-	Minerals   int
-	Grass      int
+
+	MaxMinerals int
+	AVGMinerals int
+	TotMinerals int
+
+	MaxPollution int
+	AVGPollution int
+	TotPollution int
+
+	MaxGrass int
+	AVGGrass int
+	TotGrass int
 }
 
 // world структура описывающая структуру мира модели
@@ -40,9 +50,4 @@ func newWorld() *world {
 
 func (w *world) clearWorld() {
 
-}
-
-func (w *world) getCell(c coordinates) *cell {
-	//todo: fix out of bonding
-	return &w.Map[c.X][c.Y]
 }

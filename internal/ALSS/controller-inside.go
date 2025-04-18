@@ -2,9 +2,20 @@ package ALSS
 
 func (c *Controller) runAgents() {
 	for _, a := range *c.agents {
-		if err := a.run(); err != nil {
+		if err := a.run(c); err != nil {
 			//todo: save error in log
 		}
+	}
+}
+
+func makeID(s string) string {
+	switch s {
+	case typeOfGenome:
+		return ""
+	case typeOfAgent:
+		return ""
+	default:
+		return ""
 	}
 }
 
@@ -20,10 +31,6 @@ func (c *Controller) sync() {
 	}
 	//удаление мёртвых агентов их списка
 	//todo: реализовать при создании linked-list
-}
-
-func makeId() int {
-	return 0
 }
 
 func (c *Controller) updateStat() {
