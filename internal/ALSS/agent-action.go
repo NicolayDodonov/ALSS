@@ -2,20 +2,16 @@ package ALSS
 
 // файл содержит все обработчики действий агента
 
-func (a *agent) moveLook() {
-
-}
-
-func (a *agent) moveABS() {
+func (a *agent) move(angle int, c *Controller) {
 
 }
 
 func (a *agent) turnLeft() {
-
+	a.Angle.minus()
 }
 
 func (a *agent) turnRight() {
-
+	a.Angle.minus()
 }
 
 func (a *agent) eatSun() {
@@ -50,10 +46,6 @@ func (a *agent) friendOrFoe() {
 
 }
 
-func (a *agent) metosis() {
-
-}
-
-func (a *agent) jumpPointer() {
+func (a *agent) getEnergy() {
 
 }

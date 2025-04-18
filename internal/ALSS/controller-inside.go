@@ -22,6 +22,10 @@ func (c *Controller) sync() {
 	//todo: реализовать при создании linked-list
 }
 
+func makeId() int {
+	return 0
+}
+
 func (c *Controller) updateStat() {
 
 }
