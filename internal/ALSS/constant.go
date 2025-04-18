@@ -1,6 +1,6 @@
 package ALSS
 
 const (
-	typeOfAgent  = "Agent"
-	typeOfGenome = "Genome"
+	genomeTypeZERO = "zero"
+	genomeTypeRAND = "rand"
 )

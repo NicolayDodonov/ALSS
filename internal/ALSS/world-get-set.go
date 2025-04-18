@@ -11,10 +11,10 @@ func (w *world) addLocalMinerals(c *coordinates, d int) error {
 	return fmt.Errorf("cant set minerals: out of bound!")
 }
 
-func (w *world) getCell(c *coordinates) *cell {
+func (w *world) getCell(c *coordinates) (*cell, error) {
 	if c.X >= 0 && c.X < w.MaxX &&
 		c.Y >= 0 && c.Y < w.MaxY {
-		return &w.Map[c.X][c.Y]
+		return &w.Map[c.X][c.Y], nil
 	}
-	return nil
+	return nil, fmt.Errorf("cant get cell: out of bound!")
 }

@@ -12,17 +12,26 @@ type agent struct {
 }
 
 func newAgent(c *Controller) *agent {
-	return &agent{
-		makeID(typeOfAgent),
-		0,
-		c.Parameters.baseHP,
-		0,
-		coordinates{
+	a := &agent{
+		Age:    0,
+		Energy: c.Parameters.baseEnergy,
+		Angle:  0,
+		coordinates: coordinates{
 			X: rand.IntN(c.world.MaxX),
 			Y: rand.IntN(c.world.MaxY),
 		},
-		newGenome(c.Parameters.typeGenome, c.Parameters.sizeGenome),
 	}
+	makeID(a)
+
+	switch c.Parameters.typeGenome {
+	case genomeTypeRAND:
+		a.Genome = newRandomGenome(c.Parameters.sizeGenome)
+	case genomeTypeZERO:
+		a.Genome = newZeroGenome(c.Parameters.sizeGenome)
+	default:
+		a.Genome = newBaseGenome()
+	}
+	return a
 }
 
 func (a *agent) run(c *Controller) error {
@@ -30,15 +39,19 @@ func (a *agent) run(c *Controller) error {
 		return nil
 	}
 
+	a.Energy -= c.Parameters.energyCost
+	a.Age++
+
 	if err := a.interpretationGenome(c); err != nil {
 		return err
 	}
 
-	if err := a.pollution(c); err != nil {
-		return err
-	}
+	a.pollution(c)
+
+	a.birthHandler(c)
 
 	a.deathHandler(c)
+
 	return nil
 }
 
@@ -55,7 +68,7 @@ func (a *agent) interpretationGenome(c *Controller) error {
 	case 11:
 		a.eatSun()
 	case 12:
-		a.eatChemo()
+		a.eatMinerals()
 	case 13:
 		a.eatGrass()
 	case 14:
@@ -71,14 +84,28 @@ func (a *agent) interpretationGenome(c *Controller) error {
 	case 19:
 		a.getEnergy()
 	}
-	a.Energy--
 	a.Genome.jumpPointer(1)
 	return nil
 }
 
-func (a *agent) pollution(c *Controller) error {
+func (a *agent) pollution(c *Controller) {
+	c.world.Pollution += c.Parameters.pollutionCost
+}
 
-	return nil
+func (a *agent) birthHandler(c *Controller) {
+	//make new agent
+	newA := agent{
+		Age:         0,
+		Energy:      a.Energy / 2,
+		Angle:       a.Angle,
+		coordinates: a.coordinates,
+		Genome:      a.Genome,
+	}
+	makeID(newA)
+	newA.Genome.mutation(c.Parameters.countMutation)
+
+	//todo: add newAgent before themself in c.agents
+
 }
 
 func (a *agent) deathHandler(c *Controller) {
@@ -86,32 +113,16 @@ func (a *agent) deathHandler(c *Controller) {
 		//todo: remove agent from c.agents
 
 		//add cell minerals
-		pollutionUnit := a.Energy / 10
+		MineralUnit := a.Energy / 10
 		if a.Energy <= 0 {
-			pollutionUnit = 1
+			MineralUnit = 1
 		}
 		for i := angle(0); i < 8; i++ {
-			_ = c.world.addLocalMinerals(offset(&a.coordinates, i), pollutionUnit)
+			_ = c.world.addLocalMinerals(offset(&a.coordinates, i), MineralUnit)
 		}
-		_ = c.world.addLocalMinerals(&a.coordinates, pollutionUnit*2)
+		_ = c.world.addLocalMinerals(&a.coordinates, MineralUnit*2)
 
 		a.Energy = 0
 		a.Age = -1
 	}
-}
-
-func (a *agent) birth(c *Controller) {
-	//make new agent
-	newA := agent{
-		makeID(typeOfAgent),
-		0,
-		a.Energy / 2,
-		a.Angle,
-		a.coordinates,
-		a.Genome,
-	}
-	newA.Genome.mutation(c.Parameters.countMutation)
-
-	//todo: add newAgent before themself in c.agents
-
 }

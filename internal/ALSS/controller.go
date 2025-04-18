@@ -19,8 +19,17 @@ type mStat struct {
 
 type mParam struct {
 	//todo: add model parameters
-	baseHP        int
+	baseSunCost       int
+	baseMineralCost   int
+	baseGrassCost     int
+	basePollutionPart int
+	baseAttackPart    int
+
+	baseEnergy    int
 	maxAge        int
+	energyCost    int
+	pollutionCost int
+
 	typeGenome    string
 	sizeGenome    int
 	countMutation int

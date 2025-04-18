@@ -10,46 +10,32 @@ type genome struct {
 	Array   []uint8
 }
 
-func newGenome(s string, size int) *genome {
-	switch s {
-	case "random":
-		return newRandomGenome(size)
-	case "zero":
-		return newZeroGenome(size)
-	case "base":
-		return newBaseGenome()
-	}
-	return nil
-}
-
 func newRandomGenome(size int) *genome {
 	g := &genome{
-		ID:      makeID(typeOfGenome),
 		Pointer: rand.Int() % size,
 		Array:   make([]uint8, size),
 	}
 	for i := range g.Array {
 		g.Array[i] = uint8(rand.Int())
 	}
-
+	makeID(g)
 	return g
 }
 
 func newZeroGenome(size int) *genome {
 	g := &genome{
-		ID:      makeID(typeOfGenome),
 		Pointer: rand.Int() % size,
 		Array:   make([]uint8, size),
 	}
 	for i := range g.Array {
 		g.Array[i] = 0
 	}
+	makeID(g)
 	return g
 }
 
 func newBaseGenome() *genome {
 	g := &genome{
-		ID:      makeID(typeOfGenome),
 		Pointer: 0,
 		Array: []uint8{
 			25, 25, 25, 25, 25, 25, 25, 25,
@@ -62,6 +48,7 @@ func newBaseGenome() *genome {
 			25, 25, 25, 25, 25, 25, 25, 25,
 		},
 	}
+	makeID(g)
 	return g
 }
 
@@ -82,7 +69,7 @@ func (g *genome) mutation(countMutation int) {
 	for i := 0; i < countMutation; i++ {
 		g.Array[i] = g.Array[rand.Int()%len(g.Array)]
 	}
-	g.ID = makeID(typeOfGenome)
+	makeID(g)
 }
 
 func (g *genome) jumpPointer(jumpRange int) {
