@@ -1,17 +1,24 @@
 package ALSS
 
-import "artificialLifeGo/internal/config"
+import (
+	"artificialLifeGo/internal/config"
+)
 
 // Controller основная структура пакета и единственная внешне доступная.
 // Обеспечивает контроль над внутренней логикой и реализует интерфейс управления и передачи данных.
 type Controller struct {
-	world  world
-	agents []agent //todo: change type array to linked-list
+	world  *world
+	agents *[]*agent //todo: change type array to linked-list
 	mStat
+	mParam
 }
 
 type mStat struct {
 	//todo: add model work info
+}
+
+type mParam struct {
+	//todo: add model parameters
 }
 
 func NewController(conf config.Config) *Controller {
@@ -19,7 +26,15 @@ func NewController(conf config.Config) *Controller {
 }
 
 func (c *Controller) Run() {
+	c.world = newWorld()
+	c.agents = makeAgents()
 
+	for {
+		//model work here
+		c.runAgents()
+		//update mStat
+		c.updateStat()
+	}
 }
 
 // ResetModel обнуляет состояние мира, списка агентов, всей статистики
@@ -46,20 +61,10 @@ func (c *Controller) LoadModel(data *[]byte) {
 }
 
 // SaveModel выгружает состояние модели внешнему потребителю.
-func (c *Controller) SaveModel() *WorldJson {
-	return &WorldJson{}
+func (c *Controller) SaveModel() {
 }
 
-// sync - синхронизация агентов и мира.
-//
-// Исправление списка агентов (удаление мёртвых не удалённых агентов).
-func (c *Controller) sync() {
-	//удаляем все ссылки живых, мёртвых и ошибочных агентов из мира
-	for _, cells := range c.world.Map {
-		for _, cell := range cells {
-			cell.Agent = nil
-		}
-	}
-	//удаление мёртвых агентов их списка
-	//todo: реализовать при создании linked-list
+// GetFrame передаёт кадр модели внешнему потребителю. Использует метод io.makeFrame().
+func (c *Controller) GetFrame() *FrameJSON {
+	return &FrameJSON{}
 }

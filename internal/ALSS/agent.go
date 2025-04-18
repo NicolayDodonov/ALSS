@@ -10,7 +10,7 @@ type dna struct {
 	array   []uint8
 }
 
-func (a agent) run() error {
+func (a *agent) run() error {
 	//todo: live?
 	//todo: run dna
 	//todo: pollution

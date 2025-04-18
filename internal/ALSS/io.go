@@ -4,6 +4,6 @@ package ALSS
 type io struct {
 }
 
-func MakeJson() {
+func makeFrame(c *Controller) {
 	//todo
 }

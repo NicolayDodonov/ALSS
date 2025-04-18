@@ -38,7 +38,11 @@ func newWorld() *world {
 	return &world{}
 }
 
-func (w world) getCell(c coordinates) *cell {
+func (w *world) clearWorld() {
+
+}
+
+func (w *world) getCell(c coordinates) *cell {
 	//todo: fix out of bonding
 	return &w.Map[c.X][c.Y]
 }
