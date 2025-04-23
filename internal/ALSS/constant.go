@@ -8,6 +8,6 @@ const (
 const (
 	baseGrass = 10
 	baseMinerals
-	transferPacket
+	energyTransferPacket
 	livingSurviveLevel = 30
 )

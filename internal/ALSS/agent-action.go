@@ -1,6 +1,9 @@
 package ALSS
 
-import "fmt"
+import (
+	"container/list"
+	"fmt"
+)
 
 // файл содержит все обработчики действий агента
 
@@ -65,7 +68,7 @@ func (a *agent) eatGrass(c *Controller) {
 	a.Energy += cell.localGrass * c.Parameters.baseGrassCost
 }
 
-func (a *agent) attack(c *Controller) error {
+func (a *agent) attack(c *Controller, me *list.Element) error {
 	cell, err := c.world.getCell(offset(&a.coordinates, a.Angle))
 	if err != nil {
 		return fmt.Errorf("cant attack: %w", err)
@@ -74,9 +77,9 @@ func (a *agent) attack(c *Controller) error {
 	if cell.Agent == nil {
 		return nil
 	}
-	profit := cell.Agent.Energy * c.Parameters.baseAttackPart / 100
+	profit := cell.Agent.Energy * c.Parameters.attackProfitPercent / 100
 	cell.Agent.Energy = -1
-	cell.Agent.deathHandler(c)
+	cell.Agent.deathHandler(c, me)
 
 	a.Energy += profit
 	return nil

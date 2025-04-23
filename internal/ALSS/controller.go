@@ -3,38 +3,18 @@ package ALSS
 import (
 	"artificialLifeGo/internal/config"
 	"artificialLifeGo/internal/logger"
+	"container/list"
 )
 
 // Controller основная структура пакета и единственная внешне доступная.
 // Обеспечивает контроль над внутренней логикой и реализует интерфейс управления и передачи данных.
 type Controller struct {
-	world      *world
-	agents     *[]*agent //todo: change type array to linked-list
-	Statistics mStat
-	Parameters mParam
-	l          logger.Logger
-}
+	Parameters Parameters
+	Statistics Statistics
 
-type mStat struct {
-	//todo: add model work info
-}
-
-type mParam struct {
-	//todo: add model parameters
-	baseSunCost       int
-	baseMineralCost   int
-	baseGrassCost     int
-	basePollutionPart int
-	baseAttackPart    int
-
-	baseEnergy    int
-	maxAge        int
-	energyCost    int
-	pollutionCost int
-
-	typeGenome    string
-	sizeGenome    int
-	countMutation int
+	world  *world
+	agents *list.List
+	l      logger.Logger
 }
 
 func NewController(conf config.Config) *Controller {
@@ -43,12 +23,15 @@ func NewController(conf config.Config) *Controller {
 
 func (c *Controller) Run() {
 	c.world = newWorld()
-	c.agents = makeAgents()
+	c.makeAgents()
 
 	c.world.init()
 	for {
 		//model work here
-		c.runAgents()
+		if err := c.runAgents(); err != nil {
+			c.l.Error(err.Error())
+			c.sync()
+		}
 
 		c.removeDeadAgents()
 
