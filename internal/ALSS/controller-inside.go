@@ -2,14 +2,6 @@ package ALSS
 
 import "reflect"
 
-func (c *Controller) runAgents() {
-	for _, a := range *c.agents {
-		if err := a.run(c); err != nil {
-			//todo: save error in log
-		}
-	}
-}
-
 func makeID(i interface{}) {
 	v := reflect.ValueOf(i).Elem()
 	switch v.Type().Name() {
@@ -18,6 +10,11 @@ func makeID(i interface{}) {
 	case "genome":
 		v.Field(0).SetString("S")
 	}
+}
+
+func makeAgents() *[]*agent {
+	//todo: make agents linked-list former
+	return nil
 }
 
 // sync - синхронизация агентов и мира.
@@ -34,11 +31,22 @@ func (c *Controller) sync() {
 	//todo: реализовать при создании linked-list
 }
 
+func (c *Controller) runAgents() {
+	for _, a := range *c.agents {
+		if err := a.run(c); err != nil {
+			c.l.Error(err.Error())
+		}
+	}
+}
+
+func (c *Controller) removeDeadAgents() {
+
+}
+
 func (c *Controller) updateStat() {
 
 }
 
-func makeAgents() *[]*agent {
-	//todo: make agents linked-list former
-	return nil
+func (c *Controller) worldDead() bool {
+	return true
 }

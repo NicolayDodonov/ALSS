@@ -82,18 +82,83 @@ func (a *agent) attack(c *Controller) error {
 	return nil
 }
 
-func (a *agent) look(c *Controller) {
+// look check what is located in the looked cell: other agent, grass, mineral or nothing
+func (a *agent) look(c *Controller) error {
+	lookedCell, err := c.world.getCell(offset(&a.coordinates, a.Angle))
+	if err != nil {
+		return err
+	}
 
+	if lookedCell.Agent != nil {
+		//проверяем есть ли там вообще агент
+		a.Genome.jumpPointer(1)
+		return nil
+	}
+	if lookedCell.localGrass >= baseGrass {
+		a.Genome.jumpPointer(2)
+		return nil
+	}
+	if lookedCell.localMinerals >= baseMinerals {
+		a.Genome.jumpPointer(3)
+		return nil
+	}
+	a.Genome.jumpPointer(4)
+	return nil
 }
 
-func (a *agent) lookPoison(c *Controller) {
-
+func (a *agent) lookHeightCell(c *Controller) error {
+	lookedCell, err := c.world.getCell(offset(&a.coordinates, a.Angle))
+	myCell, _ := c.world.getCell(&a.coordinates)
+	if err != nil {
+		return err
+	}
+	if lookedCell.Height > myCell.Height {
+		a.Genome.jumpPointer(1)
+		return nil
+	}
+	if lookedCell.Height < myCell.Height {
+		a.Genome.jumpPointer(2)
+		return nil
+	}
+	if lookedCell.Height == myCell.Height {
+		a.Genome.jumpPointer(3)
+		return nil
+	}
+	return nil
 }
 
-func (a *agent) friendOrFoe() {
-
+func (a *agent) friendOrFoe(c *Controller) error {
+	lookedCell, err := c.world.getCell(offset(&a.coordinates, a.Angle))
+	if err != nil {
+		return err
+	}
+	if lookedCell.Agent != nil {
+		if equals(lookedCell.Agent.Genome, a.Genome) {
+			// friend
+			a.Genome.jumpPointer(1)
+			return nil
+		} else {
+			// foe
+			a.Genome.jumpPointer(2)
+			return nil
+		}
+	} else {
+		// looked cell is empty
+		a.Genome.jumpPointer(3)
+		return err
+	}
 }
 
-func (a *agent) getEnergy() {
-
+func (a *agent) getEnergy(c *Controller) error {
+	lookedCell, err := c.world.getCell(offset(&a.coordinates, a.Angle))
+	if err != nil {
+		return err
+	}
+	if lookedCell.Agent != nil {
+		if a.Energy > livingSurviveLevel {
+			a.Energy -= energyTransferPacket
+			lookedCell.Agent.Energy += energyTransferPacket
+		}
+	}
+	return nil
 }

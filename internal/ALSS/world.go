@@ -48,6 +48,10 @@ func newWorld() *world {
 	return &world{}
 }
 
+func (w *world) init() {
+	
+}
+
 func (w *world) clearWorld() {
 
 }

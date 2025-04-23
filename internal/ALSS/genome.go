@@ -79,3 +79,7 @@ func (g *genome) jumpPointer(jumpRange int) {
 func (g *genome) getGen() int {
 	return int(g.Array[g.Pointer])
 }
+
+func (g *genome) getGenIndex(i int) int {
+	return int(g.Array[i%len(g.Array)])
+}

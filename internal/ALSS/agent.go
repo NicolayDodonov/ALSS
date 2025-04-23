@@ -48,44 +48,46 @@ func (a *agent) run(c *Controller) error {
 
 	a.pollution(c)
 
-	a.birthHandler(c)
-
 	a.deathHandler(c)
+
+	a.birthHandler(c)
 
 	return nil
 }
 
 func (a *agent) interpretationGenome(c *Controller) error {
-	switch a.Genome.getGen() {
+	var err error = nil
+	gen := a.Genome.getGen()
+	switch gen {
 	case 0, 1, 2, 3, 4, 5, 6, 7:
-		a.move(angle(a.Genome.Pointer), c)
+		err = a.move(angle(gen), c)
 	case 8:
-		a.move(a.Angle, c)
+		err = a.move(a.Angle, c)
 	case 9:
 		a.turnLeft()
 	case 10:
 		a.turnRight()
 	case 11:
-		a.eatSun()
+		a.eatSun(c)
 	case 12:
-		a.eatMinerals()
+		a.eatMinerals(c)
 	case 13:
-		a.eatGrass()
+		a.eatGrass(c)
 	case 14:
-		a.eatPollution()
+		a.eatPollution(c)
 	case 15:
-		a.attack()
+		err = a.attack(c)
 	case 16:
-		a.look()
+		err = a.look(c)
 	case 17:
-		a.lookHeightCell()
+		err = a.lookHeightCell(c)
 	case 18:
-		a.friendOrFoe()
+		err = a.friendOrFoe(c)
 	case 19:
-		a.getEnergy()
+		err = a.getEnergy(c)
 	}
 	a.Genome.jumpPointer(1)
-	return nil
+	return err
 }
 
 func (a *agent) pollution(c *Controller) {
