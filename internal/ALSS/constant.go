@@ -1,13 +1,19 @@
 package ALSS
 
 const (
-	genomeTypeZERO = "zero"
-	genomeTypeRAND = "rand"
+	genomeTypeZERO = "ZERO"
+	genomeTypeRAND = "RAND"
+
+	spring = "SPRING"
+	summer = "SUMMER"
+	autumn = "AUTUMN"
+	winter = "WINTER"
 )
 
 const (
 	baseGrass = 10
 	baseMinerals
 	energyTransferPacket
-	livingSurviveLevel = 30
+	pollutionCoefficient = 100
+	livingSurviveLevel   = 30
 )

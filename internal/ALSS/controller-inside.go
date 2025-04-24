@@ -24,6 +24,11 @@ func (c *Controller) makeAgents() {
 	c.agents = agents
 }
 
+func (c *Controller) makeWorld() {
+	w := newWorld()
+	c.world = w
+}
+
 // sync - синхронизация агентов и мира.
 //
 // Исправление списка агентов (удаление мёртвых не удалённых агентов).

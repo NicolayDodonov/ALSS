@@ -49,7 +49,7 @@ func (a *agent) run(c *Controller, me *list.Element) error {
 		return err
 	}
 
-	a.pollution(c)
+	a.pollutionHandler(c)
 
 	a.deathHandler(c, me)
 
@@ -93,8 +93,15 @@ func (a *agent) interpretationGenome(c *Controller, me *list.Element) error {
 	return err
 }
 
-func (a *agent) pollution(c *Controller) {
+func (a *agent) pollutionHandler(c *Controller) {
+	// увеличить общее загрянение воздуха
 	c.world.Pollution += c.Parameters.madePollution
+
+	//нанести урон от загрязнения минералами
+	cell, _ := c.world.getCell(&a.coordinates)
+	if cell.localMinerals >= 200 {
+		a.Energy -= c.Parameters.energyCost
+	}
 }
 
 func (a *agent) birthHandler(c *Controller, me *list.Element) {

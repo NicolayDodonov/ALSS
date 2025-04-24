@@ -22,10 +22,6 @@ func NewController(conf config.Config) *Controller {
 }
 
 func (c *Controller) Run() {
-	c.world = newWorld()
-	c.makeAgents()
-
-	c.world.init()
 	for {
 		//model work here
 		if err := c.runAgents(); err != nil {
@@ -44,34 +40,23 @@ func (c *Controller) Run() {
 	}
 }
 
-// ResetModel обнуляет состояние мира, списка агентов, всей статистики
-// всех геномов и тому подобное...
-func (c *Controller) ResetModel() {
+// initModel создаёт world, проводит по настройкам пользователя генерацию ландшафта и базовых ресурсов.
+// Так же создаёт по настройкам пользователя двусвязный спиок agent
+func (c *Controller) initModel() {
+	c.makeWorld()
+	c.makeAgents()
+}
+
+// Load загружает состояние модели из внешнего источника.
+func (c *Controller) Load(data *[]byte) {
 
 }
 
-// ResetWorld обнуляет состояние всех клеток мира, обнуляет мировую статистику
-// и иные параметры структуры world.
-func (c *Controller) ResetWorld() {
-
+// Save выгружает состояние модели внешнему потребителю.
+func (c *Controller) Save() {
 }
 
-// ResetAgents обнуляет состояние всех агентов в модели, очищает их геномы к стандартному
-// удаляет мёртвых или иных ошибочных агентов из списка, пересобирает список агентов.
-func (c *Controller) ResetAgents() {
-
-}
-
-// LoadModel загружает состояние модели из внешнего источника.
-func (c *Controller) LoadModel(data *[]byte) {
-
-}
-
-// SaveModel выгружает состояние модели внешнему потребителю.
-func (c *Controller) SaveModel() {
-}
-
-// GetFrame передаёт кадр модели внешнему потребителю. Использует метод io.makeFrame().
-func (c *Controller) GetFrame() *FrameJSON {
+// Frame передаёт кадр модели внешнему потребителю. Использует метод io.makeFrame().
+func (c *Controller) Frame() *FrameJSON {
 	return &FrameJSON{}
 }

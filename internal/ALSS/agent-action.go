@@ -46,20 +46,26 @@ func (a *agent) turnRight() {
 func (a *agent) eatSun(c *Controller) {
 	//get cell data
 	cell, _ := c.world.getCell(&a.coordinates)
+	if cell.Height > c.world.SeaLevel {
+		//calculate energy profit
+		//todo: add coefficient to other parameters
+		a.Energy += (cell.Height * cell.localMinerals * c.world.Illumination * c.Parameters.baseSunCost) /
+			(c.world.Pollution / pollutionCoefficient)
+	}
 
-	//calculate energy profit
-	//todo: add coefficient
-	a.Energy += cell.Height * cell.localMinerals * c.world.Illumination * c.Parameters.baseSunCost / c.world.Pollution
 }
 
 func (a *agent) eatMinerals(c *Controller) {
 	cell, _ := c.world.getCell(&a.coordinates)
-
-	a.Energy += cell.localMinerals * c.Parameters.baseMineralCost
+	dMinerals := cell.localMinerals / c.Parameters.baseMineralCost
+	cell.localMinerals -= dMinerals
+	a.Energy += dMinerals
 }
 
 func (a *agent) eatPollution(c *Controller) {
-	a.Energy += c.world.Pollution / c.Parameters.basePollutionPart
+	dPollution := (c.world.Pollution / pollutionCoefficient) / c.Parameters.basePollutionPart
+	_ = c.world.addLocalMinerals(&a.coordinates, dPollution)
+	a.Energy += dPollution
 }
 
 func (a *agent) eatGrass(c *Controller) {
