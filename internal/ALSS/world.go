@@ -25,7 +25,7 @@ type worldStatistic struct {
 	countCell      int
 	underwaterCell int
 
-	AVGMinerals int
+	AvgMinerals int
 	TotMinerals int
 }
 
@@ -51,7 +51,7 @@ func newWorld(x, y int) *world {
 			Year:        0,
 			LiveAgent:   0,
 			DeathAgent:  0,
-			AVGMinerals: 0,
+			AvgMinerals: 0,
 			TotMinerals: 0,
 		},
 	}
@@ -147,7 +147,7 @@ func (w *world) updateStat() {
 		}
 	}
 	w.TotMinerals = totalMinerals
-	w.AVGMinerals = totalMinerals / w.countCell
+	w.AvgMinerals = totalMinerals / w.countCell
 }
 
 func (w *world) changeSeason(s string) {

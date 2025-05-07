@@ -55,8 +55,3 @@ func (c *Controller) Load(data *[]byte) {
 // Save выгружает состояние модели внешнему потребителю.
 func (c *Controller) Save() {
 }
-
-// Frame передаёт кадр модели внешнему потребителю. Использует метод io.makeFrame().
-func (c *Controller) Frame() *FrameJSON {
-	return &FrameJSON{}
-}

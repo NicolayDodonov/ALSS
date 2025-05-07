@@ -1,42 +1,34 @@
 package ALSS
 
-// FrameJSON это кадр состояния модели, который ALSS.IO отправляет на клиент для обработки в изображение и сопутствующую
-// информацию. TODO: Чисто технически можно использовать для сохранения и загрузки модели.
-type FrameJSON struct {
-	World  WorldJSON
-	Map    MapJson
-	Agents AgentsJSON
+type Frame struct {
+	Stat StatisticJSON `json:"stat"`
+	Map  MapJSON       `json:"map"`
 }
 
-type WorldJSON struct {
-	Temp int
-	//todo: other stat info
+type StatisticJSON struct {
+	Year      int `json:"world_year"`
+	Pollution int `json:"world_pollution"`
+	TotalM    int `json:"total_minerals"`
+	AvgM      int `json:"avg_minerals"`
+	Live      int `json:"live_agent"`
+	Death     int `json:"death_agent"`
 }
 
-type MapJson struct {
-	X   int
-	Y   int
-	Map []CellJson
+type MapJSON struct {
+	X        int           `json:"x_size"`
+	Y        int           `json:"y_size"`
+	SeaLevel int           `json:"sea_level"`
+	Cells    *[][]CellJSON `json:"cells"`
 }
 
-type CellJson struct {
-	//todo: cell info
+type CellJSON struct {
+	Height  int       `json:"height"`
+	Mineral int       `json:"mineral"`
+	Agent   AgentJSON `json:"agent"`
 }
 
-type AgentsJSON struct {
-	Count  int
-	agents []AgentJson
-}
-
-type AgentJson struct {
-	ID    int
-	HP    int
-	Age   int
-	X     int
-	Y     int
-	Color Color //todo: IDN need it or now...
-}
-
-type Color struct {
-	R, G, B int
+type AgentJSON struct {
+	ID     string `json:"id"`
+	Energy int    `json:"energy"`
+	DNA    genome `json:"dna"`
 }

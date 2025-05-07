@@ -5,9 +5,9 @@ import (
 )
 
 type genome struct {
-	ID      string
-	Pointer int
-	Array   []uint8
+	ID      string  `json:"id_dna"`
+	Pointer int     `json:"pointer_dna"`
+	Array   []uint8 `json:"array_dna"`
 }
 
 func newRandomGenome(size int) *genome {
