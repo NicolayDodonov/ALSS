@@ -16,6 +16,7 @@ func makeID(i interface{}) {
 	}
 }
 
+// makeAgents формирует массив начальных агентов модели.
 func (c *Controller) makeAgents() {
 	agents := list.New()
 	for i := 0; i < c.Parameters.startPopulation; i++ {
@@ -24,8 +25,10 @@ func (c *Controller) makeAgents() {
 	c.agents = agents
 }
 
+// makeWorld создаёт мир, генерирует карту с начальными условиями от пользователя.
 func (c *Controller) makeWorld() {
-	w := newWorld()
+	w := newWorld(c.Parameters.X, c.Parameters.Y)
+	w.initMap()
 	c.world = w
 }
 
@@ -76,10 +79,6 @@ func (c *Controller) removeDeadAgents() {
 			c.agents.Remove(a) //todo: Возможное место появление бага!!!
 		}
 	}
-}
-
-func (c *Controller) updateStat() {
-
 }
 
 // worldDead проверяет весь список агентов модели на жизнеспособность.

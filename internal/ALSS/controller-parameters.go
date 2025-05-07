@@ -10,7 +10,6 @@ type WorldParam struct {
 	X, Y              int
 	baseSunCost       int
 	baseMineralCost   int
-	baseGrassCost     int
 	basePollutionPart int
 }
 

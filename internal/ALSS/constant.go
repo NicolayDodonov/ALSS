@@ -8,12 +8,14 @@ const (
 	summer = "SUMMER"
 	autumn = "AUTUMN"
 	winter = "WINTER"
+
+	mapRANDOM   = "RANDOM"
+	mapGRADIENT = "GRADIENT"
 )
 
 const (
-	baseGrass = 10
-	baseMinerals
-	energyTransferPacket
-	pollutionCoefficient = 100
+	baseMinerals         = 10
+	energyTransferPacket = 10
 	livingSurviveLevel   = 30
+	maxHeight            = 25
 )

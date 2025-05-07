@@ -75,19 +75,19 @@ func (a *agent) interpretationGenome(c *Controller, me *list.Element) error {
 	case 12:
 		a.eatMinerals(c)
 	case 13:
-		a.eatGrass(c)
-	case 14:
 		a.eatPollution(c)
-	case 15:
+	case 14:
 		err = a.attack(c, me)
-	case 16:
+	case 15:
 		err = a.look(c)
+	case 16:
+		err = a.friendOrFoe(c)
 	case 17:
 		err = a.lookHeightCell(c)
 	case 18:
-		err = a.friendOrFoe(c)
-	case 19:
 		err = a.getEnergy(c)
+	default:
+		a.Genome.jumpPointer(gen - 1)
 	}
 	a.Genome.jumpPointer(1)
 	return err

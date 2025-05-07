@@ -47,31 +47,33 @@ func (a *agent) eatSun(c *Controller) {
 	//get cell data
 	cell, _ := c.world.getCell(&a.coordinates)
 	if cell.Height > c.world.SeaLevel {
-		//calculate energy profit
-		//todo: add coefficient to other parameters
-		a.Energy += (cell.Height * cell.localMinerals * c.world.Illumination * c.Parameters.baseSunCost) /
-			(c.world.Pollution / pollutionCoefficient)
+		a.Energy += ((c.world.Illumination * (cell.Height - c.world.SeaLevel)) /
+			c.world.PollutionFix) * ((cell.Height / maxHeight) + 1)
 	}
 
 }
 
 func (a *agent) eatMinerals(c *Controller) {
 	cell, _ := c.world.getCell(&a.coordinates)
-	dMinerals := cell.localMinerals / c.Parameters.baseMineralCost
+
+	var dMinerals int
+	if cell.localMinerals > 10 {
+		dMinerals = cell.localMinerals / 10
+	} else {
+		dMinerals = cell.localMinerals
+	}
+
 	cell.localMinerals -= dMinerals
 	a.Energy += dMinerals
 }
 
 func (a *agent) eatPollution(c *Controller) {
-	dPollution := (c.world.Pollution / pollutionCoefficient) / c.Parameters.basePollutionPart
-	_ = c.world.addLocalMinerals(&a.coordinates, dPollution)
-	a.Energy += dPollution
-}
-
-func (a *agent) eatGrass(c *Controller) {
-	cell, _ := c.world.getCell(offset(&a.coordinates, a.Angle))
-
-	a.Energy += cell.localGrass * c.Parameters.baseGrassCost
+	dPollution := c.world.PollutionFix //todo: надо будет настроить эту строчку
+	c.world.Pollution -= dPollution
+	dMinerals := dPollution / 2
+	cell, _ := c.world.getCell(&a.coordinates)
+	cell.localMinerals += dMinerals
+	a.Energy += dMinerals
 }
 
 func (a *agent) attack(c *Controller, me *list.Element) error {
@@ -97,21 +99,17 @@ func (a *agent) look(c *Controller) error {
 	if err != nil {
 		return err
 	}
-
+	//todo: исправить взгляд
 	if lookedCell.Agent != nil {
 		//проверяем есть ли там вообще агент
 		a.Genome.jumpPointer(1)
 		return nil
 	}
-	if lookedCell.localGrass >= baseGrass {
+	if lookedCell.localMinerals >= baseMinerals {
 		a.Genome.jumpPointer(2)
 		return nil
 	}
-	if lookedCell.localMinerals >= baseMinerals {
-		a.Genome.jumpPointer(3)
-		return nil
-	}
-	a.Genome.jumpPointer(4)
+	a.Genome.jumpPointer(3)
 	return nil
 }
 

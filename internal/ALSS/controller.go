@@ -10,7 +10,6 @@ import (
 // Обеспечивает контроль над внутренней логикой и реализует интерфейс управления и передачи данных.
 type Controller struct {
 	Parameters Parameters
-	Statistics Statistics
 
 	world  *world
 	agents *list.List
@@ -32,7 +31,7 @@ func (c *Controller) Run() {
 		c.removeDeadAgents()
 
 		//update mStat
-		c.updateStat()
+		c.world.updateStat()
 
 		if c.worldDead() {
 			break
@@ -45,6 +44,7 @@ func (c *Controller) Run() {
 func (c *Controller) initModel() {
 	c.makeWorld()
 	c.makeAgents()
+	c.sync()
 }
 
 // Load загружает состояние модели из внешнего источника.

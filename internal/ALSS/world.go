@@ -1,9 +1,19 @@
 package ALSS
 
+// world структура описывающая структуру мира модели
+// и реализующий основные методы работы с миром модели
+type world struct {
+	Map  Map
+	MaxX int
+	MaxY int
+	global
+	worldStatistic
+}
+
 type global struct {
-	Temperature  int
 	Illumination int
 	Pollution    int
+	PollutionFix int
 	SeaLevel     int
 }
 
@@ -15,137 +25,147 @@ type worldStatistic struct {
 	countCell      int
 	underwaterCell int
 
-	MaxMinerals int
 	AVGMinerals int
 	TotMinerals int
-
-	MaxPollution int
-	AVGPollution int
-	TotPollution int
-
-	MaxGrass int
-	AVGGrass int
-	TotGrass int
 }
 
 type cell struct {
 	Agent         *agent
 	Height        int
 	localMinerals int //0 ... 255
-	localGrass    int //0 ... 255
 }
 
 type Map [][]cell
 
-// world структура описывающая структуру мира модели
-// и реализующий основные методы работы с миром модели
-type world struct {
-	Map  Map
-	MaxX int
-	MaxY int
-	global
-	worldStatistic
-}
-
-func newWorld() *world {
+func newWorld(x, y int) *world {
 	return &world{
+		MaxX: x,
+		MaxY: y,
+		Map:  nil,
 		global: global{
-			Temperature:  0,
 			Illumination: 0,
 			Pollution:    0,
 			SeaLevel:     0,
 		},
 		worldStatistic: worldStatistic{
-			Year:         0,
-			LiveAgent:    0,
-			DeathAgent:   0,
-			MaxMinerals:  0,
-			AVGMinerals:  0,
-			TotMinerals:  0,
-			MaxPollution: 0,
-			AVGPollution: 0,
-			TotPollution: 0,
-			MaxGrass:     0,
-			AVGGrass:     0,
-			TotGrass:     0,
+			Year:        0,
+			LiveAgent:   0,
+			DeathAgent:  0,
+			AVGMinerals: 0,
+			TotMinerals: 0,
 		},
 	}
 }
 
-func (w *world) initMap(season string) {
+// initMap создаёт пустую карту мира, генерирует высотный ланшафт, настраивает уровень моря
+// и проводит начальную настройку статистики.
+func (w *world) initMap() {
 	//создать карту и заполнить её клетками
 	w.newMap()
 	//вызвать генератор высотности карты
-	w.landscapeGenerator()
-	//запустить клеточный автомат травы
-	w.grassHandler()
+	w.landscapeGenerator(mapGRADIENT)
 	//установить сезон
-	w.changeSeason(season)
-}
-
-func (w *world) update() {
-	w.grassHandler()
-	w.mineralHandler()
-	w.updateStat()
+	w.changeSeason(summer)
+	//собрать начальную статистику
+	w.initStat()
 }
 
 func (w *world) newMap() {
-	newMap := make(Map, 0)
-	for y := 0; y < w.MaxY; y++ {
-		newMap = append(newMap, []cell{})
-		for x := 0; x < w.MaxX; x++ {
-			newMap[y] = append(newMap[y], cell{
+	newMap := make([][]cell, w.MaxY)
+	for y := range newMap {
+		newMap[y] = make([]cell, w.MaxX)
+		for x := range newMap[y] {
+			newMap[y][x] = cell{
 				Agent:         nil,
 				Height:        0,
 				localMinerals: 0,
-				localGrass:    0,
-			})
+			}
 		}
 	}
 	w.Map = newMap
 }
 
-func (w *world) landscapeGenerator() {
-	//todo: создать шум перлина заданого размера
-	//todo: задать каждой клетке мира высоту с учётом этого шума
-}
+func (w *world) landscapeGenerator(landType string) {
+	switch landType {
+	case mapGRADIENT:
+		var gradientLayer int
+		if w.MaxY > maxHeight {
+			gradientLayer = maxHeight
+		} else {
+			gradientLayer = 1
+		}
 
-// grassHandler оператор клеточного автомата для динамического изменения травы в world.Map.
-func (w *world) grassHandler() {
-	//todo: условия добавления новой растительности
-	//todo: условие удаления травы из клетки
+		height := maxHeight
+		layerCount := gradientLayer
+		for y := 0; y < w.MaxX; y++ {
+			if layerCount == 0 {
+				layerCount = gradientLayer
+				height--
+			}
+			for x := 0; x < w.MaxX; x++ {
+				w.Map[y][x].Height = height
+			}
+			layerCount--
+		}
+	case mapRANDOM:
+	}
 }
 
 func (w *world) mineralHandler() {
-	//todo: превратить часть загрязнения в минералы в затопленных клетках
+	dPollution := w.Pollution / 1000
+	dMinerals := dPollution / w.underwaterCell
+	w.Pollution -= dPollution
+
+	for _, cells := range w.Map {
+		for _, cell := range cells {
+			if cell.Height <= w.SeaLevel {
+				cell.localMinerals += dMinerals
+			}
+		}
+	}
+}
+
+func (w *world) initStat() {
+	w.countCell = w.MaxX * w.MaxY
+
+	for _, cells := range w.Map {
+		for _, cell := range cells {
+			if cell.Height <= w.SeaLevel {
+				w.underwaterCell++
+			}
+		}
+	}
 }
 
 func (w *world) updateStat() {
-	//todo: пересчитать динамическую статистику мира
+	w.Year++
+	totalMinerals := 0
+
+	for _, cells := range w.Map {
+		for _, cell := range cells {
+			totalMinerals += cell.localMinerals
+		}
+	}
+	w.TotMinerals = totalMinerals
+	w.AVGMinerals = totalMinerals / w.countCell
 }
 
 func (w *world) changeSeason(s string) {
-	//todo: реализовать смену времён года
 	switch s {
 	case spring:
 		w.Illumination = 20
-		w.Temperature = 20
 		w.SeaLevel = 10
 	case summer:
 		w.Illumination = 40
-		w.Temperature = 30
 		w.SeaLevel = 15
 	case autumn:
 		w.Illumination = 20
-		w.Temperature = 10
 		w.SeaLevel = 10
 	case winter:
 		w.Illumination = 15
-		w.Temperature = 0
 		w.SeaLevel = 5
 	default:
 		w.Illumination = 1
-		w.Temperature = 1
 		w.SeaLevel = 1
 	}
 }
