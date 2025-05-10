@@ -8,21 +8,46 @@
 <body>
     <div class="page">
         <header class="header">
-            заголовок
+            <a href="index.html" class="logo"><img src="static/image/sample-image-logo.jpg" class="logo" ></a>
+            <h1>Система симуляции искусственной жизни</h1>
         </header>
-        <div class="main">
 
+        <div class="main">
             <div class ="game">
                 <div class="game-field">
-                    Игровое поле
+                    <canvas class="game-canvas"></canvas>
                 </div>
                 <div class="game-menu">
-                    Игровое меню
+                    <h3>Настройки</h3>
+                    <form action="" method="post">
+                        <label for="2">Начальная популяция</label>
+                        <input type="text" id="2" name="2" placeholder="1...100"> <br>
+
+                        <label for="3">Средний начальный уровень минералов</label>
+                        <input type="text" id="3"  name="3" placeholder="0...50"> <br>
+
+                        <label for="4">???</label>
+                        <input type="text" id="4" name="4" placeholder="???"> <br>
+
+                        <label for="5">???</label>
+                        <input type="text" id="5" name="5" placeholder="???"> <br>
+
+                        <label for="season">Выберете сезон</label>
+                        <select id="season" name="season-select">
+                            <option value="spring">Весна</option>
+                            <option value="summer">Лето</option>
+                            <option value="autumn">Осень</option>
+                            <option value="winter">Зима/option>
+                        </select>
+                        <br>
+                        <br>
+                        <button type="submit">ЗАПУСК!</button>
+                    </form>
                 </div>
             </div>
 
             <div class="game-about">
-                <p>Тест об игре. инструкция.</p>
+                <h2>Тест об игре. инструкция.</h2>
                 <p>
                     Какой то текст размером с абцаз. Какой то текст размером с абцаз. Какой то текст размером с абцаз.
                     Какой то текст размером с абцаз. Какой то текст размером с абцаз. Какой то текст размером с абцаз.
@@ -37,8 +62,9 @@
                 </p>
             </div>
         </div>
+
         <footer class="footer">
-            Футтер
+            Додонов Н.А. 2025 г.
         </footer>
     </div>
 </body>
