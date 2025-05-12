@@ -1,5 +1,34 @@
 package ALSS
 
-type WorldJson struct {
-	//todo
+type Frame struct {
+	Stat StatisticJSON `json:"stat"`
+	Map  MapJSON       `json:"map"`
+}
+
+type StatisticJSON struct {
+	Year      int `json:"world_year"`
+	Pollution int `json:"world_pollution"`
+	TotalM    int `json:"total_minerals"`
+	AvgM      int `json:"avg_minerals"`
+	Live      int `json:"live_agent"`
+	Death     int `json:"death_agent"`
+}
+
+type MapJSON struct {
+	X        int           `json:"x_size"`
+	Y        int           `json:"y_size"`
+	SeaLevel int           `json:"sea_level"`
+	Cells    *[][]CellJSON `json:"cells"`
+}
+
+type CellJSON struct {
+	Height  int       `json:"height"`
+	Mineral int       `json:"mineral"`
+	Agent   AgentJSON `json:"agent"`
+}
+
+type AgentJSON struct {
+	ID     string `json:"id"`
+	Energy int    `json:"energy"`
+	DNA    genome `json:"dna"`
 }

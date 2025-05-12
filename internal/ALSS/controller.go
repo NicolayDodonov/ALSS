@@ -1,17 +1,19 @@
 package ALSS
 
-import "artificialLifeGo/internal/config"
+import (
+	"artificialLifeGo/internal/config"
+	"artificialLifeGo/internal/logger"
+	"container/list"
+)
 
 // Controller основная структура пакета и единственная внешне доступная.
 // Обеспечивает контроль над внутренней логикой и реализует интерфейс управления и передачи данных.
 type Controller struct {
-	world  world
-	agents []agent //todo: change type array to linked-list
-	mStat
-}
+	Parameters Parameters
 
-type mStat struct {
-	//todo: add model work info
+	world  *world
+	agents *list.List
+	l      logger.Logger
 }
 
 func NewController(conf config.Config) *Controller {
@@ -19,47 +21,37 @@ func NewController(conf config.Config) *Controller {
 }
 
 func (c *Controller) Run() {
+	for {
+		//model work here
+		if err := c.runAgents(); err != nil {
+			c.l.Error(err.Error())
+			c.sync()
+		}
 
-}
+		c.removeDeadAgents()
 
-// ResetModel обнуляет состояние мира, списка агентов, всей статистики
-// всех геномов и тому подобное...
-func (c *Controller) ResetModel() {
+		//update mStat
+		c.world.updateStat()
 
-}
-
-// ResetWorld обнуляет состояние всех клеток мира, обнуляет мировую статистику
-// и иные параметры структуры world.
-func (c *Controller) ResetWorld() {
-
-}
-
-// ResetAgents обнуляет состояние всех агентов в модели, очищает их геномы к стандартному
-// удаляет мёртвых или иных ошибочных агентов из списка, пересобирает список агентов.
-func (c *Controller) ResetAgents() {
-
-}
-
-// LoadModel загружает состояние модели из внешнего источника.
-func (c *Controller) LoadModel(data *[]byte) {
-
-}
-
-// SaveModel выгружает состояние модели внешнему потребителю.
-func (c *Controller) SaveModel() *WorldJson {
-	return &WorldJson{}
-}
-
-// sync - синхронизация агентов и мира.
-//
-// Исправление списка агентов (удаление мёртвых не удалённых агентов).
-func (c *Controller) sync() {
-	//удаляем все ссылки живых, мёртвых и ошибочных агентов из мира
-	for _, cells := range c.world.Map {
-		for _, cell := range cells {
-			cell.Agent = nil
+		if c.worldDead() {
+			break
 		}
 	}
-	//удаление мёртвых агентов их списка
-	//todo: реализовать при создании linked-list
+}
+
+// initModel создаёт world, проводит по настройкам пользователя генерацию ландшафта и базовых ресурсов.
+// Так же создаёт по настройкам пользователя двусвязный спиок agent
+func (c *Controller) initModel() {
+	c.makeWorld()
+	c.makeAgents()
+	c.sync()
+}
+
+// Load загружает состояние модели из внешнего источника.
+func (c *Controller) Load(data *[]byte) {
+
+}
+
+// Save выгружает состояние модели внешнему потребителю.
+func (c *Controller) Save() {
 }
