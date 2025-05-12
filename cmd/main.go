@@ -6,12 +6,12 @@ import (
 )
 
 const (
-	adr = "192.168.1.42:8080"
+	adr = "ip adress"
 )
 
 func main() {
-	server := server.New(adr)
-	if err := server.Start(); err != nil {
+	s := server.New(adr)
+	if err := s.Start(); err != nil {
 		log.Print(err)
 	}
 }

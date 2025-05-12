@@ -1,7 +1,6 @@
 package ALSS
 
 type Parameters struct {
-	ControllerParam
 	WorldParam
 	AgentParam
 }
@@ -27,7 +26,4 @@ type AgentParam struct {
 
 	minEnergyToBirth int
 	countMutation    int
-}
-
-type ControllerParam struct {
 }

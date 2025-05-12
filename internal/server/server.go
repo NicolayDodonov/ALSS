@@ -36,7 +36,6 @@ func (ws *WsServer) Start() error {
 	ws.mux.Handle("/", http.FileServer(http.Dir(web)))
 
 	ws.mux.HandleFunc("/ws", ws.wsHandler)
-	ws.mux.HandleFunc("/initGame", ws.initGame)
 
 	return ws.srv.ListenAndServe()
 }
@@ -49,9 +48,21 @@ func (ws *WsServer) wsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Println(conn.RemoteAddr().String())
+	go ws.commutation(conn)
 }
 
-func (ws *WsServer) initGame(w http.ResponseWriter, r *http.Request) {
-	//todo: создаём отдельному игроку его контроллер
-	//todo: возможно создаём горутину???
+func (ws *WsServer) commutation(conn *websocket.Conn) {
+	for {
+		msg := Message{}
+		if err := conn.ReadJSON(&msg); err != nil {
+			log.Println(err.Error())
+			return
+		}
+		log.Println(msg.WorldSeason + " " + msg.StartCountAgent)
+
+		conn.WriteJSON(Message{
+			msg.WorldSeason + "12",
+			msg.StartCountAgent + "13",
+		})
+	}
 }
