@@ -1,6 +1,8 @@
 package server
 
 import (
+	"artificialLifeGo/internal/ALSS"
+	"artificialLifeGo/internal/config"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -15,20 +17,22 @@ type Server interface {
 }
 
 type WsServer struct {
-	mux *http.ServeMux
-	srv *http.Server
-	Upg *websocket.Upgrader
+	mux  *http.ServeMux
+	srv  *http.Server
+	upg  *websocket.Upgrader
+	conf *config.Config
 }
 
-func New(adr string) Server {
+func New(conf *config.Config) Server {
 	mux := http.NewServeMux()
 	return &WsServer{
 		mux: mux,
 		srv: &http.Server{
-			Addr:    adr,
+			Addr:    conf.IP + ":" + conf.Port,
 			Handler: mux,
 		},
-		Upg: &websocket.Upgrader{},
+		upg:  &websocket.Upgrader{},
+		conf: conf,
 	}
 }
 
@@ -41,7 +45,7 @@ func (ws *WsServer) Start() error {
 }
 
 func (ws *WsServer) wsHandler(w http.ResponseWriter, r *http.Request) {
-	conn, err := ws.Upg.Upgrade(w, r, nil)
+	conn, err := ws.upg.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -52,17 +56,19 @@ func (ws *WsServer) wsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ws *WsServer) commutation(conn *websocket.Conn) {
-	for {
-		msg := Message{}
-		if err := conn.ReadJSON(&msg); err != nil {
-			log.Println(err.Error())
-			return
-		}
-		log.Println(msg.WorldSeason + " " + msg.StartCountAgent)
+	init := Message{}
+	if err := conn.ReadJSON(&init); err != nil {
+		log.Println(err.Error())
+		return
+	}
 
-		conn.WriteJSON(Message{
-			msg.WorldSeason + "12",
-			msg.StartCountAgent + "13",
-		})
+	controller := ALSS.NewController(ws.conf, init.Count, init.Sea, init.Sea, init.Age, init.Energy)
+	_ = controller
+	//todo: make 2 chan
+	for {
+		//todo: check connection
+
+		//todo: controller.Run(chanel, chanel, ctx)
+
 	}
 }

@@ -6,10 +6,9 @@ type Parameters struct {
 }
 
 type WorldParam struct {
-	X, Y              int
-	baseSunCost       int
-	baseMineralCost   int
-	basePollutionPart int
+	X, Y         int
+	Illumination int
+	SeaLevel     int
 }
 
 type AgentParam struct {

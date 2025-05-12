@@ -14,8 +14,11 @@ function SendForm(event){
     data.get("season")
 
     let jsonStruct = {
-        season: data.get("season"),
-        count: data.get("count")
+        count: data.get("count"),
+        sun: data.get("sun"),
+        sea: data.get("sea"),
+        age: data.get("age"),
+        energy: data.get("energy")
     }
     let jsonString = JSON.stringify(jsonStruct)
     console.log(jsonString)

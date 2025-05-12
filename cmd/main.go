@@ -1,6 +1,7 @@
 package main
 
 import (
+	"artificialLifeGo/internal/config"
 	"artificialLifeGo/internal/server"
 	"log"
 )
@@ -10,7 +11,8 @@ const (
 )
 
 func main() {
-	s := server.New(adr)
+	conf := config.MustLoad("config/config.yaml")
+	s := server.New(conf)
 	if err := s.Start(); err != nil {
 		log.Print(err)
 	}

@@ -37,15 +37,15 @@ type cell struct {
 
 type Map [][]cell
 
-func newWorld(x, y int) *world {
+func newWorld(param WorldParam) *world {
 	return &world{
-		MaxX: x,
-		MaxY: y,
+		MaxX: param.X,
+		MaxY: param.Y,
 		Map:  nil,
 		global: global{
-			Illumination: 0,
+			Illumination: param.Illumination,
 			Pollution:    0,
-			SeaLevel:     0,
+			SeaLevel:     param.SeaLevel,
 		},
 		worldStatistic: worldStatistic{
 			Year:        0,
@@ -64,8 +64,6 @@ func (w *world) initMap() {
 	w.newMap()
 	//вызвать генератор высотности карты
 	w.landscapeGenerator(mapGRADIENT)
-	//установить сезон
-	w.changeSeason(summer)
 	//собрать начальную статистику
 	w.initStat()
 }

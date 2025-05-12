@@ -16,8 +16,30 @@ type Controller struct {
 	l      logger.Logger
 }
 
-func NewController(conf config.Config) *Controller {
-	return &Controller{}
+func NewController(conf *config.Config, count, sun, sea, age, energy int) *Controller {
+	return &Controller{
+		Parameters: Parameters{
+			WorldParam{
+				X:            conf.X,
+				Y:            conf.Y,
+				Illumination: sun,
+				SeaLevel:     sea,
+			},
+			AgentParam{
+				typeGenome:          conf.TypeGenome,
+				sizeGenome:          conf.SizeGenome,
+				startPopulation:     count,
+				baseAgentEnergy:     conf.BaseEnergy,
+				maxAgentAge:         age,
+				maxAgentEnergy:      energy,
+				energyCost:          conf.ActionCost,
+				attackProfitPercent: conf.HuntingCoefficient,
+				madePollution:       conf.PollutionCost,
+				minEnergyToBirth:    conf.BirthCost,
+				countMutation:       conf.MutationCount,
+			},
+		},
+	}
 }
 
 func (c *Controller) Run() {
