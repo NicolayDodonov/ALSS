@@ -32,3 +32,11 @@ type AgentJSON struct {
 	Energy int    `json:"energy"`
 	DNA    genome `json:"dna"`
 }
+
+type Message struct {
+	Count  int `json:"count"`
+	Sun    int `json:"sun"`
+	Sea    int `json:"sea"`
+	Age    int `json:"age"`
+	Energy int `json:"energy"`
+}

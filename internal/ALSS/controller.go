@@ -4,6 +4,7 @@ import (
 	"artificialLifeGo/internal/config"
 	"artificialLifeGo/internal/logger"
 	"container/list"
+	"context"
 )
 
 // Controller основная структура пакета и единственная внешне доступная.
@@ -42,7 +43,7 @@ func NewController(conf *config.Config, count, sun, sea, age, energy int) *Contr
 	}
 }
 
-func (c *Controller) Run() {
+func (c *Controller) Run(frame chan *Frame, ctx context.Context) {
 	for {
 		//model work here
 		if err := c.runAgents(); err != nil {
@@ -58,6 +59,8 @@ func (c *Controller) Run() {
 		if c.worldDead() {
 			break
 		}
+
+		frame <- c.MakeFrame()
 	}
 }
 
