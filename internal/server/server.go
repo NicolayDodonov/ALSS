@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"time"
 )
 
 const (
@@ -69,18 +70,24 @@ func (ws *WsServer) commutation(conn *websocket.Conn) {
 	controller := ALSS.NewController(ws.conf, ws.l, init.Count, init.Sea, init.Sea, init.Age, init.Energy)
 	_ = controller
 	frameChan := make(chan *ALSS.Frame)
-	//controlChan := make(chan *ALSS.Message) //todo: заменить
+	//controlChan := make(chan *ALSS.Message)
 
 	controller.InitModel()
 
 	go controller.Run(frameChan, context.TODO())
 	for {
-		msg, err := ws.getMessage(conn, context.TODO())
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+
+		msg, err := ws.getMessage(conn, ctx) //todo: fix context
 		if err != nil {
 			log.Println(err.Error())
 			return
 		}
+
 		_ = msg
+
+		//controller.SetParameter()
 
 		frame := <-frameChan
 
@@ -93,10 +100,31 @@ func (ws *WsServer) commutation(conn *websocket.Conn) {
 
 func (ws *WsServer) getMessage(conn *websocket.Conn, ctx context.Context) (*ALSS.Message, error) {
 	message := ALSS.Message{}
-	if err := conn.ReadJSON(&message); err != nil {
-		log.Println(err.Error())
-		return nil, err
+
+	done := make(chan error)
+
+	go func() {
+		if err := conn.ReadJSON(&message); err != nil {
+			log.Println(err.Error())
+			done <- err
+			return
+		}
+	}()
+
+	select {
+	case err := <-done:
+		{
+			if err != nil {
+				return nil, err
+			}
+			return &message, nil
+		}
+	case <-ctx.Done():
+		{
+			return nil, nil
+		}
 	}
+
 	return &message, nil
 }
 
