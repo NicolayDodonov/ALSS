@@ -57,13 +57,13 @@ func (a *agent) eatMinerals(c *Controller) {
 	cell, _ := c.world.getCell(&a.coordinates)
 
 	var dMinerals int
-	if cell.localMinerals > 10 {
-		dMinerals = cell.localMinerals / 10
+	if cell.LocalMinerals > 10 {
+		dMinerals = cell.LocalMinerals / 10
 	} else {
-		dMinerals = cell.localMinerals
+		dMinerals = cell.LocalMinerals
 	}
 
-	cell.localMinerals -= dMinerals
+	cell.LocalMinerals -= dMinerals
 	a.Energy += dMinerals
 }
 
@@ -72,7 +72,7 @@ func (a *agent) eatPollution(c *Controller) {
 	c.world.Pollution -= dPollution
 	dMinerals := dPollution / 2
 	cell, _ := c.world.getCell(&a.coordinates)
-	cell.localMinerals += dMinerals
+	cell.LocalMinerals += dMinerals
 	a.Energy += dMinerals
 }
 
@@ -105,7 +105,7 @@ func (a *agent) look(c *Controller) error {
 		a.Genome.jumpPointer(1)
 		return nil
 	}
-	if lookedCell.localMinerals >= baseMinerals {
+	if lookedCell.LocalMinerals >= baseMinerals {
 		a.Genome.jumpPointer(2)
 		return nil
 	}

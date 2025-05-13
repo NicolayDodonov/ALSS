@@ -14,23 +14,8 @@ func (c *Controller) MakeFrame() *Frame {
 			X:        c.world.MaxX,
 			Y:        c.world.MaxY,
 			SeaLevel: c.world.SeaLevel,
-			Cells:    c.mapToJSON(),
+			Cells:    &c.world.Map,
 		},
 	}
 	return frame
-}
-
-func (c *Controller) mapToJSON() *[][]CellJSON {
-	Map := make([][]CellJSON, c.world.MaxY)
-	for y, cells := range c.world.Map {
-		Map = append(Map, make([]CellJSON, c.world.MaxX))
-		for x, cell := range cells {
-			Map[y][x] = CellJSON{
-				Height:  cell.Height,
-				Mineral: cell.localMinerals,
-				Agent:   AgentJSON{},
-			}
-		}
-	}
-	return &Map
 }

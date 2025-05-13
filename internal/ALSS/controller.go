@@ -3,6 +3,7 @@ package ALSS
 import (
 	"artificialLifeGo/internal/config"
 	"artificialLifeGo/internal/logger"
+	"artificialLifeGo/internal/logger/baseLogger"
 	"container/list"
 	"context"
 )
@@ -17,8 +18,9 @@ type Controller struct {
 	l      logger.Logger
 }
 
-func NewController(conf *config.Config, count, sun, sea, age, energy int) *Controller {
+func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea, age, energy int) *Controller {
 	return &Controller{
+		l: l,
 		Parameters: Parameters{
 			WorldParam{
 				X:            conf.X,
@@ -64,19 +66,10 @@ func (c *Controller) Run(frame chan *Frame, ctx context.Context) {
 	}
 }
 
-// initModel создаёт world, проводит по настройкам пользователя генерацию ландшафта и базовых ресурсов.
+// InitModel создаёт world, проводит по настройкам пользователя генерацию ландшафта и базовых ресурсов.
 // Так же создаёт по настройкам пользователя двусвязный спиок agent
-func (c *Controller) initModel() {
+func (c *Controller) InitModel() {
 	c.makeWorld()
 	c.makeAgents()
 	c.sync()
-}
-
-// Load загружает состояние модели из внешнего источника.
-func (c *Controller) Load(data *[]byte) {
-
-}
-
-// Save выгружает состояние модели внешнему потребителю.
-func (c *Controller) Save() {
 }

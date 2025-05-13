@@ -3,6 +3,8 @@ package server
 import (
 	"artificialLifeGo/internal/ALSS"
 	"artificialLifeGo/internal/config"
+	"artificialLifeGo/internal/logger/baseLogger"
+	"context"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
@@ -17,22 +19,24 @@ type Server interface {
 }
 
 type WsServer struct {
-	mux  *http.ServeMux
 	srv  *http.Server
+	mux  *http.ServeMux
 	upg  *websocket.Upgrader
 	conf *config.Config
+	l    *baseLogger.Logger
 }
 
-func New(conf *config.Config) Server {
+func New(conf *config.Config, l *baseLogger.Logger) Server {
 	mux := http.NewServeMux()
 	return &WsServer{
-		mux: mux,
 		srv: &http.Server{
 			Addr:    conf.IP + ":" + conf.Port,
 			Handler: mux,
 		},
+		mux:  mux,
 		upg:  &websocket.Upgrader{},
 		conf: conf,
+		l:    l,
 	}
 }
 
@@ -56,19 +60,47 @@ func (ws *WsServer) wsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ws *WsServer) commutation(conn *websocket.Conn) {
-	init := Message{}
+	init := ALSS.Message{}
 	if err := conn.ReadJSON(&init); err != nil {
 		log.Println(err.Error())
 		return
 	}
 
-	controller := ALSS.NewController(ws.conf, init.Count, init.Sea, init.Sea, init.Age, init.Energy)
+	controller := ALSS.NewController(ws.conf, ws.l, init.Count, init.Sea, init.Sea, init.Age, init.Energy)
 	_ = controller
-	//todo: make 2 chan
-	for {
-		//todo: check connection
+	frameChan := make(chan *ALSS.Frame)
+	//controlChan := make(chan *ALSS.Message) //todo: заменить
 
-		//todo: controller.Run(chanel, chanel, ctx)
+	controller.InitModel()
+
+	go controller.Run(frameChan, context.TODO())
+	for {
+		msg, err := ws.getMessage(conn, context.TODO())
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		_ = msg
+
+		frame := <-frameChan
+
+		if err := ws.sendMessage(conn, frame); err != nil {
+			log.Printf(err.Error())
+		}
 
 	}
+}
+
+func (ws *WsServer) getMessage(conn *websocket.Conn, ctx context.Context) (*ALSS.Message, error) {
+	message := ALSS.Message{}
+	if err := conn.ReadJSON(&message); err != nil {
+		log.Println(err.Error())
+		return nil, err
+	}
+	return &message, nil
+}
+
+func (ws *WsServer) sendMessage(conn *websocket.Conn, v interface{}) error {
+	err := conn.WriteJSON(v)
+	return err
 }

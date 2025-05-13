@@ -10,15 +10,14 @@ function SendForm(event){
     event.preventDefault()
     console.log('Нажата клавиша запуск')
 
-    let data = new FormData(form)
-    data.get("season")
+
 
     let jsonStruct = {
-        count: data.get("count"),
-        sun: data.get("sun"),
-        sea: data.get("sea"),
-        age: data.get("age"),
-        energy: data.get("energy")
+        count:  parseInt(document.getElementById("countAgent").value),
+        sun: parseInt(document.getElementById("startSun").value),
+        sea: parseInt(document.getElementById("seaLevel").value),
+        age: parseInt(document.getElementById("maxAge").value),
+        energy: parseInt(document.getElementById("maxEnergy").value)
     }
     let jsonString = JSON.stringify(jsonStruct)
     console.log(jsonString)

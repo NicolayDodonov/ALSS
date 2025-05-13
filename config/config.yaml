@@ -1,5 +1,5 @@
 Server:
-  ip: "192.168.1.48"
+  ip: "192.168.1.67"
   port: "8080"
 ALSS:
   World:
@@ -14,3 +14,6 @@ ALSS:
     huntingCoefficient: 50
     birthCost: 150
     mutationCount: 1
+Logger:
+  path: "logs/app.log"
+  level: "off"

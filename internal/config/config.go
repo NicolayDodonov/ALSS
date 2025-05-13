@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Server `yaml:"Server"`
 	ALSS   `yaml:"ALSS"`
+	Logger `yaml:"Logger"`
 }
 
 type Server struct {
@@ -35,6 +36,11 @@ type Agent struct {
 	HuntingCoefficient int    `yaml:"huntingCoefficient"`
 	BirthCost          int    `yaml:"birthCost"`
 	MutationCount      int    `yaml:"mutationCount"`
+}
+
+type Logger struct {
+	Path  string `yaml:"path"`
+	Level string `yaml:"level"`
 }
 
 func MustLoad(path string) *Config {

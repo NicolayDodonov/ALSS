@@ -15,10 +15,10 @@ type StatisticJSON struct {
 }
 
 type MapJSON struct {
-	X        int           `json:"x_size"`
-	Y        int           `json:"y_size"`
-	SeaLevel int           `json:"sea_level"`
-	Cells    *[][]CellJSON `json:"cells"`
+	X        int  `json:"x_size"`
+	Y        int  `json:"y_size"`
+	SeaLevel int  `json:"sea_level"`
+	Cells    *Map `json:"cells"`
 }
 
 type CellJSON struct {
