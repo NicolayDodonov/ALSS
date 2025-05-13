@@ -26,6 +26,19 @@ function SendForm(event){
 }
 
 socket.onmessage = function (event){
-    console.log(event.data);
+    let message = JSON.parse(event.data)
+    console.log('We get frame!')
+
+    map = message.map.cells
+    console.log(map)
+
+    for(y = 0; y<map.length; y++){
+        for(x=0;x<map[y].length; x++){
+            drawCell(x, y, map[y][x])
+        }
+    }
 }
 
+function drawCell(x,y, cell){
+
+}

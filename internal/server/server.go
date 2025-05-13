@@ -79,7 +79,7 @@ func (ws *WsServer) commutation(conn *websocket.Conn) {
 		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer cancel()
 
-		msg, err := ws.getMessage(conn, ctx) //todo: fix context
+		msg, err := ws.getMessage(conn, ctx)
 		if err != nil {
 			log.Println(err.Error())
 			return
@@ -124,8 +124,6 @@ func (ws *WsServer) getMessage(conn *websocket.Conn, ctx context.Context) (*ALSS
 			return nil, nil
 		}
 	}
-
-	return &message, nil
 }
 
 func (ws *WsServer) sendMessage(conn *websocket.Conn, v interface{}) error {
