@@ -7,7 +7,3 @@ type Logger interface {
 	Error(string)
 	Fatal(string)
 }
-
-var App Logger
-var Sim Logger
-var Ent Logger

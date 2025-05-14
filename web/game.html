@@ -2,9 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Игра</title>
     <link rel="stylesheet" href="static/styles/main.css" type="text/css">
 </head>
+
+
+
 <body>
     <div class="page">
         <header class="header">
@@ -14,35 +17,35 @@
 
         <div class="main">
             <div class ="game">
-                <div class="game-field">
-                    <canvas class="game-canvas"></canvas>
-                </div>
+                <canvas class="game-canvas" id="gameCanvas" width="600" height="600"></canvas>
+
                 <div class="game-menu">
                     <h3>Настройки</h3>
-                    <form action="" method="post">
-                        <label for="2">Начальная популяция</label>
-                        <input type="text" id="2" name="2" placeholder="1...100"> <br>
 
-                        <label for="3">Средний начальный уровень минералов</label>
-                        <input type="text" id="3"  name="3" placeholder="0...50"> <br>
-
-                        <label for="4">???</label>
-                        <input type="text" id="4" name="4" placeholder="???"> <br>
-
-                        <label for="5">???</label>
-                        <input type="text" id="5" name="5" placeholder="???"> <br>
-
-                        <label for="season">Выберете сезон</label>
-                        <select id="season" name="season-select">
-                            <option value="spring">Весна</option>
-                            <option value="summer">Лето</option>
-                            <option value="autumn">Осень</option>
-                            <option value="winter">Зима/option>
-                        </select>
+                    <form id="form">
+                        <label for="countAgent">Популяция</label>
+                        <input type="range" id="countAgent" name="count" min="1" max="25">
                         <br>
+
+                        <label for="startSun">Совещённость</label>
+                        <input type="range" id="startSun" name="sun"  min="1" max="25">
                         <br>
+
+                        <label for="seaLevel">Уровень моря</label>
+                        <input type="range" id="seaLevel" name="sea" min="1" max="25">
+                        <br>
+
+                        <label for="maxAge">Макс. возраст</label>
+                        <input type="range" id="maxAge" name="age"  min="1" max="1000">
+                        <br>
+
+                        <label for="maxEnergy">Макс. энергия</label>
+                        <input type="range" id="maxEnergy" name="energy"  min="1" max="1000">
+                        <br>
+
                         <button type="submit">ЗАПУСК!</button>
                     </form>
+
                 </div>
             </div>
 
@@ -69,3 +72,5 @@
     </div>
 </body>
 </html>
+
+<script src="static/js/game.js"></script>

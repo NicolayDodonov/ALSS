@@ -27,7 +27,7 @@ func (c *Controller) makeAgents() {
 
 // makeWorld создаёт мир, генерирует карту с начальными условиями от пользователя.
 func (c *Controller) makeWorld() {
-	w := newWorld(c.Parameters.X, c.Parameters.Y)
+	w := newWorld(c.Parameters.WorldParam)
 	w.initMap()
 	c.world = w
 }

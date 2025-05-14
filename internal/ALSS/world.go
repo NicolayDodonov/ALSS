@@ -30,22 +30,22 @@ type worldStatistic struct {
 }
 
 type cell struct {
-	Agent         *agent
-	Height        int
-	localMinerals int //0 ... 255
+	Agent         *agent `json:"agent"`
+	Height        int    `json:"height"`
+	LocalMinerals int    `json:"mineral"`
 }
 
 type Map [][]cell
 
-func newWorld(x, y int) *world {
+func newWorld(param WorldParam) *world {
 	return &world{
-		MaxX: x,
-		MaxY: y,
+		MaxX: param.X,
+		MaxY: param.Y,
 		Map:  nil,
 		global: global{
-			Illumination: 0,
+			Illumination: param.Illumination,
 			Pollution:    0,
-			SeaLevel:     0,
+			SeaLevel:     param.SeaLevel,
 		},
 		worldStatistic: worldStatistic{
 			Year:        0,
@@ -64,8 +64,6 @@ func (w *world) initMap() {
 	w.newMap()
 	//вызвать генератор высотности карты
 	w.landscapeGenerator(mapGRADIENT)
-	//установить сезон
-	w.changeSeason(summer)
 	//собрать начальную статистику
 	w.initStat()
 }
@@ -78,7 +76,7 @@ func (w *world) newMap() {
 			newMap[y][x] = cell{
 				Agent:         nil,
 				Height:        0,
-				localMinerals: 0,
+				LocalMinerals: 0,
 			}
 		}
 	}
@@ -119,7 +117,7 @@ func (w *world) mineralHandler() {
 	for _, cells := range w.Map {
 		for _, cell := range cells {
 			if cell.Height <= w.SeaLevel {
-				cell.localMinerals += dMinerals
+				cell.LocalMinerals += dMinerals
 			}
 		}
 	}
@@ -143,7 +141,7 @@ func (w *world) updateStat() {
 
 	for _, cells := range w.Map {
 		for _, cell := range cells {
-			totalMinerals += cell.localMinerals
+			totalMinerals += cell.LocalMinerals
 		}
 	}
 	w.TotMinerals = totalMinerals

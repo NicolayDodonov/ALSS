@@ -99,7 +99,7 @@ func (a *agent) pollutionHandler(c *Controller) {
 
 	//нанести урон от загрязнения минералами
 	cell, _ := c.world.getCell(&a.coordinates)
-	if cell.localMinerals >= 200 {
+	if cell.LocalMinerals >= 200 {
 		a.Energy -= c.Parameters.energyCost
 	}
 }

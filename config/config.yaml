@@ -1,1 +1,20 @@
--Config place here-
+Server:
+  ip: "192.168.1.67"
+  port: "8080"
+ALSS:
+  TimeStop: 10
+  World:
+    x: 100
+    y: 100
+  Agent:
+    typeGenome: "RAND"
+    sizeGenome: 64
+    baseEnergy: 100
+    actionCost: 1
+    pollutionCost: 10
+    huntingCoefficient: 50
+    birthCost: 150
+    mutationCount: 1
+Logger:
+  path: "logs/app.log"
+  level: "off"

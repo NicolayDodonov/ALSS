@@ -1,16 +1,14 @@
 package ALSS
 
 type Parameters struct {
-	ControllerParam
 	WorldParam
 	AgentParam
 }
 
 type WorldParam struct {
-	X, Y              int
-	baseSunCost       int
-	baseMineralCost   int
-	basePollutionPart int
+	X, Y         int
+	Illumination int
+	SeaLevel     int
 }
 
 type AgentParam struct {
@@ -27,7 +25,4 @@ type AgentParam struct {
 
 	minEnergyToBirth int
 	countMutation    int
-}
-
-type ControllerParam struct {
 }
