@@ -52,7 +52,7 @@ socket.onmessage = function (event){
                 if (map[y][x].height<sea){
                     ctx.fillStyle = 'blue'
                 } else {
-                    ctx.fillStyle = 'white'
+                    ctx.fillStyle = selectColor(map[y][x].height)
                 }
                 ctx.fillRect(x*cellSizeX, y*cellSizeY, cellSizeX, cellSizeY)
             }
@@ -60,6 +60,9 @@ socket.onmessage = function (event){
     }
 }
 
-function drawCell(x,y, sX, sY, ){
 
+function selectColor(num){
+    return "rgb(" + [num*10, num*10, num*10].join(",") + ")";
 }
+
+

@@ -12,43 +12,44 @@ type genome struct {
 
 func newRandomGenome(size int) *genome {
 	g := &genome{
+		ID:      newID(),
 		Pointer: rand.Int() % size,
 		Array:   make([]uint8, size),
 	}
 	for i := range g.Array {
 		g.Array[i] = uint8(rand.Int())
 	}
-	makeID(g)
 	return g
 }
 
 func newZeroGenome(size int) *genome {
 	g := &genome{
+		ID:      newID(),
 		Pointer: rand.Int() % size,
 		Array:   make([]uint8, size),
 	}
 	for i := range g.Array {
 		g.Array[i] = 0
 	}
-	makeID(g)
 	return g
 }
 
 func newBaseGenome() *genome {
 	g := &genome{
+		ID:      newID(),
 		Pointer: 0,
 		Array: []uint8{
-			25, 25, 25, 25, 25, 25, 25, 25,
-			25, 25, 25, 25, 25, 25, 25, 25,
-			25, 25, 25, 25, 25, 25, 25, 25,
-			25, 25, 25, 25, 25, 25, 25, 25,
-			25, 25, 25, 25, 25, 25, 25, 25,
-			25, 25, 25, 25, 25, 25, 25, 25,
-			25, 25, 25, 25, 25, 25, 25, 25,
-			25, 25, 25, 25, 25, 25, 25, 25,
+			11, 11, 11, 11, 11, 11, 11, 11,
+			11, 11, 11, 11, 11, 11, 11, 11,
+			11, 11, 11, 11, 11, 11, 11, 11,
+			11, 11, 11, 11, 11, 11, 11, 11,
+			11, 11, 11, 11, 11, 11, 11, 11,
+			11, 11, 11, 11, 11, 11, 11, 11,
+			11, 11, 11, 11, 11, 11, 11, 11,
+			11, 11, 11, 11, 11, 11, 11, 11,
 		},
 	}
-	makeID(g)
+
 	return g
 }
 
@@ -69,7 +70,7 @@ func (g *genome) mutation(countMutation int) {
 	for i := 0; i < countMutation; i++ {
 		g.Array[i] = g.Array[rand.Int()%len(g.Array)]
 	}
-	makeID(g)
+	g.ID = newID()
 }
 
 func (g *genome) jumpPointer(jumpRange int) {

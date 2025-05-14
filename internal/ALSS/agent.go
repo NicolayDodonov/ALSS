@@ -1,7 +1,6 @@
 package ALSS
 
 import (
-	"container/list"
 	"math/rand/v2"
 )
 
@@ -16,6 +15,7 @@ type agent struct {
 
 func newAgent(c *Controller) *agent {
 	a := &agent{
+		ID:     newID(),
 		Age:    0,
 		Energy: c.Parameters.baseAgentEnergy,
 		Angle:  0,
@@ -24,7 +24,6 @@ func newAgent(c *Controller) *agent {
 			Y: rand.IntN(c.world.MaxY),
 		},
 	}
-	makeID(a)
 
 	switch c.Parameters.typeGenome {
 	case genomeTypeRAND:
@@ -37,7 +36,7 @@ func newAgent(c *Controller) *agent {
 	return a
 }
 
-func (a *agent) run(c *Controller, me *list.Element) error {
+func (a *agent) run(c *Controller) error {
 	if a.Energy <= 0 {
 		return nil
 	}
@@ -45,20 +44,23 @@ func (a *agent) run(c *Controller, me *list.Element) error {
 	a.Energy -= c.Parameters.energyCost
 	a.Age++
 
-	if err := a.interpretationGenome(c, me); err != nil {
+	if err := a.interpretationGenome(c); err != nil {
 		return err
 	}
 
 	a.pollutionHandler(c)
 
-	a.deathHandler(c, me)
-
-	a.birthHandler(c, me)
+	if err := a.deathHandler(c); err != nil {
+		return err
+	}
+	if err := a.birthHandler(c); err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func (a *agent) interpretationGenome(c *Controller, me *list.Element) error {
+func (a *agent) interpretationGenome(c *Controller) error {
 	var err error = nil
 	gen := a.Genome.getGen()
 	switch gen {
@@ -77,7 +79,7 @@ func (a *agent) interpretationGenome(c *Controller, me *list.Element) error {
 	case 13:
 		a.eatPollution(c)
 	case 14:
-		err = a.attack(c, me)
+		err = a.attack(c)
 	case 15:
 		err = a.look(c)
 	case 16:
@@ -98,21 +100,22 @@ func (a *agent) pollutionHandler(c *Controller) {
 	c.world.Pollution += c.Parameters.madePollution
 
 	//нанести урон от загрязнения минералами
-	cell, _ := c.world.getCell(&a.coordinates)
+	cell := c.world.getCell(&a.coordinates)
+
 	if cell.LocalMinerals >= 200 {
 		a.Energy -= c.Parameters.energyCost
 	}
 }
 
-func (a *agent) birthHandler(c *Controller, me *list.Element) {
+func (a *agent) birthHandler(c *Controller) error {
 	//проверяем возможность рождения
 	if a.Energy < c.Parameters.minEnergyToBirth {
-		return
+		return nil
 	}
 
 	var freeCoords *coordinates = nil
 	for angle := angle(0); angle < 8; angle++ {
-		cell, _ := c.world.getCell(offset(&a.coordinates, angle))
+		cell := c.world.getCell(offset(&a.coordinates, angle))
 		if cell != nil && cell.Agent == nil {
 			freeCoords = offset(&a.coordinates, angle)
 			break
@@ -123,23 +126,33 @@ func (a *agent) birthHandler(c *Controller, me *list.Element) {
 		a.Energy /= 2
 
 		//make new agent
-		newA := agent{
+		newA := &agent{
+			ID:          newID(),
 			Age:         0,
 			Energy:      a.Energy / 2,
 			Angle:       a.Angle,
 			Genome:      a.Genome,
 			coordinates: *freeCoords,
 		}
-		makeID(newA)
 		newA.Genome.mutation(c.Parameters.countMutation)
 
-		_ = c.agents.InsertBefore(newA, me)
+		cell := c.world.getCell(freeCoords)
+		cell.Agent = newA
+
+		if err := c.agents.addAfter(a, newA); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
-func (a *agent) deathHandler(c *Controller, me *list.Element) {
+func (a *agent) deathHandler(c *Controller) error {
 	if a.Energy <= 0 || a.Energy > c.Parameters.maxAgentEnergy || a.Age >= c.Parameters.maxAgentAge {
-		_ = c.agents.Remove(me)
+		if err := c.agents.del(a); err != nil {
+			return err
+		}
+		cell := c.world.getCell(&a.coordinates)
+		cell.Agent = nil
 
 		//add cell minerals
 		MineralUnit := a.Energy / 10
@@ -154,14 +167,14 @@ func (a *agent) deathHandler(c *Controller, me *list.Element) {
 		a.Energy = 0
 		a.Age = -1
 	}
+	return nil
 }
 
 func (a *agent) checkSelfPosition(c *Controller) bool {
-	cell, err := c.world.getCell(&a.coordinates)
-	if err != nil {
-		return true
-	}
-	if cell.Agent == a {
+	cell := c.world.getCell(&a.coordinates)
+	if cell == nil {
+		return false
+	} else if cell.Agent == a {
 		return true
 	} else {
 		return false

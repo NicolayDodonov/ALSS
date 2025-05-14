@@ -4,17 +4,18 @@ import (
 	"artificialLifeGo/internal/config"
 	"artificialLifeGo/internal/logger"
 	"artificialLifeGo/internal/logger/baseLogger"
-	"container/list"
 	"context"
+	"log"
 )
 
 // Controller основная структура пакета и единственная внешне доступная.
 // Обеспечивает контроль над внутренней логикой и реализует интерфейс управления и передачи данных.
 type Controller struct {
 	Parameters Parameters
+	Status     bool
 
 	world  *world
-	agents *list.List
+	agents *list
 	l      logger.Logger
 }
 
@@ -46,29 +47,43 @@ func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea, a
 }
 
 func (c *Controller) Run(frame chan *Frame, ctx context.Context) {
+
 	for {
-		//model work here
-		if err := c.runAgents(); err != nil {
-			c.l.Error(err.Error())
-			c.sync()
-		}
-
-		c.removeDeadAgents()
-
-		//update mStat
-		c.world.updateStat()
-
-		if c.worldDead() {
+		select {
+		case <-ctx.Done():
 			break
-		}
+		default:
+			//model work here
+			if err := c.runAgents(); err != nil {
+				c.l.Error(err.Error())
+				if err := c.sync(); err != nil {
+					return
+				}
+			}
 
-		frame <- c.MakeFrame()
+			if err := c.removeDeadAgents(); err != nil {
+				return
+			}
+
+			//update mStat
+			c.world.updateStat()
+
+			frame <- c.MakeFrame()
+
+			if c.worldDead() {
+				log.Printf("all agent is dead")
+				c.Status = false
+				return
+			}
+		}
 	}
+
 }
 
 // InitModel создаёт world, проводит по настройкам пользователя генерацию ландшафта и базовых ресурсов.
 // Так же создаёт по настройкам пользователя двусвязный спиок agent
 func (c *Controller) InitModel() {
+	c.Status = true
 	c.makeWorld()
 	c.makeAgents()
 	c.sync()

@@ -52,7 +52,7 @@ func (ws *WsServer) Start() error {
 func (ws *WsServer) wsHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := ws.upg.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err)
+		log.Println(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -63,25 +63,25 @@ func (ws *WsServer) wsHandler(w http.ResponseWriter, r *http.Request) {
 func (ws *WsServer) commutation(conn *websocket.Conn) {
 	init := ALSS.Message{}
 	if err := conn.ReadJSON(&init); err != nil {
-		log.Println(err.Error())
+		log.Println("commutation_1" + err.Error())
 		return
 	}
 
 	controller := ALSS.NewController(ws.conf, ws.l, init.Count, init.Sea, init.Sea, init.Age, init.Energy)
 	_ = controller
 	frameChan := make(chan *ALSS.Frame)
-	//controlChan := make(chan *ALSS.Message)
 
 	controller.InitModel()
-
-	go controller.Run(frameChan, context.TODO())
+	ctxRun, cancelRun := context.WithCancel(context.Background())
+	go controller.Run(frameChan, ctxRun)
 	for {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Microsecond*time.Duration(ws.conf.TimeStop))
-		defer cancel()
+		ctxMSG, cancelMSG := context.WithTimeout(context.Background(), time.Microsecond*time.Duration(ws.conf.TimeStop))
+		defer cancelMSG()
 
-		msg, err := ws.getMessage(conn, ctx)
+		msg, err := ws.getMessage(conn, ctxMSG)
 		if err != nil {
-			log.Println(err.Error())
+			log.Println("commutation_2 " + err.Error())
+			cancelRun()
 			return
 		}
 
@@ -90,10 +90,14 @@ func (ws *WsServer) commutation(conn *websocket.Conn) {
 		frame := <-frameChan
 
 		if err := ws.sendMessage(conn, frame); err != nil {
-			log.Printf(err.Error())
+			log.Printf("commutation_3 " + err.Error())
 		}
 
+		if !controller.Status {
+			break
+		}
 	}
+	log.Println("finish model")
 }
 
 func (ws *WsServer) getMessage(conn *websocket.Conn, ctx context.Context) (*ALSS.Message, error) {
@@ -103,7 +107,6 @@ func (ws *WsServer) getMessage(conn *websocket.Conn, ctx context.Context) (*ALSS
 
 	go func() {
 		if err := conn.ReadJSON(&message); err != nil {
-			log.Println(err.Error())
 			done <- err
 			return
 		}

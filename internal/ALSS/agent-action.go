@@ -1,10 +1,5 @@
 package ALSS
 
-import (
-	"container/list"
-	"fmt"
-)
-
 // файл содержит все обработчики действий агента
 
 func (a *agent) move(angle angle, c *Controller) error {
@@ -12,16 +7,17 @@ func (a *agent) move(angle angle, c *Controller) error {
 	newCoord := offset(&a.coordinates, angle)
 
 	//get cell from new coordinates
-	newCell, err := c.world.getCell(newCoord)
-	if err != nil {
-		return err
+	newCell := c.world.getCell(newCoord)
+	if newCell == nil {
+		return nil
 	}
+
 	if newCell.Agent != nil {
 		return nil
 	}
 
 	//get out from old cell
-	oldCell, _ := c.world.getCell(&a.coordinates)
+	oldCell := c.world.getCell(&a.coordinates)
 	oldCell.Agent = nil
 
 	//and go to new cell!
@@ -45,16 +41,16 @@ func (a *agent) turnRight() {
 
 func (a *agent) eatSun(c *Controller) {
 	//get cell data
-	cell, _ := c.world.getCell(&a.coordinates)
+	cell := c.world.getCell(&a.coordinates)
 	if cell.Height > c.world.SeaLevel {
 		a.Energy += ((c.world.Illumination * (cell.Height - c.world.SeaLevel)) /
-			c.world.PollutionFix) * ((cell.LocalMinerals + 1/maxMineral) + 1)
+			(c.world.PollutionFix + 1)) * ((cell.LocalMinerals + 1/maxMineral) + 1)
 	}
 
 }
 
 func (a *agent) eatMinerals(c *Controller) {
-	cell, _ := c.world.getCell(&a.coordinates)
+	cell := c.world.getCell(&a.coordinates)
 
 	var dMinerals int
 	if cell.LocalMinerals > 10 {
@@ -71,15 +67,15 @@ func (a *agent) eatPollution(c *Controller) {
 	dPollution := c.world.PollutionFix //todo: надо будет настроить эту строчку
 	c.world.Pollution -= dPollution
 	dMinerals := dPollution / 2
-	cell, _ := c.world.getCell(&a.coordinates)
+	cell := c.world.getCell(&a.coordinates)
 	cell.LocalMinerals += dMinerals
 	a.Energy += dMinerals
 }
 
-func (a *agent) attack(c *Controller, me *list.Element) error {
-	cell, err := c.world.getCell(offset(&a.coordinates, a.Angle))
-	if err != nil {
-		return fmt.Errorf("cant attack: %w", err)
+func (a *agent) attack(c *Controller) error {
+	cell := c.world.getCell(offset(&a.coordinates, a.Angle))
+	if cell == nil {
+		return nil
 	}
 
 	if cell.Agent == nil {
@@ -87,7 +83,10 @@ func (a *agent) attack(c *Controller, me *list.Element) error {
 	}
 	profit := cell.Agent.Energy * c.Parameters.attackProfitPercent / 100
 	cell.Agent.Energy = -1
-	cell.Agent.deathHandler(c, me)
+
+	if err := cell.Agent.deathHandler(c); err != nil {
+		return err
+	}
 
 	a.Energy += profit
 	return nil
@@ -95,10 +94,11 @@ func (a *agent) attack(c *Controller, me *list.Element) error {
 
 // look check what is located in the looked cell: other agent, grass, mineral or nothing
 func (a *agent) look(c *Controller) error {
-	lookedCell, err := c.world.getCell(offset(&a.coordinates, a.Angle))
-	if err != nil {
-		return err
+	lookedCell := c.world.getCell(offset(&a.coordinates, a.Angle))
+	if lookedCell == nil {
+		return nil
 	}
+
 	//todo: исправить взгляд
 	if lookedCell.Agent != nil {
 		//проверяем есть ли там вообще агент
@@ -114,11 +114,9 @@ func (a *agent) look(c *Controller) error {
 }
 
 func (a *agent) lookHeightCell(c *Controller) error {
-	lookedCell, err := c.world.getCell(offset(&a.coordinates, a.Angle))
-	myCell, _ := c.world.getCell(&a.coordinates)
-	if err != nil {
-		return err
-	}
+	lookedCell := c.world.getCell(offset(&a.coordinates, a.Angle))
+	myCell := c.world.getCell(&a.coordinates)
+
 	if lookedCell.Height > myCell.Height {
 		a.Genome.jumpPointer(1)
 		return nil
@@ -135,10 +133,11 @@ func (a *agent) lookHeightCell(c *Controller) error {
 }
 
 func (a *agent) friendOrFoe(c *Controller) error {
-	lookedCell, err := c.world.getCell(offset(&a.coordinates, a.Angle))
-	if err != nil {
-		return err
+	lookedCell := c.world.getCell(offset(&a.coordinates, a.Angle))
+	if lookedCell == nil {
+		return nil
 	}
+
 	if lookedCell.Agent != nil {
 		if equals(lookedCell.Agent.Genome, a.Genome) {
 			// friend
@@ -152,15 +151,12 @@ func (a *agent) friendOrFoe(c *Controller) error {
 	} else {
 		// looked cell is empty
 		a.Genome.jumpPointer(3)
-		return err
+		return nil
 	}
 }
 
 func (a *agent) getEnergy(c *Controller) error {
-	lookedCell, err := c.world.getCell(offset(&a.coordinates, a.Angle))
-	if err != nil {
-		return err
-	}
+	lookedCell := c.world.getCell(offset(&a.coordinates, a.Angle))
 	if lookedCell.Agent != nil {
 		if a.Energy > livingSurviveLevel {
 			a.Energy -= energyTransferPacket

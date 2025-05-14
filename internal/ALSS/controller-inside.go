@@ -1,26 +1,19 @@
 package ALSS
 
 import (
-	"container/list"
 	"fmt"
-	"reflect"
 )
 
-func makeID(i interface{}) {
-	v := reflect.ValueOf(i).Elem()
-	switch v.Type().Name() {
-	case "agent":
-		v.Field(0).SetString("A")
-	case "genome":
-		v.Field(0).SetString("S")
-	}
+func newID() string {
+	//todo: сделать id генератор
+	return "random id"
 }
 
 // makeAgents формирует массив начальных агентов модели.
 func (c *Controller) makeAgents() {
-	agents := list.New()
+	agents := newList()
 	for i := 0; i < c.Parameters.startPopulation; i++ {
-		agents.PushBack(newAgent(c))
+		agents.add(newAgent(c))
 	}
 	c.agents = agents
 }
@@ -35,10 +28,13 @@ func (c *Controller) makeWorld() {
 // sync - синхронизация агентов и мира.
 //
 // Исправление списка агентов (удаление мёртвых не удалённых агентов).
-func (c *Controller) sync() {
+func (c *Controller) sync() error {
 	c.l.Info("start synchronization model")
 
-	c.removeDeadAgents()
+	//критическое место очистки агентов. Если возникает агент вне списка - завершить модель
+	if err := c.removeDeadAgents(); err != nil {
+		return err
+	}
 
 	//удаляем все ссылки живых, мёртвых и ошибочных агентов из мира
 	for _, cells := range c.world.Map {
@@ -47,45 +43,49 @@ func (c *Controller) sync() {
 		}
 	}
 
-	for a := c.agents.Front(); a != nil; a = a.Next() {
-		cell, _ := c.world.getCell(&a.Value.(*agent).coordinates)
-		cell.Agent = a.Value.(*agent)
+	//записываем всех агентов из списка повторно.
+	for nod := c.agents.root; nod != nil; nod = nod.next {
+		cell := c.world.getCell(&nod.value.coordinates)
+		cell.Agent = nod.value
 	}
-
+	return nil
 }
 
 // runAgents проходится по списку каждого живого агента и запускает
 func (c *Controller) runAgents() error {
-	for element := c.agents.Front(); element != nil; element = element.Next() {
-		if err := element.Value.(*agent).run(c, element); err != nil {
-			// проверяем, распологается ли агент в своей клетке, или случился рассинхрон.
-			if element.Value.(*agent).checkSelfPosition(c) {
-				return fmt.Errorf("agent ID:%s position check failed", element.Value.(*agent).ID)
+	for nod := c.agents.root; nod != nil; nod = nod.next {
+		if err := nod.value.run(c); err != nil {
+			if nod.value.checkSelfPosition(c) {
+				return fmt.Errorf("agent ID:%s position check failed", nod.value.ID)
 			}
-
 			c.l.Error(err.Error())
+		}
+
+	}
+	return nil
+}
+
+// removeDeadAgents проходит по всему списку агентов и очищает его от мёртвых агентов.
+// может вызвать ошибку. В таком случае лучше всего завершить работу модели.
+func (c *Controller) removeDeadAgents() error {
+	for nod := c.agents.root; nod != nil; nod = nod.next {
+		if nod.value.Energy <= 0 {
+			cell := c.world.getCell(&nod.value.coordinates)
+			cell.Agent = nil
+			if err := c.agents.del(nod.value); err != nil {
+				//критическое место. Если тут возникает ошибка, можно прекращать симуляцию
+				return err
+			}
 		}
 	}
 	return nil
 }
 
-// removeDeadAgents проходит по всему списку агентов и очищает его от мёртвых агентов
-func (c *Controller) removeDeadAgents() {
-	for a := c.agents.Front(); a != nil; a = a.Next() {
-		if a.Value.(*agent).Energy <= 0 {
-			//удаляем ссылку на агента в клетке
-			cell, _ := c.world.getCell(&a.Value.(*agent).coordinates)
-			cell.Agent = nil
-			c.agents.Remove(a) //todo: Возможное место появление бага!!!
-		}
-	}
-}
-
 // worldDead проверяет весь список агентов модели на жизнеспособность.
 // если таких нет, если все агенты умертвы - возвращает True.
 func (c *Controller) worldDead() bool {
-	for a := c.agents.Front(); a != nil; a = a.Next() {
-		if a.Value.(*agent).Energy > 0 {
+	for nod := c.agents.root; nod != nil; nod = nod.next {
+		if nod.value.Energy > 0 {
 			return false
 		}
 	}

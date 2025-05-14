@@ -88,7 +88,7 @@ func (w *world) landscapeGenerator(landType string) {
 	case mapGRADIENT:
 		var gradientLayer int
 		if w.MaxY > maxHeight {
-			gradientLayer = maxHeight
+			gradientLayer = w.MaxY / maxHeight
 		} else {
 			gradientLayer = 1
 		}
