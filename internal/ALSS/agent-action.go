@@ -48,7 +48,7 @@ func (a *agent) eatSun(c *Controller) {
 	cell, _ := c.world.getCell(&a.coordinates)
 	if cell.Height > c.world.SeaLevel {
 		a.Energy += ((c.world.Illumination * (cell.Height - c.world.SeaLevel)) /
-			c.world.PollutionFix) * ((cell.Height / maxHeight) + 1)
+			c.world.PollutionFix) * ((cell.LocalMinerals + 1/maxMineral) + 1)
 	}
 
 }

@@ -25,20 +25,41 @@ function SendForm(event){
     socket.send(jsonString)
 }
 
+let canvas = document.getElementById("gameCanvas")
+let ctx = canvas.getContext('2d')
+
 socket.onmessage = function (event){
     let message = JSON.parse(event.data)
-    console.log('We get frame!')
+    console.log(message)
 
     map = message.map.cells
-    console.log(map)
+    sea = message.map.sea_level
+    year = message.stat.world_year
+
+    cellSizeX = 600/message.map.x_size
+    cellSizeY = 600/message.map.y_size
 
     for(y = 0; y<map.length; y++){
         for(x=0;x<map[y].length; x++){
-            drawCell(x, y, map[y][x])
+            if (map[y][x].agent !== null){
+                if (map[y][x].height>sea){
+                    ctx.fillStyle = 'green'
+                } else {
+                    ctx.fillStyle = 'darkgreen'
+                }
+                ctx.fillRect(x*cellSizeX, y*cellSizeY, cellSizeX, cellSizeY)
+            } else {
+                if (map[y][x].height<sea){
+                    ctx.fillStyle = 'blue'
+                } else {
+                    ctx.fillStyle = 'white'
+                }
+                ctx.fillRect(x*cellSizeX, y*cellSizeY, cellSizeX, cellSizeY)
+            }
         }
     }
 }
 
-function drawCell(x,y, cell){
+function drawCell(x,y, sX, sY, ){
 
 }

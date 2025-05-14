@@ -76,7 +76,7 @@ func (ws *WsServer) commutation(conn *websocket.Conn) {
 
 	go controller.Run(frameChan, context.TODO())
 	for {
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Microsecond*time.Duration(ws.conf.TimeStop))
 		defer cancel()
 
 		msg, err := ws.getMessage(conn, ctx)
@@ -86,8 +86,6 @@ func (ws *WsServer) commutation(conn *websocket.Conn) {
 		}
 
 		_ = msg
-
-		//controller.SetParameter()
 
 		frame := <-frameChan
 

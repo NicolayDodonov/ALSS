@@ -18,8 +18,9 @@ type Server struct {
 }
 
 type ALSS struct {
-	World `yaml:"World"`
-	Agent `yaml:"Agent"`
+	TimeStop int `yaml:"TimeStop" envDefault:"0"`
+	World    `yaml:"World"`
+	Agent    `yaml:"Agent"`
 }
 
 type World struct {

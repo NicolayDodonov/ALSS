@@ -2,9 +2,10 @@ Server:
   ip: "192.168.1.67"
   port: "8080"
 ALSS:
+  TimeStop: 10
   World:
-    x: 10
-    y: 10
+    x: 100
+    y: 100
   Agent:
     typeGenome: "RAND"
     sizeGenome: 64
