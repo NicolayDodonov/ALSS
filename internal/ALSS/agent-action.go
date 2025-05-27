@@ -2,11 +2,13 @@ package ALSS
 
 // файл содержит все обработчики действий агента
 
+// move перемещает агента по углу от его координат
 func (a *agent) move(angle angle, c *Controller) error {
-	//take new coordinates to move
+	//todo: добавить обработку ошибок
+	//определяем его координаты взгляда
 	newCoord := offset(&a.coordinates, angle)
 
-	//get cell from new coordinates
+	//получаем клетку перемещенияя
 	newCell := c.world.getCell(newCoord)
 	if newCell == nil {
 		return nil
@@ -16,29 +18,32 @@ func (a *agent) move(angle angle, c *Controller) error {
 		return nil
 	}
 
-	//get out from old cell
+	//удаляем агента из старой клетки
 	oldCell := c.world.getCell(&a.coordinates)
 	oldCell.Agent = nil
 
-	//and go to new cell!
+	//и записываем в новую
 	newCell.Agent = a
 	a.coordinates = *newCoord
 
-	//if cell under sea level - energyCost!
+	//если оказался под водой - двойная оплата передвижения
 	if newCell.Height <= c.world.SeaLevel {
 		a.Energy -= c.Parameters.energyCost
 	}
 	return nil
 }
 
+// Поворот взгляда на лево.
 func (a *agent) turnLeft() {
 	a.Angle.minus()
 }
 
+// Поворот взгляда на право.
 func (a *agent) turnRight() {
 	a.Angle.minus()
 }
 
+// Команда фотосинтеза.
 func (a *agent) eatSun(c *Controller) {
 	//get cell data
 	cell := c.world.getCell(&a.coordinates)
@@ -49,6 +54,7 @@ func (a *agent) eatSun(c *Controller) {
 
 }
 
+// Команда Хемосинтеза.
 func (a *agent) eatMinerals(c *Controller) {
 	cell := c.world.getCell(&a.coordinates)
 
@@ -63,6 +69,7 @@ func (a *agent) eatMinerals(c *Controller) {
 	a.Energy += dMinerals
 }
 
+// Команда очистки атмосферы
 func (a *agent) eatPollution(c *Controller) {
 	dPollution := c.world.PollutionFix //todo: надо будет настроить эту строчку
 	c.world.Pollution -= dPollution
@@ -72,6 +79,7 @@ func (a *agent) eatPollution(c *Controller) {
 	a.Energy += dMinerals
 }
 
+// Команда Охоты
 func (a *agent) attack(c *Controller) error {
 	cell := c.world.getCell(offset(&a.coordinates, a.Angle))
 	if cell == nil {
@@ -92,7 +100,7 @@ func (a *agent) attack(c *Controller) error {
 	return nil
 }
 
-// look check what is located in the looked cell: other agent, grass, mineral or nothing
+// Команда взгляда на клетку. Оценивает содержимое клетки и совершает переход указателя.
 func (a *agent) look(c *Controller) error {
 	lookedCell := c.world.getCell(offset(&a.coordinates, a.Angle))
 	if lookedCell == nil {
@@ -113,8 +121,12 @@ func (a *agent) look(c *Controller) error {
 	return nil
 }
 
+// Команда взгляда высоты. Определяет высоту клетки в переди и совершает переход.
 func (a *agent) lookHeightCell(c *Controller) error {
 	lookedCell := c.world.getCell(offset(&a.coordinates, a.Angle))
+	if lookedCell == nil {
+		return nil
+	}
 	myCell := c.world.getCell(&a.coordinates)
 
 	if lookedCell.Height > myCell.Height {
@@ -132,6 +144,7 @@ func (a *agent) lookHeightCell(c *Controller) error {
 	return nil
 }
 
+// Команда свой-чужой.
 func (a *agent) friendOrFoe(c *Controller) error {
 	lookedCell := c.world.getCell(offset(&a.coordinates, a.Angle))
 	if lookedCell == nil {
@@ -155,8 +168,12 @@ func (a *agent) friendOrFoe(c *Controller) error {
 	}
 }
 
+// Команда передачи энергии.
 func (a *agent) getEnergy(c *Controller) error {
 	lookedCell := c.world.getCell(offset(&a.coordinates, a.Angle))
+	if lookedCell == nil {
+		return nil
+	}
 	if lookedCell.Agent != nil {
 		if a.Energy > livingSurviveLevel {
 			a.Energy -= energyTransferPacket

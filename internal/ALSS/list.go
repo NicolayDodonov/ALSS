@@ -86,7 +86,7 @@ func (l *list) addAfter(base, new *agent) error {
 
 	var current *node = l.root
 
-	for current != nil && current.value == base {
+	for current != nil && current.value != base {
 		current = current.next
 	}
 

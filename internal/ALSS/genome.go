@@ -10,14 +10,14 @@ type genome struct {
 	Array   []uint8 `json:"array_dna"`
 }
 
-func newRandomGenome(size int) *genome {
+func newRandomGenome(size, max int) *genome {
 	g := &genome{
 		ID:      newID(),
 		Pointer: rand.Int() % size,
 		Array:   make([]uint8, size),
 	}
 	for i := range g.Array {
-		g.Array[i] = uint8(rand.Int())
+		g.Array[i] = uint8(rand.Intn(max))
 	}
 	return g
 }

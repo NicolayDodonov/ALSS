@@ -1,5 +1,6 @@
 package ALSS
 
+// Основные настройки модели.
 type Parameters struct {
 	WorldParam
 	AgentParam
@@ -14,6 +15,7 @@ type WorldParam struct {
 type AgentParam struct {
 	typeGenome      string
 	sizeGenome      int
+	maxGen          int
 	startPopulation int
 	baseAgentEnergy int
 	maxAgentAge     int

@@ -19,6 +19,7 @@ type Controller struct {
 	l      logger.Logger
 }
 
+// Создаёт новый контроллер модели.
 func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea, age, energy int) *Controller {
 	return &Controller{
 		l: l,
@@ -32,6 +33,7 @@ func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea, a
 			AgentParam{
 				typeGenome:          conf.TypeGenome,
 				sizeGenome:          conf.SizeGenome,
+				maxGen:              conf.MaxGen,
 				startPopulation:     count,
 				baseAgentEnergy:     conf.BaseEnergy,
 				maxAgentAge:         age,
@@ -46,38 +48,48 @@ func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea, a
 	}
 }
 
+// Run запускает основной цикл модели, идущий до гибели всех агентов в моделе.
 func (c *Controller) Run(frame chan *Frame, ctx context.Context) {
+	defer func() {
+		log.Printf("Model is shutdown")
+		c.Status = false
+	}()
 
+	//Основной цикл
 	for {
 		select {
 		case <-ctx.Done():
 			break
 		default:
-			//model work here
+			//модель работает здесь
+			//для каждого агента вызываем такт жизни
 			if err := c.runAgents(); err != nil {
+				//Логируем ошибки
 				c.l.Error(err.Error())
+				//и производим синхронизацию
 				if err := c.sync(); err != nil {
 					return
 				}
 			}
 
+			//Удаляем мертнвый агентов из мира
+			//todo: удалить, ибо ненужно
 			if err := c.removeDeadAgents(); err != nil {
 				return
 			}
 
-			//update mStat
+			//обновляем статистику
 			c.world.updateStat()
 
+			//отправляем в канал кадр мира
 			frame <- c.MakeFrame()
 
+			//проверяем количество живых агентов в мире.
 			if c.worldDead() {
-				log.Printf("all agent is dead")
-				c.Status = false
 				return
 			}
 		}
 	}
-
 }
 
 // InitModel создаёт world, проводит по настройкам пользователя генерацию ландшафта и базовых ресурсов.

@@ -31,6 +31,7 @@ type World struct {
 type Agent struct {
 	TypeGenome         string `yaml:"typeGenome"`
 	SizeGenome         int    `yaml:"sizeGenome"`
+	MaxGen             int    `yaml:"maxGen"`
 	BaseEnergy         int    `yaml:"baseEnergy"`
 	ActionCost         int    `yaml:"actionCost"`
 	PollutionCost      int    `yaml:"pollutionCost"`

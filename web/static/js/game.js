@@ -38,31 +38,45 @@ socket.onmessage = function (event){
 
     cellSizeX = 600/message.map.x_size
     cellSizeY = 600/message.map.y_size
-
     for(y = 0; y<map.length; y++){
         for(x=0;x<map[y].length; x++){
+
             if (map[y][x].agent !== null){
-                if (map[y][x].height>sea){
-                    ctx.fillStyle = 'green'
-                } else {
-                    ctx.fillStyle = 'darkgreen'
-                }
+                //ctx.fillStyle = selectColor(map[y][x].agent.energy, "en")
+                ctx.fillStyle = 'green'
                 ctx.fillRect(x*cellSizeX, y*cellSizeY, cellSizeX, cellSizeY)
             } else {
-                if (map[y][x].height<sea){
-                    ctx.fillStyle = 'blue'
+                if (map[y][x].height<=sea){
+                    ctx.fillStyle = selectColor(map[y][x].height, "sea")
                 } else {
-                    ctx.fillStyle = selectColor(map[y][x].height)
+                    ctx.fillStyle = selectColor(map[y][x].height, "bw")
                 }
                 ctx.fillRect(x*cellSizeX, y*cellSizeY, cellSizeX, cellSizeY)
             }
+
         }
     }
 }
 
 
-function selectColor(num){
-    return "rgb(" + [num*10, num*10, num*10].join(",") + ")";
+function selectColor(num, type){
+    switch (type){
+        case "bw":
+            return "rgb(" + [num*10, num*10, num*10].join(",") + ")";
+        case "en":
+            if (num <100){
+                return "#707000"
+            } else if (num <250){
+                return "#a3a300"
+            } else if (num < 500){
+                return "#ffff0a"
+            } else {
+                return "#FFFFc0"
+            }
+        case "sea":
+            return "rgb(" + [0, 0, num*10].join(",") + ")";
+    }
+
 }
 
 
