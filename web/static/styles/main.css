@@ -1,0 +1,88 @@
+/*тут будет задан стиль сайта*/
+body {
+    margin: 0;
+}
+
+.page {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.header {
+    background: gray;
+    color: white;
+
+    display: flex;
+    flex-direction: row;
+
+    padding: 2%;
+    padding-left: 15%;
+}
+
+.logo{
+    width: 100px;
+    height: 100px;
+    margin-right: 5%;
+}
+
+.main{
+    margin-right: 10%;
+    margin-left: 10%;
+}
+
+.footer {
+    background: black;
+    color: white;
+
+    padding: 2%;
+    Text-align: center;
+    margin-top: auto;
+
+}
+
+.menu {
+    display: flex;
+    max-width: 100%;
+    flex-direction: row;
+    justify-content: center;
+
+    margin-right: 5%;
+    margin-left: 5%;
+    margin-top: 5%;
+}
+
+.menu-panel {
+    background: red;
+    margin-left: 2%;
+    margin-right: 2%;
+}
+
+.game{
+    margin-top: 5%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.game-canvas{
+    margin-right: 5%;
+    width: 600px;
+    height: 600px;
+    aspect-ratio: 1/1;
+    border: 4px solid black;
+    background: white;
+}
+
+.game-menu{
+    background: gainsboro;
+    padding: 2%;
+    width: 20%;
+    height: 100%;
+}
+
+.game-about{
+    margin-top: 5%;
+    margin-bottom: 5%;
+}
