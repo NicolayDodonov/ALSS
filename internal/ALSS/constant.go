@@ -19,4 +19,5 @@ const (
 	livingSurviveLevel   = 30
 	maxHeight            = 25
 	maxMineral           = 255
+	maxGenCommand        = 18
 )

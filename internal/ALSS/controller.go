@@ -79,7 +79,6 @@ func (c *Controller) Run(frame chan *Frame, ctx context.Context) {
 			}
 
 			//обновляем статистику
-			c.world.updateStat()
 
 			//отправляем в канал кадр мира
 			frame <- c.MakeFrame()
