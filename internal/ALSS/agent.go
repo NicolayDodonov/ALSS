@@ -88,11 +88,11 @@ func (a *agent) interpretationGenome(c *Controller) error {
 	case 10:
 		a.turnRight()
 	case 11:
-		a.eatSun(c)
+		err = a.eatSun(c)
 	case 12:
-		a.eatMinerals(c)
+		err = a.eatMinerals(c)
 	case 13:
-		a.eatPollution(c)
+		err = a.eatPollution(c)
 	case 14:
 		err = a.attack(c)
 	case 15:
@@ -112,16 +112,20 @@ func (a *agent) interpretationGenome(c *Controller) error {
 
 // pollutionHandler обрабатывает увеличение загрязнения и урон от минерального
 // перенасыщения месности.
-func (a *agent) pollutionHandler(c *Controller) {
+func (a *agent) pollutionHandler(c *Controller) error {
 	//увеличить общее загрянение воздуха
 	c.world.Pollution += c.Parameters.madePollution
 
 	//нанести урон от загрязнения минералами
-	cell := c.world.getCell(&a.coordinates)
+	cell, err := c.world.getCell(&a.coordinates)
+	if err != nil {
+		return err
+	}
 
 	if cell.LocalMinerals >= 200 {
 		a.Energy -= c.Parameters.energyCost
 	}
+	return nil
 }
 
 // birthHandler обработчик размножения.
@@ -134,7 +138,7 @@ func (a *agent) birthHandler(c *Controller) error {
 	//и по пустому месту рядом
 	var freeCoords *coordinates = nil
 	for angle := angle(0); angle < 8; angle++ {
-		cell := c.world.getCell(offset(&a.coordinates, angle))
+		cell, _ := c.world.getCell(offset(&a.coordinates, angle))
 		if cell != nil && cell.Agent == nil {
 			//выходим по первой пустой клетке
 			freeCoords = offset(&a.coordinates, angle)
@@ -159,7 +163,7 @@ func (a *agent) birthHandler(c *Controller) error {
 		newA.Genome.mutation(c.Parameters.countMutation)
 
 		//распологаем его в пустой клетке
-		cell := c.world.getCell(freeCoords)
+		cell, _ := c.world.getCell(freeCoords)
 		cell.Agent = newA
 
 		//добавляем в список агентов после себя
@@ -181,7 +185,10 @@ func (a *agent) deathHandler(c *Controller) error {
 			return err
 		}
 		//удаляем из клетки
-		cell := c.world.getCell(&a.coordinates)
+		cell, err := c.world.getCell(&a.coordinates)
+		if err != nil {
+			return err
+		}
 		cell.Agent = nil
 
 		//расчитываем добавление минералов
@@ -195,9 +202,9 @@ func (a *agent) deathHandler(c *Controller) error {
 
 		//добавляем минералы в площади
 		for i := angle(0); i < 8; i++ {
-			_ = c.world.addLocalMinerals(offset(&a.coordinates, i), MineralUnit)
+			c.world.addMinerals(offset(&a.coordinates, i), MineralUnit)
 		}
-		_ = c.world.addLocalMinerals(&a.coordinates, MineralUnit*2)
+		c.world.addMinerals(&a.coordinates, MineralUnit*2)
 
 		//стамив "мертвые" значения энергии.
 		a.Energy = -1
@@ -209,12 +216,12 @@ func (a *agent) deathHandler(c *Controller) error {
 // Возвращает true при соотвествии координат и клетки.
 // Возвращает false при несоответсвии координат и клетки или присутсвии другого агента.
 func (a *agent) checkSelfPosition(c *Controller) bool {
-	cell := c.world.getCell(&a.coordinates)
-	if cell == nil {
-		return false
-	} else if cell.Agent == a {
-		return true
-	} else {
+	cell, err := c.world.getCell(&a.coordinates)
+	if err != nil {
 		return false
 	}
+	if cell.Agent == a {
+		return true
+	}
+	return false
 }

@@ -4,27 +4,30 @@ package ALSS
 
 // move перемещает агента по углу от его координат
 func (a *agent) move(angle angle, c *Controller) error {
-	//todo: добавить обработку ошибок
 	//определяем его координаты взгляда
-	newCoord := offset(&a.coordinates, angle)
+	newCord := offset(&a.coordinates, angle)
 
 	//получаем клетку перемещенияя
-	newCell := c.world.getCell(newCoord)
-	if newCell == nil {
+	newCell, err := c.world.getCell(newCord)
+	if err != nil {
 		return nil
 	}
-
+	//если в клетке есть кто то - выходим без ошибки
 	if newCell.Agent != nil {
 		return nil
 	}
 
 	//удаляем агента из старой клетки
-	oldCell := c.world.getCell(&a.coordinates)
+	oldCell, err := c.world.getCell(&a.coordinates)
+	if err != nil {
+		//если есть ошибка - нужна синхронизация!
+		return err
+	}
 	oldCell.Agent = nil
 
 	//и записываем в новую
 	newCell.Agent = a
-	a.coordinates = *newCoord
+	a.coordinates = *newCord
 
 	//если оказался под водой - двойная оплата передвижения
 	if newCell.Height <= c.world.SeaLevel {
@@ -44,20 +47,27 @@ func (a *agent) turnRight() {
 }
 
 // Команда фотосинтеза.
-func (a *agent) eatSun(c *Controller) {
-	//get cell data
-	cell := c.world.getCell(&a.coordinates)
+func (a *agent) eatSun(c *Controller) error {
+	// Получаем клетку агента
+	cell, err := c.world.getCell(&a.coordinates)
+	if err != nil {
+		// если получаем ошибку - нужна синхронизация
+		return err
+	}
 	if cell.Height > c.world.SeaLevel {
 		a.Energy += ((c.world.Illumination * (cell.Height - c.world.SeaLevel)) /
 			(c.world.PollutionFix + 1)) * ((cell.LocalMinerals + 1/maxMineral) + 1)
 	}
-
+	return nil
 }
 
 // Команда Хемосинтеза.
-func (a *agent) eatMinerals(c *Controller) {
-	cell := c.world.getCell(&a.coordinates)
-
+func (a *agent) eatMinerals(c *Controller) error {
+	cell, err := c.world.getCell(&a.coordinates)
+	if err != nil {
+		// если получаем ошибку - нужна синхронизация
+		return err
+	}
 	var dMinerals int
 	if cell.LocalMinerals > 10 {
 		dMinerals = cell.LocalMinerals / 10
@@ -65,27 +75,35 @@ func (a *agent) eatMinerals(c *Controller) {
 		dMinerals = cell.LocalMinerals
 	}
 
-	cell.LocalMinerals -= dMinerals
+	c.world.addMinerals(&a.coordinates, -dMinerals)
+
 	a.Energy += dMinerals
+	return nil
 }
 
 // Команда очистки атмосферы
-func (a *agent) eatPollution(c *Controller) {
+func (a *agent) eatPollution(c *Controller) error {
+	//расчитываем прирос энергии
 	dPollution := c.world.PollutionFix //todo: надо будет настроить эту строчку
 	c.world.Pollution -= dPollution
 	dMinerals := dPollution / 2
-	cell := c.world.getCell(&a.coordinates)
-	cell.LocalMinerals += dMinerals
+
+	//а после добавляем его на карту
+
+	c.world.addMinerals(&a.coordinates, dMinerals)
+
 	a.Energy += dMinerals
+	return nil
 }
 
 // Команда Охоты
 func (a *agent) attack(c *Controller) error {
-	cell := c.world.getCell(offset(&a.coordinates, a.Angle))
-	if cell == nil {
+	// Тут не нужна обработка ошибки, так как агент может обращаться в пустую клетку за
+	// краем мира. Просто ничего нему не даём и не наказываем за это
+	cell, err := c.world.getCell(offset(&a.coordinates, a.Angle))
+	if err != nil {
 		return nil
 	}
-
 	if cell.Agent == nil {
 		return nil
 	}
@@ -102,7 +120,8 @@ func (a *agent) attack(c *Controller) error {
 
 // Команда взгляда на клетку. Оценивает содержимое клетки и совершает переход указателя.
 func (a *agent) look(c *Controller) error {
-	lookedCell := c.world.getCell(offset(&a.coordinates, a.Angle))
+	// если смотрит за край мира, то клетка будет пустой, а это тоже результат!
+	lookedCell, _ := c.world.getCell(offset(&a.coordinates, a.Angle))
 	if lookedCell == nil {
 		return nil
 	}
@@ -123,11 +142,17 @@ func (a *agent) look(c *Controller) error {
 
 // Команда взгляда высоты. Определяет высоту клетки в переди и совершает переход.
 func (a *agent) lookHeightCell(c *Controller) error {
-	lookedCell := c.world.getCell(offset(&a.coordinates, a.Angle))
+	//если смотрит куда то за край мира, то это тоже результат!
+	//клетка взгляда будет пустой, что можно проверить
+	lookedCell, _ := c.world.getCell(offset(&a.coordinates, a.Angle))
 	if lookedCell == nil {
 		return nil
 	}
-	myCell := c.world.getCell(&a.coordinates)
+	//но если своя клетка необнаружена - то это вопрос задуматься...
+	myCell, err := c.world.getCell(&a.coordinates)
+	if err != nil {
+		return err
+	}
 
 	if lookedCell.Height > myCell.Height {
 		a.Genome.jumpPointer(1)
@@ -146,7 +171,7 @@ func (a *agent) lookHeightCell(c *Controller) error {
 
 // Команда свой-чужой.
 func (a *agent) friendOrFoe(c *Controller) error {
-	lookedCell := c.world.getCell(offset(&a.coordinates, a.Angle))
+	lookedCell, _ := c.world.getCell(offset(&a.coordinates, a.Angle))
 	if lookedCell == nil {
 		return nil
 	}
@@ -170,10 +195,13 @@ func (a *agent) friendOrFoe(c *Controller) error {
 
 // Команда передачи энергии.
 func (a *agent) getEnergy(c *Controller) error {
-	lookedCell := c.world.getCell(offset(&a.coordinates, a.Angle))
+	//Если агент пытается отдать энергию краю мира - ничего не случиться!
+	lookedCell, _ := c.world.getCell(offset(&a.coordinates, a.Angle))
 	if lookedCell == nil {
 		return nil
 	}
+	//Но если там есть агент - то будет передача энергии независимо от того, друг он
+	//или враг
 	if lookedCell.Agent != nil {
 		if a.Energy > livingSurviveLevel {
 			a.Energy -= energyTransferPacket

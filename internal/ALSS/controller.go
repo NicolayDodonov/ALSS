@@ -82,12 +82,6 @@ func (c *Controller) Run(frame chan *Frame, ctx context.Context) {
 				}
 			}
 
-			//Удаляем мертнвый агентов из мира
-			//todo: удалить, ибо ненужно
-			if err := c.removeDeadAgents(); err != nil {
-				return
-			}
-
 			//обновляем статистику
 			c.Stats.update(c)
 			_ = c.Stats.save()

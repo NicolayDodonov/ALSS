@@ -45,7 +45,7 @@ func (c *Controller) sync() error {
 
 	//записываем всех агентов из списка повторно.
 	for nod := c.agents.root; nod != nil; nod = nod.next {
-		cell := c.world.getCell(&nod.value.coordinates)
+		cell, _ := c.world.getCell(&nod.value.coordinates)
 		cell.Agent = nod.value
 	}
 	return nil
@@ -70,7 +70,7 @@ func (c *Controller) runAgents() error {
 func (c *Controller) removeDeadAgents() error {
 	for nod := c.agents.root; nod != nil; nod = nod.next {
 		if nod.value.Energy <= 0 {
-			cell := c.world.getCell(&nod.value.coordinates)
+			cell, _ := c.world.getCell(&nod.value.coordinates)
 			cell.Agent = nil
 			if err := c.agents.del(nod.value); err != nil {
 				//критическое место. Если тут возникает ошибка, можно прекращать симуляцию

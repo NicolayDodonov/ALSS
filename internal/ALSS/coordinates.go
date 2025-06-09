@@ -19,6 +19,14 @@ func del(a, b *coordinates) *coordinates {
 	return &coordinates{X: a.X - b.X, Y: a.Y - b.Y}
 }
 
+func check(c *coordinates, MaxX, MaxY int) bool {
+	if (c.X >= 0 && c.X < MaxX) &&
+		(c.Y >= 0 && c.Y < MaxY) {
+		return true
+	}
+	return false
+}
+
 // offset создаёт новые координаты как смещение по углу a от c
 func offset(c *coordinates, a angle) *coordinates {
 	newC := coordinates{c.X, c.Y}
