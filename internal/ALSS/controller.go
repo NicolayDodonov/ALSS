@@ -13,6 +13,7 @@ import (
 type Controller struct {
 	Parameters Parameters
 	Status     bool
+	Stats      Statistic
 
 	world  *world
 	agents *list
@@ -23,6 +24,13 @@ type Controller struct {
 func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea, age, energy int) *Controller {
 	return &Controller{
 		l: l,
+		Stats: Statistic{
+			Resources{0, 0},
+			Command{0, 0},
+			Life{0, 0},
+			0,
+		},
+
 		Parameters: Parameters{
 			WorldParam{
 				X:            conf.X,
@@ -62,6 +70,8 @@ func (c *Controller) Run(frame chan *Frame, ctx context.Context) {
 			break
 		default:
 			//модель работает здесь
+			c.world.Year++
+
 			//для каждого агента вызываем такт жизни
 			if err := c.runAgents(); err != nil {
 				//Логируем ошибки
@@ -79,6 +89,8 @@ func (c *Controller) Run(frame chan *Frame, ctx context.Context) {
 			}
 
 			//обновляем статистику
+			c.Stats.update(c)
+			_ = c.Stats.save()
 
 			//отправляем в канал кадр мира
 			frame <- c.MakeFrame()

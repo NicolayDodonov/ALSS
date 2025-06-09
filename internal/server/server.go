@@ -134,7 +134,7 @@ func (ws *WsServer) getMessage(conn *websocket.Conn, ctx context.Context) (*ALSS
 	// и ждём чтения сообщения
 	done := make(chan error)
 	go func() {
-
+		//todo: PANIC!!!
 		if err := conn.ReadJSON(&message); err != nil {
 			done <- err
 			return
