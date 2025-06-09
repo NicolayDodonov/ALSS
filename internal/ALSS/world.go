@@ -18,15 +18,9 @@ type global struct {
 }
 
 type worldStatistic struct {
-	Year       int
-	LiveAgent  int
-	DeathAgent int
-
+	Year           int
 	countCell      int
 	underwaterCell int
-
-	AvgMinerals int
-	TotMinerals int
 }
 
 type cell struct {
@@ -48,11 +42,7 @@ func newWorld(param WorldParam) *world {
 			SeaLevel:     param.SeaLevel,
 		},
 		worldStatistic: worldStatistic{
-			Year:        0,
-			LiveAgent:   0,
-			DeathAgent:  0,
-			AvgMinerals: 0,
-			TotMinerals: 0,
+			Year: 0,
 		},
 	}
 }
@@ -133,19 +123,6 @@ func (w *world) initStat() {
 			}
 		}
 	}
-}
-
-func (w *world) updateStat() {
-	w.Year++
-	totalMinerals := 0
-
-	for _, cells := range w.Map {
-		for _, cell := range cells {
-			totalMinerals += cell.LocalMinerals
-		}
-	}
-	w.TotMinerals = totalMinerals
-	w.AvgMinerals = totalMinerals / w.countCell
 }
 
 func (w *world) changeSeason(s string) {
