@@ -92,7 +92,7 @@ func (a *agent) interpretationGenome(c *Controller) error {
 	case 12:
 		err = a.eatMinerals(c)
 	case 13:
-		err = a.eatPollution(c)
+		a.eatPollution(c)
 	case 14:
 		err = a.attack(c)
 	case 15:
@@ -114,7 +114,7 @@ func (a *agent) interpretationGenome(c *Controller) error {
 // перенасыщения месности.
 func (a *agent) pollutionHandler(c *Controller) error {
 	//увеличить общее загрянение воздуха
-	c.world.Pollution += c.Parameters.madePollution
+	c.world.addPollution(c.Parameters.madePollution)
 
 	//нанести урон от загрязнения минералами
 	cell, err := c.world.getCell(&a.coordinates)

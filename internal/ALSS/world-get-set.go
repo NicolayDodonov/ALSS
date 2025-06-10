@@ -8,9 +8,13 @@ func (w *world) addMinerals(c *coordinates, d int) {
 		if err != nil {
 			return
 		}
-		cell.LocalMinerals = (cell.LocalMinerals + d) % 255
+		cell.LocalMinerals = (cell.LocalMinerals + d) % maxMineral
 		return
 	}
+}
+
+func (w *world) addPollution(d int) {
+	w.Pollution = (w.Pollution + d) % maxPollution
 }
 
 func (w *world) getCell(c *coordinates) (*cell, error) {

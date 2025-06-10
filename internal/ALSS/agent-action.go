@@ -55,45 +55,42 @@ func (a *agent) eatSun(c *Controller) error {
 		return err
 	}
 	if cell.Height > c.world.SeaLevel {
-		a.Energy += ((c.world.Illumination * (cell.Height - c.world.SeaLevel)) /
-			(c.world.PollutionFix + 1)) * ((cell.LocalMinerals + 1/maxMineral) + 1)
+		a.Energy += (c.world.Illumination*cell.Height)/10 + (cell.Height / 10) - c.world.PollutionFix
 	}
 	return nil
 }
 
 // Команда Хемосинтеза.
 func (a *agent) eatMinerals(c *Controller) error {
+	// Получаем клетку агента
 	cell, err := c.world.getCell(&a.coordinates)
 	if err != nil {
 		// если получаем ошибку - нужна синхронизация
 		return err
 	}
-	var dMinerals int
-	if cell.LocalMinerals > 10 {
-		dMinerals = cell.LocalMinerals / 10
-	} else {
-		dMinerals = cell.LocalMinerals
+
+	// расчитываем сколько съедим из клетки минералов
+	if cell.Height > 10 {
+		dMinerals := cell.LocalMinerals / 10
+
+		c.world.addMinerals(&a.coordinates, -dMinerals)
+
+		a.Energy += dMinerals
 	}
 
-	c.world.addMinerals(&a.coordinates, -dMinerals)
-
-	a.Energy += dMinerals
 	return nil
 }
 
 // Команда очистки атмосферы
-func (a *agent) eatPollution(c *Controller) error {
-	//расчитываем прирос энергии
-	dPollution := c.world.PollutionFix //todo: надо будет настроить эту строчку
-	c.world.Pollution -= dPollution
-	dMinerals := dPollution / 2
+func (a *agent) eatPollution(c *Controller) {
+	// расчитываем уменьшение атмосферного яда
+	dPollution := c.world.Pollution / (pollutionFixCoefficient * 10)
 
-	//а после добавляем его на карту
+	c.world.addMinerals(&a.coordinates, dPollution)
 
-	c.world.addMinerals(&a.coordinates, dMinerals)
-
-	a.Energy += dMinerals
-	return nil
+	//уменьшаем загрязнение и добавляем энергии агенту
+	c.world.addPollution(-dPollution)
+	a.Energy += dPollution
 }
 
 // Команда Охоты
