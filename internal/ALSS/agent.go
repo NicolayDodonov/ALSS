@@ -208,6 +208,7 @@ func (a *agent) deathHandler(c *Controller) error {
 
 		//стамив "мертвые" значения энергии.
 		a.Energy = -1
+		c.Stats.Deaths++
 	}
 	return nil
 }
