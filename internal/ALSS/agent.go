@@ -194,7 +194,7 @@ func (a *agent) deathHandler(c *Controller) error {
 		//расчитываем добавление минералов
 		var MineralUnit = 0
 		if a.Energy < 10 {
-			MineralUnit = 1
+			MineralUnit = 10
 		} else {
 			//если агент умер от переедания
 			MineralUnit = a.Energy / 10

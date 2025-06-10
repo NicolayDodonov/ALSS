@@ -41,7 +41,7 @@ func (s *Statistic) update(c *Controller) {
 			s.AvgMineral += cell.LocalMinerals
 		}
 	}
-	s.AvgMineral /= c.world.countCell
+	s.AvgMineral /= c.world.CountCell
 	//Command and energy
 	s.AvgEnergy = 0
 	s.AvgCommand = 0
@@ -80,6 +80,8 @@ func (s *Statistic) save() error {
 
 	return nil
 }
+
+//year; avgMin; poison; avgCom; avgJump; countAgent; avgEn;
 
 func (s Statistic) String() string {
 	return strconv.Itoa(s.Year) + "; " +

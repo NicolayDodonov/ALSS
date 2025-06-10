@@ -9,6 +9,7 @@ func (w *world) addMinerals(c *coordinates, d int) {
 			return
 		}
 		cell.LocalMinerals = (cell.LocalMinerals + d) % 255
+		return
 	}
 }
 

@@ -3,24 +3,24 @@ package ALSS
 // world структура описывающая структуру мира модели
 // и реализующий основные методы работы с миром модели
 type world struct {
-	Map  Map
-	MaxX int
-	MaxY int
-	global
-	worldStatistic
+	Map         Map
+	MaxX        int
+	MaxY        int
+	CountCell   int
+	CountUWCell int
+	dynamicParameters
+	userParameters
 }
 
-type global struct {
-	Illumination int
+type dynamicParameters struct {
+	Year         int
 	Pollution    int
 	PollutionFix int
-	SeaLevel     int
 }
 
-type worldStatistic struct {
-	Year           int
-	countCell      int
-	underwaterCell int
+type userParameters struct {
+	Illumination int
+	SeaLevel     int
 }
 
 type cell struct {
@@ -31,34 +31,38 @@ type cell struct {
 
 type Map [][]cell
 
-func newWorld(param WorldParam) *world {
-	return &world{
-		MaxX: param.X,
-		MaxY: param.Y,
-		Map:  nil,
-		global: global{
-			Illumination: param.Illumination,
-			Pollution:    0,
-			SeaLevel:     param.SeaLevel,
-		},
-		worldStatistic: worldStatistic{
-			Year: 0,
-		},
+func (w *world) update() {
+	w.Year++
+	//Растворить часть яда в клетках ниже уровня моря
+	solution := w.Pollution / (w.CountUWCell * 100)
+	//Обновить компенсацию яда
+	for _, cells := range w.Map {
+		for _, cell := range cells {
+			if cell.Height >= w.CountUWCell {
+				continue
+			}
+			cell.LocalMinerals = (cell.LocalMinerals + solution) % 255
+		}
 	}
 }
 
-// initMap создаёт пустую карту мира, генерирует высотный ланшафт, настраивает уровень моря
+// init создаёт пустую карту мира, генерирует высотный ланшафт, настраивает уровень моря
 // и проводит начальную настройку статистики.
-func (w *world) initMap() {
+func (w *world) init() {
+	w.dynamicParameters = dynamicParameters{
+		0, 0, 0,
+	}
 	//создать карту и заполнить её клетками
 	w.newMap()
 	//вызвать генератор высотности карты
 	w.landscapeGenerator(mapGRADIENT)
-	//собрать начальную статистику
-	w.initStat()
+	//подсчитать колличество клеток под водой
+	w.countingUWCell()
 }
 
 func (w *world) newMap() {
+	w.CountCell = w.MaxX * w.MaxY
+
 	newMap := make([][]cell, w.MaxY)
 	for y := range newMap {
 		newMap[y] = make([]cell, w.MaxX)
@@ -99,48 +103,12 @@ func (w *world) landscapeGenerator(landType string) {
 	}
 }
 
-func (w *world) mineralHandler() {
-	dPollution := w.Pollution / 1000
-	dMinerals := dPollution / w.underwaterCell
-	w.Pollution -= dPollution
-
+func (w *world) countingUWCell() {
 	for _, cells := range w.Map {
-		for _, cell := range cells {
-			if cell.Height <= w.SeaLevel {
-				cell.LocalMinerals += dMinerals
+		for _, c := range cells {
+			if c.Height <= w.SeaLevel {
+				w.CountUWCell++
 			}
 		}
-	}
-}
-
-func (w *world) initStat() {
-	w.countCell = w.MaxX * w.MaxY
-
-	for _, cells := range w.Map {
-		for _, cell := range cells {
-			if cell.Height <= w.SeaLevel {
-				w.underwaterCell++
-			}
-		}
-	}
-}
-
-func (w *world) changeSeason(s string) {
-	switch s {
-	case spring:
-		w.Illumination = 20
-		w.SeaLevel = 10
-	case summer:
-		w.Illumination = 40
-		w.SeaLevel = 15
-	case autumn:
-		w.Illumination = 20
-		w.SeaLevel = 10
-	case winter:
-		w.Illumination = 15
-		w.SeaLevel = 5
-	default:
-		w.Illumination = 1
-		w.SeaLevel = 1
 	}
 }

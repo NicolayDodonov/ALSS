@@ -116,10 +116,6 @@ func (ws *WsServer) commutation(conn *websocket.Conn) {
 		if err := ws.sendMessage(conn, frame); err != nil {
 			log.Printf("commutation_3 " + err.Error())
 		}
-
-		if !controller.Status {
-			return
-		}
 	}
 }
 

@@ -18,13 +18,6 @@ func (c *Controller) makeAgents() {
 	c.agents = agents
 }
 
-// makeWorld создаёт мир, генерирует карту с начальными условиями от пользователя.
-func (c *Controller) makeWorld() {
-	w := newWorld(c.Parameters.WorldParam)
-	w.initMap()
-	c.world = w
-}
-
 // sync - синхронизация агентов и мира.
 //
 // Исправление списка агентов (удаление мёртвых не удалённых агентов).
