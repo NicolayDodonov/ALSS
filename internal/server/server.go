@@ -45,10 +45,14 @@ func New(conf *config.Config, l *baseLogger.Logger) Server {
 // Start настраивает адреса сервера и запускает сервер в постоянном ожидании
 // новых сообщений.
 func (ws *WsServer) Start() error {
-	ws.mux.Handle("/", http.FileServer(http.Dir(web)))
+	ws.l.Info("Starting server...")
 
+	//запускаем файл сервер
+	ws.mux.Handle("/", http.FileServer(http.Dir(web)))
+	//определяем канал web-socket
 	ws.mux.HandleFunc("/ws", ws.wsHandler)
 
+	ws.l.Info("Listening on http://" + ws.srv.Addr)
 	return ws.srv.ListenAndServe()
 }
 
@@ -62,7 +66,8 @@ func (ws *WsServer) wsHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	log.Println(conn.RemoteAddr().String())
+	ws.l.Info(conn.RemoteAddr().String())
+
 	// и начинаем общаться в нём.
 	go ws.commutation(conn)
 }
@@ -70,13 +75,14 @@ func (ws *WsServer) wsHandler(w http.ResponseWriter, r *http.Request) {
 // commutation управляет ходом работы сессии между клиентом и сервером
 func (ws *WsServer) commutation(conn *websocket.Conn) {
 	defer func() {
-		log.Println("commutation end")
+		ws.l.Info("CM1: commutation end")
+
 		conn.Close()
 	}()
 	// ожидаем поступления инициализирующего сообщения от клиента
 	init := ALSS.Message{}
 	if err := conn.ReadJSON(&init); err != nil {
-		log.Println("commutation_1" + err.Error())
+		ws.l.Error("CM2: " + err.Error())
 		return
 	}
 
@@ -101,7 +107,7 @@ func (ws *WsServer) commutation(conn *websocket.Conn) {
 		// ждём от клиента сообщение или ошибки закрытия канала.
 		msg, err := ws.getMessage(conn, ctxMSG)
 		if err != nil {
-			log.Println("commutation_2 " + err.Error())
+			ws.l.Error("CM2: " + err.Error())
 			cancelRun()
 			return
 		}
@@ -114,7 +120,7 @@ func (ws *WsServer) commutation(conn *websocket.Conn) {
 		frame := <-frameChan
 		// и отправляем его клиенту
 		if err := ws.sendMessage(conn, frame); err != nil {
-			log.Printf("commutation_3 " + err.Error())
+			ws.l.Error("CM3: " + err.Error())
 		}
 	}
 }
@@ -164,7 +170,7 @@ func (ws *WsServer) sendMessage(conn *websocket.Conn, v interface{}) error {
 		// КОСТЫЛЬ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		_ = recover()
 	}()
-	
+
 	err := conn.WriteJSON(v)
 	return err
 }
