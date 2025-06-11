@@ -123,14 +123,17 @@ func (ws *WsServer) commutation(conn *websocket.Conn) {
 // завершает работу возвращает в обоих переменных nil. Либо может вернуть или сообщение от пользователя, либо
 // ошибку закрытия канала.
 func (ws *WsServer) getMessage(conn *websocket.Conn, ctx context.Context) (*ALSS.Message, error) {
-	//todo: add panic recover
 
 	// создаём структуру нового сообщения
 	message := ALSS.Message{}
 	// и ждём чтения сообщения
 	done := make(chan error)
 	go func() {
-		//todo: PANIC!!!
+		defer func() {
+			// КОСТЫЛЬ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			_ = recover()
+		}()
+
 		if err := conn.ReadJSON(&message); err != nil {
 			done <- err
 			return
@@ -157,7 +160,11 @@ func (ws *WsServer) getMessage(conn *websocket.Conn, ctx context.Context) (*ALSS
 
 // sendMessage отправляет клиенту сообщение в JSON формате.
 func (ws *WsServer) sendMessage(conn *websocket.Conn, v interface{}) error {
-	//todo: add panic recover
+	defer func() {
+		// КОСТЫЛЬ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		_ = recover()
+	}()
+	
 	err := conn.WriteJSON(v)
 	return err
 }
