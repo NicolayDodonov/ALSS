@@ -9,39 +9,43 @@ import (
 const path = "logs/stat.log"
 
 type Statistic struct {
-	Resources
-	Command
-	Life
-	Year int
+	Resources `json:"resources"`
+	Command   `json:"command"`
+	Life      `json:"life"`
+	Year      int `json:"year"`
 }
 type Resources struct {
-	AvgMineral int
-	Poison     int
+	AvgMineral   int `json:"avg_mineral"`
+	TotalMineral int `json:"total_mineral"`
+	Pollution    int `json:"poison"`
+	PollutionFix int `json:"poison_fix"`
 }
 
 type Command struct {
-	AvgCommand int
-	AvgJump    int
+	AvgCommand int `json:"avg_command"`
+	AvgJump    int `json:"avg_jump"`
 }
 
 type Life struct {
-	AvgEnergy  int
-	CountAgent int
+	AvgEnergy  int `json:"avg_energy"`
+	CountAgent int `json:"live"`
+	Deaths     int `json:"deaths"`
 }
 
 // update проверяет ряд параметров модели и сохраняет их в себе.
 func (s *Statistic) update(c *Controller) {
 	s.Year = c.world.Year
-	s.Poison = c.world.Pollution
+	s.Pollution = c.world.Pollution
+	s.PollutionFix = c.world.PollutionFix
 
 	//Resources
-	s.AvgMineral = 0
+	s.TotalMineral = 0
 	for _, cells := range c.world.Map {
 		for _, cell := range cells {
-			s.AvgMineral += cell.LocalMinerals
+			s.TotalMineral += cell.LocalMinerals
 		}
 	}
-	s.AvgMineral /= c.world.CountCell
+	s.AvgMineral = s.TotalMineral / c.world.CountCell
 	//Command and energy
 	s.AvgEnergy = 0
 	s.AvgCommand = 0
@@ -86,7 +90,7 @@ func (s *Statistic) save() error {
 func (s Statistic) String() string {
 	return strconv.Itoa(s.Year) + "; " +
 		strconv.Itoa(s.AvgMineral) + "; " +
-		strconv.Itoa(s.Poison) + "; " +
+		strconv.Itoa(s.Pollution) + "; " +
 		strconv.Itoa(s.AvgCommand) + "; " +
 		strconv.Itoa(s.AvgJump) + "; " +
 		strconv.Itoa(s.CountAgent) + "; " +

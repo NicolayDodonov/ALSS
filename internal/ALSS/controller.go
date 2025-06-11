@@ -24,9 +24,9 @@ func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea, a
 	return &Controller{
 		l: l,
 		Stats: Statistic{
-			Resources{0, 0},
+			Resources{0, 0, 0, 0},
 			Command{0, 0},
-			Life{0, 0},
+			Life{0, 0, 0},
 			0,
 		},
 		world: &world{

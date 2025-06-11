@@ -41,9 +41,10 @@ func (w *world) update() {
 			if cell.Height >= w.CountUWCell {
 				continue
 			}
-			cell.LocalMinerals = (cell.LocalMinerals + solution) % 255
+			cell.LocalMinerals = (cell.LocalMinerals + solution) % maxMineral
 		}
 	}
+	w.PollutionFix = w.Pollution / pollutionFixCoefficient
 }
 
 // init создаёт пустую карту мира, генерирует высотный ланшафт, настраивает уровень моря
@@ -99,7 +100,6 @@ func (w *world) landscapeGenerator(landType string) {
 			}
 			layerCount--
 		}
-	case mapRANDOM:
 	}
 }
 
