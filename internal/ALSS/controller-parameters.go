@@ -2,17 +2,6 @@ package ALSS
 
 // Основные настройки модели.
 type Parameters struct {
-	WorldParam
-	AgentParam
-}
-
-type WorldParam struct {
-	X, Y         int
-	Illumination int
-	SeaLevel     int
-}
-
-type AgentParam struct {
 	typeGenome      string
 	sizeGenome      int
 	maxGen          int

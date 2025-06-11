@@ -1,17 +1,8 @@
 package ALSS
 
 type Frame struct {
-	Stat StatisticJSON `json:"stat"`
-	Map  MapJSON       `json:"map"`
-}
-
-type StatisticJSON struct {
-	Year      int `json:"world_year"`
-	Pollution int `json:"world_pollution"`
-	TotalM    int `json:"total_minerals"`
-	AvgM      int `json:"avg_minerals"`
-	Live      int `json:"live_agent"`
-	Death     int `json:"death_agent"`
+	Stat *Statistic `json:"stat"`
+	Map  *MapJSON   `json:"map"`
 }
 
 type MapJSON struct {
@@ -43,11 +34,8 @@ type Message struct {
 
 func (c *Controller) MakeFrame() *Frame {
 	frame := &Frame{
-		Stat: StatisticJSON{
-			Year:      c.world.Year,
-			Pollution: c.world.Pollution,
-		},
-		Map: MapJSON{
+		Stat: &c.Stats,
+		Map: &MapJSON{
 			X:        c.world.MaxX,
 			Y:        c.world.MaxY,
 			SeaLevel: c.world.SeaLevel,

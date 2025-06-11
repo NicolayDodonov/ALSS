@@ -18,13 +18,6 @@ func (c *Controller) makeAgents() {
 	c.agents = agents
 }
 
-// makeWorld создаёт мир, генерирует карту с начальными условиями от пользователя.
-func (c *Controller) makeWorld() {
-	w := newWorld(c.Parameters.WorldParam)
-	w.initMap()
-	c.world = w
-}
-
 // sync - синхронизация агентов и мира.
 //
 // Исправление списка агентов (удаление мёртвых не удалённых агентов).
@@ -45,7 +38,7 @@ func (c *Controller) sync() error {
 
 	//записываем всех агентов из списка повторно.
 	for nod := c.agents.root; nod != nil; nod = nod.next {
-		cell := c.world.getCell(&nod.value.coordinates)
+		cell, _ := c.world.getCell(&nod.value.coordinates)
 		cell.Agent = nod.value
 	}
 	return nil
@@ -70,7 +63,7 @@ func (c *Controller) runAgents() error {
 func (c *Controller) removeDeadAgents() error {
 	for nod := c.agents.root; nod != nil; nod = nod.next {
 		if nod.value.Energy <= 0 {
-			cell := c.world.getCell(&nod.value.coordinates)
+			cell, _ := c.world.getCell(&nod.value.coordinates)
 			cell.Agent = nil
 			if err := c.agents.del(nod.value); err != nil {
 				//критическое место. Если тут возникает ошибка, можно прекращать симуляцию
