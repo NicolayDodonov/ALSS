@@ -12,7 +12,7 @@ import (
 // Обеспечивает контроль над внутренней логикой и реализует интерфейс управления и передачи данных.
 type Controller struct {
 	Parameters Parameters
-	Status     bool
+	Stats      Statistic
 
 	world  *world
 	agents *list
@@ -23,27 +23,33 @@ type Controller struct {
 func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea, age, energy int) *Controller {
 	return &Controller{
 		l: l,
-		Parameters: Parameters{
-			WorldParam{
-				X:            conf.X,
-				Y:            conf.Y,
+		Stats: Statistic{
+			Resources{0, 0, 0, 0},
+			Command{0, 0},
+			Life{0, 0, 0},
+			0,
+		},
+		world: &world{
+			MaxX: conf.X,
+			MaxY: conf.Y,
+			userParameters: userParameters{
 				Illumination: sun,
 				SeaLevel:     sea,
 			},
-			AgentParam{
-				typeGenome:          conf.TypeGenome,
-				sizeGenome:          conf.SizeGenome,
-				maxGen:              conf.MaxGen,
-				startPopulation:     count,
-				baseAgentEnergy:     conf.BaseEnergy,
-				maxAgentAge:         age,
-				maxAgentEnergy:      energy,
-				energyCost:          conf.ActionCost,
-				attackProfitPercent: conf.HuntingCoefficient,
-				madePollution:       conf.PollutionCost,
-				minEnergyToBirth:    conf.BirthCost,
-				countMutation:       conf.MutationCount,
-			},
+		},
+		Parameters: Parameters{
+			typeGenome:          conf.TypeGenome,
+			sizeGenome:          conf.SizeGenome,
+			maxGen:              conf.MaxGen,
+			startPopulation:     count,
+			baseAgentEnergy:     conf.BaseEnergy,
+			maxAgentAge:         age,
+			maxAgentEnergy:      energy,
+			energyCost:          conf.ActionCost,
+			attackProfitPercent: conf.HuntingCoefficient,
+			madePollution:       conf.PollutionCost,
+			minEnergyToBirth:    conf.BirthCost,
+			countMutation:       conf.MutationCount,
 		},
 	}
 }
@@ -52,7 +58,6 @@ func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea, a
 func (c *Controller) Run(frame chan *Frame, ctx context.Context) {
 	defer func() {
 		log.Printf("Model is shutdown")
-		c.Status = false
 	}()
 
 	//Основной цикл
@@ -62,6 +67,8 @@ func (c *Controller) Run(frame chan *Frame, ctx context.Context) {
 			break
 		default:
 			//модель работает здесь
+			c.world.update()
+
 			//для каждого агента вызываем такт жизни
 			if err := c.runAgents(); err != nil {
 				//Логируем ошибки
@@ -72,14 +79,9 @@ func (c *Controller) Run(frame chan *Frame, ctx context.Context) {
 				}
 			}
 
-			//Удаляем мертнвый агентов из мира
-			//todo: удалить, ибо ненужно
-			if err := c.removeDeadAgents(); err != nil {
-				return
-			}
-
 			//обновляем статистику
-			c.world.updateStat()
+			c.Stats.update(c)
+			_ = c.Stats.save()
 
 			//отправляем в канал кадр мира
 			frame <- c.MakeFrame()
@@ -95,8 +97,7 @@ func (c *Controller) Run(frame chan *Frame, ctx context.Context) {
 // InitModel создаёт world, проводит по настройкам пользователя генерацию ландшафта и базовых ресурсов.
 // Так же создаёт по настройкам пользователя двусвязный спиок agent
 func (c *Controller) InitModel() {
-	c.Status = true
-	c.makeWorld()
+	c.world.init()
 	c.makeAgents()
 	c.sync()
 }
