@@ -9,63 +9,36 @@ import (
 const path = "logs/stat.log"
 
 type Statistic struct {
-	Resources `json:"resources"`
-	Command   `json:"command"`
-	Life      `json:"life"`
-	Year      int `json:"year"`
+	AgentStat
+	CommandStat
+	DeathStat
+	GenStat
+	year int
 }
-type Resources struct {
-	AvgMineral   int `json:"avg_mineral"`
-	TotalMineral int `json:"total_mineral"`
-	Pollution    int `json:"poison"`
-	PollutionFix int `json:"poison_fix"`
+type AgentStat struct {
+	AvgAge    float64
+	AvgEnergy float64
 }
-
-type Command struct {
-	AvgCommand int `json:"avg_command"`
-	AvgJump    int `json:"avg_jump"`
+type CommandStat struct {
+	Sun   int
+	Hemo  int
+	Mine  int
+	Hunt  int
+	Other int
 }
-
-type Life struct {
-	AvgEnergy  int `json:"avg_energy"`
-	CountAgent int `json:"live"`
-	Deaths     int `json:"deaths"`
+type DeathStat struct {
+	Age    int
+	Hunt   int
+	Energy int
+}
+type GenStat struct {
+	AvgCom float64
+	AvgJmp float64
 }
 
 // update проверяет ряд параметров модели и сохраняет их в себе.
 func (s *Statistic) update(c *Controller) {
-	s.Year = c.world.Year
-	s.Pollution = c.world.Pollution
-	s.PollutionFix = c.world.PollutionFix
 
-	//Resources
-	s.TotalMineral = 0
-	for _, cells := range c.world.Map {
-		for _, cell := range cells {
-			s.TotalMineral += cell.LocalMinerals
-		}
-	}
-	s.AvgMineral = s.TotalMineral / c.world.CountCell
-	//Command and energy
-	s.AvgEnergy = 0
-	s.AvgCommand = 0
-	s.AvgJump = 0
-	for nod := c.agents.root; nod != nil; nod = nod.next {
-		s.AvgEnergy = nod.value.Energy
-		for _, gen := range nod.value.Genome.Array {
-			if gen > maxGenCommand {
-				s.AvgJump++
-			} else {
-				s.AvgCommand++
-			}
-		}
-	}
-	if c.agents.len > 0 {
-		s.AvgEnergy /= c.agents.len
-		s.AvgCommand /= c.agents.len
-		s.AvgJump /= c.agents.len
-		s.CountAgent = c.agents.len
-	}
 }
 
 func (s *Statistic) save() error {
@@ -88,11 +61,17 @@ func (s *Statistic) save() error {
 //year; avgMin; poison; avgCom; avgJump; countAgent; avgEn;
 
 func (s Statistic) String() string {
-	return strconv.Itoa(s.Year) + "; " +
-		strconv.Itoa(s.AvgMineral) + "; " +
-		strconv.Itoa(s.Pollution) + "; " +
-		strconv.Itoa(s.AvgCommand) + "; " +
-		strconv.Itoa(s.AvgJump) + "; " +
-		strconv.Itoa(s.CountAgent) + "; " +
-		strconv.Itoa(s.AvgEnergy) + ";\n"
+	return strconv.FormatFloat(s.AgentStat.AvgAge, 'f', 3, 64) + ";" +
+		strconv.FormatFloat(s.AgentStat.AvgEnergy, 'f', 3, 64) + ";" +
+		strconv.Itoa(s.CommandStat.Sun) + ";" +
+		strconv.Itoa(s.CommandStat.Hemo) + ";" +
+		strconv.Itoa(s.CommandStat.Mine) + ";" +
+		strconv.Itoa(s.CommandStat.Hunt) + ";" +
+		strconv.Itoa(s.CommandStat.Other) + ";" +
+		strconv.Itoa(s.DeathStat.Age) + ";" +
+		strconv.Itoa(s.DeathStat.Hunt) + ";" +
+		strconv.Itoa(s.DeathStat.Energy) + ";" +
+		strconv.FormatFloat(s.GenStat.AvgCom, 'f', 3, 64) + ";" +
+		strconv.FormatFloat(s.GenStat.AvgJmp, 'f', 3, 64)
+
 }
