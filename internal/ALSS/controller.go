@@ -20,7 +20,7 @@ type Controller struct {
 }
 
 // Создаёт новый контроллер модели.
-func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea, age, energy int) *Controller {
+func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea int) *Controller {
 	return &Controller{
 		l: l,
 		Stats: Statistic{
@@ -45,8 +45,8 @@ func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea, a
 			maxGen:              conf.MaxGen,
 			startPopulation:     count,
 			baseAgentEnergy:     conf.BaseEnergy,
-			maxAgentAge:         age,
-			maxAgentEnergy:      energy,
+			maxAgentAge:         conf.MaxAge,
+			maxAgentEnergy:      conf.MaxEnergy,
 			energyCost:          conf.ActionCost,
 			attackProfitPercent: conf.HuntingCoefficient,
 			madePollution:       conf.PollutionCost,

@@ -9,6 +9,7 @@ type agent struct {
 	ID     string
 	Age    int
 	Energy int
+	Ration int
 	Angle  angle
 	coordinates
 	Genome *genome
@@ -21,6 +22,7 @@ func newAgent(c *Controller) *agent {
 		Age:    0,
 		Energy: c.Parameters.baseAgentEnergy,
 		Angle:  0,
+		Ration: 0,
 		coordinates: coordinates{
 			X: rand.IntN(c.world.MaxX),
 			Y: rand.IntN(c.world.MaxY),
@@ -157,8 +159,6 @@ func (a *agent) birthHandler(c *Controller) error {
 			break
 		}
 	}
-
-	//если есть пустая клетка - размножаемся
 	if freeCoords != nil {
 		// отдаём половину энергии
 		a.Energy /= 2
@@ -183,6 +183,7 @@ func (a *agent) birthHandler(c *Controller) error {
 			return err
 		}
 	}
+
 	return nil
 }
 

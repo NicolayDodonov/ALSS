@@ -57,6 +57,7 @@ func (a *agent) eatSun(c *Controller) error {
 	if cell.Height > c.world.SeaLevel {
 		a.Energy += (c.world.Illumination*cell.Height)/10 + (cell.Height / 10) - c.world.PollutionFix
 	}
+	a.Ration = rationSun
 	return nil
 }
 
@@ -77,7 +78,7 @@ func (a *agent) eatMinerals(c *Controller) error {
 
 		a.Energy += dMinerals
 	}
-
+	a.Ration = rationMine
 	return nil
 }
 
@@ -91,6 +92,7 @@ func (a *agent) eatPollution(c *Controller) {
 	//уменьшаем загрязнение и добавляем энергии агенту
 	c.world.addPollution(-dPollution)
 	a.Energy += dPollution
+	a.Ration = rationHemo
 }
 
 // Команда Охоты
@@ -112,6 +114,7 @@ func (a *agent) attack(c *Controller) error {
 	}
 
 	a.Energy += profit
+	a.Ration = rationHunt
 	return nil
 }
 
