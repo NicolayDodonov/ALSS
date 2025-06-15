@@ -26,8 +26,8 @@ func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea, a
 		Stats: Statistic{
 			AgentStat{0, 0},
 			CommandStat{0, 0, 0, 0, 0},
-			DeathStat{0, 0, 0},
 			GenStat{0, 0},
+			conf.Stats,
 		},
 		world: &world{
 			MaxX: conf.X,
