@@ -81,28 +81,40 @@ func (a *agent) interpretationGenome(c *Controller) error {
 	switch gen {
 	case 0, 1, 2, 3, 4, 5, 6, 7:
 		err = a.move(angle(gen), c)
+		c.Stats.count("Other")
 	case 8:
 		err = a.move(a.Angle, c)
+		c.Stats.count("Other")
 	case 9:
 		a.turnLeft()
+		c.Stats.count("Other")
 	case 10:
 		a.turnRight()
+		c.Stats.count("Other")
 	case 11:
 		err = a.eatSun(c)
+		c.Stats.count("Sun")
 	case 12:
 		err = a.eatMinerals(c)
+		c.Stats.count("Mine")
 	case 13:
 		a.eatPollution(c)
+		c.Stats.count("Hemo")
 	case 14:
 		err = a.attack(c)
+		c.Stats.count("Hunt")
 	case 15:
 		err = a.look(c)
+		c.Stats.count("Other")
 	case 16:
 		err = a.friendOrFoe(c)
+		c.Stats.count("Other")
 	case 17:
 		err = a.lookHeightCell(c)
+		c.Stats.count("Other")
 	case 18:
 		err = a.getEnergy(c)
+		c.Stats.count("Other")
 	default:
 		a.Genome.jumpPointer(gen - 1)
 	}
@@ -208,7 +220,6 @@ func (a *agent) deathHandler(c *Controller) error {
 
 		//стамив "мертвые" значения энергии.
 		a.Energy = -1
-		c.Stats.Deaths++
 	}
 	return nil
 }
