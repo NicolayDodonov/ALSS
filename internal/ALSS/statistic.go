@@ -4,21 +4,25 @@ import (
 	"io"
 	"os"
 	"strconv"
+	"strings"
 )
 
 const path = "logs/stat.log"
 
 type Statistic struct {
-	AgentStat   `json:"agent"`
-	CommandStat `json:"command"`
-	GenStat     `json:"gen"`
-	ON          bool //показывает необходимость включения статистики
+	AgentStat    `json:"agent"`
+	CommandStat  `json:"command"`
+	GenStat      `json:"gen"`
+	ResursesStat `json:"resourses"`
+	Year         int  `json:"year"`
+	ON           bool //показывает необходимость включения статистики
 }
 
 // обновляется командой Statistic.update()
 type AgentStat struct {
-	AvgAge    float64 `json:"age"`    //средний возраст агента
-	AvgEnergy float64 `json:"energy"` //средняя энергия агента
+	CountAgent int     `json:"count"`  //количество агентов на этапе
+	AvgAge     float64 `json:"age"`    //средний возраст агента
+	AvgEnergy  float64 `json:"energy"` //средняя энергия агента
 }
 
 // обновляется Controller.runAgents()
@@ -34,6 +38,12 @@ type CommandStat struct {
 type GenStat struct {
 	AvgCom float64
 	AvgJmp float64
+}
+
+type ResursesStat struct {
+	MineralTot int     `json:"Total"`
+	MineralAvg float64 `json:"Avg"`
+	Pollution  int     `json:"Pollution"`
 }
 
 // count увеличивает значение указанного поля text на 1, если статистика включена.
@@ -58,12 +68,6 @@ func (s *Statistic) count(text string) {
 // update обновляет средние данные модели
 func (s *Statistic) update(c *Controller) {
 	if s.ON {
-		// Обнуляем изменяемые параметры
-		s.AvgAge = 0
-		s.AvgEnergy = 0
-
-		s.AvgCom = 0
-		s.AvgJmp = 0
 
 		// перебираем живых агентов
 		var count float64 = 0
@@ -73,7 +77,7 @@ func (s *Statistic) update(c *Controller) {
 			if nod.value.Energy > 0 {
 				count++
 				// собираем инфу по энергии
-				s.AvgAge += float64(nod.value.Energy)
+				s.AvgAge += float64(nod.value.Age)
 				s.AvgEnergy += float64(nod.value.Energy)
 				// собираем инфу по генам
 				for _, gen := range nod.value.Genome.Array {
@@ -85,12 +89,48 @@ func (s *Statistic) update(c *Controller) {
 				}
 			}
 		}
-		//после сбора суммарных данных, определим средние данные
-		s.AvgAge = s.AvgAge / count
-		s.AvgEnergy = s.AvgEnergy / count
+		s.Pollution = c.world.Pollution
+		for _, cells := range c.world.Map {
+			for _, cell := range cells {
+				s.MineralTot += cell.LocalMinerals
+			}
+		}
+		s.MineralAvg = float64(s.MineralTot) / float64(c.world.CountCell)
 
-		s.AvgCom = s.AvgCom / count
-		s.AvgJmp = s.AvgJmp / count
+		//после сбора суммарных данных, определим средние данные
+		if count != 0 {
+			s.Year = c.world.Year
+			s.AvgAge = s.AvgAge / count
+			s.AvgEnergy = s.AvgEnergy / count
+
+			s.AvgCom = s.AvgCom / count
+			s.AvgJmp = s.AvgJmp / count
+			s.CountAgent = int(count)
+		} else {
+			s.AvgAge = 0
+			s.AvgEnergy = 0
+
+			s.AvgCom = 0
+			s.AvgJmp = 0
+		}
+		_ = s.save()
+
+		// Обнуляем изменяемые параметры
+		s.AvgAge = 0
+		s.AvgEnergy = 0
+
+		s.AvgCom = 0
+		s.AvgJmp = 0
+
+		s.Sun = 0
+		s.Hemo = 0
+		s.Mine = 0
+		s.Hunt = 0
+		s.CommandStat.Other = 0
+
+		s.MineralTot = 0
+		s.MineralAvg = 0
+
 	}
 }
 
@@ -111,10 +151,12 @@ func (s *Statistic) save() error {
 	return nil
 }
 
-//AvgAge; AvgEnergy; AvgCom; AvgJmp; Sun; Hemo; Mine; Hunt; Other; Age; Hunt; Fat, Skinny; Mineral;
+//; Count Agent; Avg Age; Avg Energy; = ; Command; Jump; photosynthesis; chemosynthesis; minersynthesis; Hunt; Other; Min Tot; Min Avg; Pollution;
 
 func (s Statistic) String() string {
-	return strconv.FormatFloat(s.AgentStat.AvgAge, 'f', 3, 64) + ";" +
+	str := strconv.Itoa(s.Year) + ";" +
+		strconv.Itoa(s.CountAgent) + ";" +
+		strconv.FormatFloat(s.AgentStat.AvgAge, 'f', 3, 64) + ";" +
 		strconv.FormatFloat(s.AgentStat.AvgEnergy, 'f', 3, 64) + "; = ;" +
 		strconv.FormatFloat(s.GenStat.AvgCom, 'f', 3, 64) + ";" +
 		strconv.FormatFloat(s.GenStat.AvgJmp, 'f', 3, 64) + "; = ;" +
@@ -122,6 +164,9 @@ func (s Statistic) String() string {
 		strconv.Itoa(s.CommandStat.Hemo) + ";" +
 		strconv.Itoa(s.CommandStat.Mine) + ";" +
 		strconv.Itoa(s.CommandStat.Hunt) + ";" +
-		strconv.Itoa(s.CommandStat.Other) + ";\n"
-
+		strconv.Itoa(s.CommandStat.Other) + "; = ;" +
+		strconv.Itoa(s.ResursesStat.MineralTot) + ";" +
+		strconv.FormatFloat(s.ResursesStat.MineralAvg, 'f', 3, 64) + ";" +
+		strconv.Itoa(s.ResursesStat.Pollution) + ";\n"
+	return strings.Replace(str, ".", ",", -1)
 }

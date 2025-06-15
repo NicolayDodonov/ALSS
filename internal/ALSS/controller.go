@@ -24,9 +24,11 @@ func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea, a
 	return &Controller{
 		l: l,
 		Stats: Statistic{
-			AgentStat{0, 0},
+			AgentStat{0, 0, 0},
 			CommandStat{0, 0, 0, 0, 0},
 			GenStat{0, 0},
+			ResursesStat{0, 0, 0},
+			0,
 			conf.Stats,
 		},
 		world: &world{
@@ -81,7 +83,6 @@ func (c *Controller) Run(frame chan *Frame, ctx context.Context) {
 
 			//обновляем статистику
 			c.Stats.update(c)
-			_ = c.Stats.save()
 
 			//отправляем в канал кадр мира
 			frame <- c.MakeFrame()
