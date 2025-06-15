@@ -21,4 +21,4 @@ ALSS:
     mutationCount: 1
 Logger:
   path: "logs/app.log"
-  level: "off"
+  level: "Info"

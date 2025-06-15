@@ -1,6 +1,8 @@
 package baseLogger
 
 import (
+	log "artificialLifeGo/internal/logger"
+	"fmt"
 	"io"
 	"os"
 	"time"
@@ -9,14 +11,11 @@ import (
 // Logger структура базового логгера, хранит в себе адрес хрангилища логгеров и уровень логгирования.
 type Logger struct {
 	file  *os.File
-	level LoggerType
+	level log.LoggerType
 }
 
-// LoggerType это уровень логгирования.
-type LoggerType uint8
-
 // New создаёт новый логгер и возвращает или указатель на него или ошибку.
-func New(path string, level LoggerType) (*Logger, error) {
+func New(path string, level log.LoggerType) (*Logger, error) {
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		return &Logger{}, err
@@ -28,53 +27,43 @@ func New(path string, level LoggerType) (*Logger, error) {
 }
 
 func (logger *Logger) Debug(msg string) {
-	if logger.level <= DebugLevel {
+	if logger.level <= log.DebugLevel {
 		t := time.Now()
-		_, _ = io.WriteString(logger.file, t.String()+" "+Debug+msg+"\n")
+		_, _ = io.WriteString(logger.file, t.String()+" "+log.Debug+msg+"\n")
 	}
 }
 
 func (logger *Logger) Info(msg string) {
-	if logger.level <= InfoLevel {
+	if logger.level <= log.InfoLevel {
 		t := time.Now()
-		_, _ = io.WriteString(logger.file, t.String()+" "+Info+msg+"\n")
+		message := t.String() + " " + log.Info + msg + "\n"
+		fmt.Print(message)
+		_, _ = io.WriteString(logger.file, message)
+
 	}
 }
 
 func (logger *Logger) Panic(msg string) {
-	if logger.level <= ErrorLevel {
+	if logger.level <= log.ErrorLevel {
 		t := time.Now()
-		_, _ = io.WriteString(logger.file, t.String()+" "+Panic+msg+"\n")
+		_, _ = io.WriteString(logger.file, t.String()+" "+log.Panic+msg+"\n")
 		panic(msg)
 	}
 }
 
 func (logger *Logger) Error(msg string) {
-	if logger.level <= ErrorLevel {
+	if logger.level <= log.ErrorLevel {
 		t := time.Now()
-		_, _ = io.WriteString(logger.file, t.String()+" "+Error+msg+"\n")
+		message := t.String() + " " + log.Error + msg + "\n"
+		fmt.Print(message)
+		_, _ = io.WriteString(logger.file, message)
 	}
 }
 
 func (logger *Logger) Fatal(msg string) {
-	if logger.level <= ErrorLevel {
+	if logger.level <= log.ErrorLevel {
 		t := time.Now()
-		_, _ = io.WriteString(logger.file, t.String()+" "+Fatal+msg+"\n")
+		_, _ = io.WriteString(logger.file, t.String()+" "+log.Fatal+msg+"\n")
 		os.Exit(1)
-	}
-}
-
-func Convert(s string) LoggerType {
-	switch s {
-	case "Debug":
-		return DebugLevel
-	case "Info":
-		return InfoLevel
-	case "Error":
-		return ErrorLevel
-	case "Off":
-		return OffLevel
-	default:
-		return OffLevel
 	}
 }

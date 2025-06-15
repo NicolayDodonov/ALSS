@@ -5,7 +5,6 @@ import (
 	"artificialLifeGo/internal/logger"
 	"artificialLifeGo/internal/logger/baseLogger"
 	"context"
-	"log"
 )
 
 // Controller основная структура пакета и единственная внешне доступная.
@@ -59,9 +58,10 @@ func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea in
 // Run запускает основной цикл модели, идущий до гибели всех агентов в моделе.
 func (c *Controller) Run(frame chan *Frame, ctx context.Context) {
 	defer func() {
-		log.Printf("Model is shutdown")
+		c.l.Info("Model is shutdown")
 	}()
 
+	c.l.Info("Model start")
 	//Основной цикл
 	for {
 		select {
