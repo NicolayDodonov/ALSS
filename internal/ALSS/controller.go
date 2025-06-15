@@ -26,7 +26,7 @@ func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea in
 			AgentStat{0, 0, 0},
 			CommandStat{0, 0, 0, 0, 0},
 			GenStat{0, 0},
-			ResursesStat{0, 0, 0},
+			ResursesStat{0, 0, 0, 0},
 			0,
 			conf.Stats,
 		},

@@ -97,7 +97,7 @@ func (a *agent) interpretationGenome(c *Controller) error {
 		err = a.eatSun(c)
 		c.Stats.count("Sun")
 	case 12:
-		err = a.eatMinerals(c)
+		a.eatMinerals(c)
 		c.Stats.count("Mine")
 	case 13:
 		a.eatPollution(c)
@@ -136,8 +136,8 @@ func (a *agent) pollutionHandler(c *Controller) error {
 		return err
 	}
 
-	if cell.LocalMinerals >= 200 {
-		a.Energy -= c.Parameters.energyCost
+	if cell.LocalMinerals >= 225 {
+		a.Energy -= cell.LocalMinerals - 225
 	}
 	return nil
 }

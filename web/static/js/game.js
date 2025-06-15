@@ -119,6 +119,9 @@ function ground(cell, sea){
     switch (renderFon){
         case 1:
             num = cell.height
+            if (cell.mineral >= 225) {
+                return "#5f00ff"
+            }
             if (num > sea){
                 return "rgb(" + [num*10, num*10, num*10].join(",") + ")";
             } else {
@@ -134,7 +137,7 @@ function ground(cell, sea){
                 return "#55ccff"
             } else if (num < 192) {
                 return "#10aaff"
-            } else if (num < 200){
+            } else if (num < 225){
                 return "#0080ff"
             } else {
                 return "#5f00ff"

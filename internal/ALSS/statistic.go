@@ -41,9 +41,10 @@ type GenStat struct {
 }
 
 type ResursesStat struct {
-	MineralTot int     `json:"Total"`
-	MineralAvg float64 `json:"Avg"`
-	Pollution  int     `json:"Pollution"`
+	MineralTot   int     `json:"mine_total"`
+	MineralAvg   float64 `json:"mine_avg"`
+	Pollution    int     `json:"poll_real"`
+	PollutionFix int     `json:"poll_fix"`
 }
 
 // count увеличивает значение указанного поля text на 1, если статистика включена.
@@ -90,6 +91,7 @@ func (s *Statistic) update(c *Controller) {
 			}
 		}
 		s.Pollution = c.world.Pollution
+		s.PollutionFix = c.world.PollutionFix
 		for _, cells := range c.world.Map {
 			for _, cell := range cells {
 				s.MineralTot += cell.LocalMinerals
@@ -151,7 +153,7 @@ func (s *Statistic) save() error {
 	return nil
 }
 
-//; Count Agent; Avg Age; Avg Energy; = ; Command; Jump; photosynthesis; chemosynthesis; minersynthesis; Hunt; Other; Min Tot; Min Avg; Pollution;
+//; Count Agent; Avg Age; Avg Energy; = ; Command; Jump; = ; photosynthesis; chemosynthesis; minersynthesis; Hunt; Other; = ; Min Tot; Min Avg; Poll; PolFix;
 
 func (s Statistic) String() string {
 	str := strconv.Itoa(s.Year) + ";" +
@@ -167,6 +169,7 @@ func (s Statistic) String() string {
 		strconv.Itoa(s.CommandStat.Other) + "; = ;" +
 		strconv.Itoa(s.ResursesStat.MineralTot) + ";" +
 		strconv.FormatFloat(s.ResursesStat.MineralAvg, 'f', 3, 64) + ";" +
-		strconv.Itoa(s.ResursesStat.Pollution) + ";\n"
+		strconv.Itoa(s.ResursesStat.Pollution) + ";" +
+		strconv.Itoa(s.ResursesStat.PollutionFix) + ";\n"
 	return strings.Replace(str, ".", ",", -1)
 }
