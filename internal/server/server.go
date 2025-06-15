@@ -81,7 +81,7 @@ func (ws *WsServer) commutation(conn *websocket.Conn) {
 	}
 
 	// создаём контроллер модели и канал обмена фреймами.
-	controller := ALSS.NewController(ws.conf, ws.l, init.Count, init.Sea, init.Sea, init.Age, init.Energy)
+	controller := ALSS.NewController(ws.conf, ws.l, init.Count, init.Sea, init.Sea)
 	frameChan := make(chan *ALSS.Frame)
 
 	// настраиваем модель
@@ -164,7 +164,7 @@ func (ws *WsServer) sendMessage(conn *websocket.Conn, v interface{}) error {
 		// КОСТЫЛЬ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		_ = recover()
 	}()
-	
+
 	err := conn.WriteJSON(v)
 	return err
 }

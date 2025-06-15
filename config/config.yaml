@@ -10,6 +10,8 @@ ALSS:
     typeGenome: "RAND"
     sizeGenome: 64
     maxGen: 32
+    maxAge: 15000
+    maxEnergy: 1500
     baseEnergy: 100
     actionCost: 1
     pollutionCost: 10

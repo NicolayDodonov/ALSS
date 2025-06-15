@@ -4,7 +4,8 @@ socket.onopen = function() {
     console.log('WebSocket is connected.')
 }
 
-form = document.getElementById("form")
+//добавляем обработчик игрового меню
+form = document.getElementById("form-game-menu")
 form.addEventListener('submit', SendForm)
 
 //обработка отправки сообщения
@@ -16,8 +17,6 @@ function SendForm(event){
         count:  parseInt(document.getElementById("countAgent").value),
         sun: parseInt(document.getElementById("startSun").value),
         sea: parseInt(document.getElementById("seaLevel").value),
-        age: parseInt(document.getElementById("maxAge").value),
-        energy: parseInt(document.getElementById("maxEnergy").value)
     }
     let jsonString = JSON.stringify(jsonStruct)
     console.log(jsonString)
@@ -44,10 +43,15 @@ socket.onmessage = function (event){
         for(x=0;x<map[y].length; x++){
 
             if (map[y][x].agent !== null){
-                ctx.fillStyle = agent(map[y][x].agent,"age")
+                if (renderAgent == 4){
+                    ctx.fillStyle = ground(map[y][x], sea)
+                } else {
+                    ctx.fillStyle = agent(map[y][x].agent)
+
+                }
                 ctx.fillRect(x*cellSizeX, y*cellSizeY, cellSizeX, cellSizeY)
             } else {
-                ctx.fillStyle = ground(map[y][x], sea, "mineral")
+                ctx.fillStyle = ground(map[y][x], sea)
                 ctx.fillRect(x*cellSizeX, y*cellSizeY, cellSizeX, cellSizeY)
             }
 
@@ -55,23 +59,38 @@ socket.onmessage = function (event){
     }
 }
 
+let renderAgent = 1
+function RenderType(){
+    renderAgent++
+    if (renderAgent > 4){
+        renderAgent = 1
+    }
+}
+let renderFon = 1
+function RenderFon(){
+    renderFon++
+    if (renderFon > 2){
+        renderFon = 1
+    }
+}
 
-function agent(agent, type){
-    switch (type){
-        case "ration":
+
+function agent(agent){
+    switch (renderAgent){
+        case 1:
             switch (agent.Ration){
-                case "1":   // охота
+                case 1:   // охота
                     return "#dd0020"
-                case "2":   // фотосинтез
+                case 2:   // фотосинтез
                     return "#00dd20"
-                case "3":   // хемосинтез
+                case 3:   // минерализация
                     return "#20dddd"
-                case "4":   // очистка атмосферы
+                case 4:   // хемосинтез
                     return "#dd20dd"
                 default:    // ничего не делал
                     return "#777777"
             }
-        case "energy":
+        case 2:
             num = agent.Energy
             if (num <100){
                 return "#707000"
@@ -82,7 +101,7 @@ function agent(agent, type){
             } else {
                 return "#FFFF99"
             }
-        case "age":
+        case 3:
             num = agent.Age
             if (num <100){
                 return "#FFc0c0"
@@ -96,16 +115,16 @@ function agent(agent, type){
     }
 }
 
-function ground(cell, sea, type){
-    switch (type){
-        case "height":
+function ground(cell, sea){
+    switch (renderFon){
+        case 1:
             num = cell.height
             if (num > sea){
                 return "rgb(" + [num*10, num*10, num*10].join(",") + ")";
             } else {
                 return "rgb(" + [0, 0, num*10].join(",") + ")";
             }
-        case "mineral":
+        case 2:
             num = cell.mineral
             if (num < 10){
                 return "#cceeff"
