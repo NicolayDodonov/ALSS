@@ -55,7 +55,7 @@ func (a *agent) eatSun(c *Controller) error {
 		return err
 	}
 	if cell.Height > c.world.SeaLevel {
-		a.Energy += (c.world.Illumination*cell.Height)/10 + (cell.Height / 10) - c.world.PollutionFix
+		a.Energy += (c.world.Illumination*cell.Height)/10 + (cell.LocalMinerals / 10) - c.world.PollutionFix
 	}
 	a.Ration = rationSun
 	return nil

@@ -3,7 +3,7 @@ Server:
   port: "8080"
 ALSS:
   TimeStop: 500
-  Stats: True
+  Stats: False
   World:
     x: 100
     y: 100
@@ -11,7 +11,7 @@ ALSS:
     typeGenome: "RAND"
     sizeGenome: 64
     maxGen: 32
-    maxAge: 15000
+    maxAge: 1500
     maxEnergy: 1500
     baseEnergy: 100
     actionCost: 1

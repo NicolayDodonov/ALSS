@@ -76,7 +76,6 @@ func (ws *WsServer) wsHandler(w http.ResponseWriter, r *http.Request) {
 func (ws *WsServer) commutation(conn *websocket.Conn) {
 	defer func() {
 		ws.l.Info("CM1: commutation end")
-
 		conn.Close()
 	}()
 	// ожидаем поступления инициализирующего сообщения от клиента
@@ -121,6 +120,8 @@ func (ws *WsServer) commutation(conn *websocket.Conn) {
 		// и отправляем его клиенту
 		if err := ws.sendMessage(conn, frame); err != nil {
 			ws.l.Error("CM3: " + err.Error())
+			cancelRun()
+			return
 		}
 	}
 }

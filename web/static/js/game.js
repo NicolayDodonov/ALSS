@@ -6,11 +6,15 @@ socket.onopen = function() {
 
 //добавляем обработчик игрового меню
 form = document.getElementById("form-game-menu")
+let button = document.getElementById("start-button");
+button.disabled = false
 form.addEventListener('submit', SendForm)
 
 //обработка отправки сообщения
 function SendForm(event){
     event.preventDefault()
+    button.disabled = true
+    button.textContent = "модель запущена"
     console.log('Нажата клавиша запуск')
 
     let jsonStruct = {
@@ -84,7 +88,7 @@ function agent(agent){
                 case 2:   // фотосинтез
                     return "#00dd20"
                 case 3:   // минерализация
-                    return "#20dddd"
+                    return "#10aaff"
                 case 4:   // хемосинтез
                     return "#dd20dd"
                 default:    // ничего не делал
@@ -94,9 +98,9 @@ function agent(agent){
             num = agent.Energy
             if (num <100){
                 return "#707000"
-            } else if (num <250){
+            } else if (num <450){
                 return "#a3a300"
-            } else if (num < 500){
+            } else if (num < 850){
                 return "#ffff00"
             } else {
                 return "#FFFF99"
@@ -105,9 +109,9 @@ function agent(agent){
             num = agent.Age
             if (num <100){
                 return "#FFc0c0"
-            } else if (num <250){
+            } else if (num <450){
                 return "#ff5a5a"
-            } else if (num < 500){
+            } else if (num < 850){
                 return "#a30000"
             } else {
                 return "#700000"
