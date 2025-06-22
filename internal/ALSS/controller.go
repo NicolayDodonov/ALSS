@@ -5,7 +5,6 @@ import (
 	"artificialLifeGo/internal/logger"
 	"artificialLifeGo/internal/logger/baseLogger"
 	"context"
-	"log"
 )
 
 // Controller основная структура пакета и единственная внешне доступная.
@@ -20,14 +19,16 @@ type Controller struct {
 }
 
 // Создаёт новый контроллер модели.
-func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea, age, energy int) *Controller {
+func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea int) *Controller {
 	return &Controller{
 		l: l,
 		Stats: Statistic{
-			Resources{0, 0, 0, 0},
-			Command{0, 0},
-			Life{0, 0, 0},
+			AgentStat{0, 0, 0},
+			CommandStat{0, 0, 0, 0, 0},
+			GenStat{0, 0},
+			ResursesStat{0, 0, 0, 0},
 			0,
+			conf.Stats,
 		},
 		world: &world{
 			MaxX: conf.X,
@@ -43,8 +44,8 @@ func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea, a
 			maxGen:              conf.MaxGen,
 			startPopulation:     count,
 			baseAgentEnergy:     conf.BaseEnergy,
-			maxAgentAge:         age,
-			maxAgentEnergy:      energy,
+			maxAgentAge:         conf.MaxAge,
+			maxAgentEnergy:      conf.MaxEnergy,
 			energyCost:          conf.ActionCost,
 			attackProfitPercent: conf.HuntingCoefficient,
 			madePollution:       conf.PollutionCost,
@@ -57,9 +58,10 @@ func NewController(conf *config.Config, l *baseLogger.Logger, count, sun, sea, a
 // Run запускает основной цикл модели, идущий до гибели всех агентов в моделе.
 func (c *Controller) Run(frame chan *Frame, ctx context.Context) {
 	defer func() {
-		log.Printf("Model is shutdown")
+		c.l.Info("Model is shutdown")
 	}()
 
+	c.l.Info("Model start")
 	//Основной цикл
 	for {
 		select {
@@ -81,7 +83,6 @@ func (c *Controller) Run(frame chan *Frame, ctx context.Context) {
 
 			//обновляем статистику
 			c.Stats.update(c)
-			_ = c.Stats.save()
 
 			//отправляем в канал кадр мира
 			frame <- c.MakeFrame()

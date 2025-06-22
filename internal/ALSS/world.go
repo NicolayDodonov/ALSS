@@ -34,14 +34,20 @@ type Map [][]cell
 func (w *world) update() {
 	w.Year++
 	//Растворить часть яда в клетках ниже уровня моря
-	solution := w.Pollution / (w.CountUWCell * 100)
-	//Обновить компенсацию яда
-	for _, cells := range w.Map {
-		for _, cell := range cells {
-			if cell.Height >= w.CountUWCell {
-				continue
+	if w.PollutionFix > 0 {
+		solution := w.PollutionFix
+		w.Pollution -= solution * w.CountUWCell
+		//Обновить компенсацию яда
+		for _, cells := range w.Map {
+			for _, cell := range cells {
+				if cell.Height <= w.SeaLevel {
+					cell.LocalMinerals += solution
+					if cell.LocalMinerals > maxMineral {
+						cell.LocalMinerals = maxMineral
+					}
+				}
+
 			}
-			cell.LocalMinerals = (cell.LocalMinerals + solution) % maxMineral
 		}
 	}
 	w.PollutionFix = w.Pollution / pollutionFixCoefficient

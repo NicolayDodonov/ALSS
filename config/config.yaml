@@ -3,6 +3,7 @@ Server:
   port: "8080"
 ALSS:
   TimeStop: 500
+  Stats: False
   World:
     x: 100
     y: 100
@@ -10,6 +11,8 @@ ALSS:
     typeGenome: "RAND"
     sizeGenome: 64
     maxGen: 32
+    maxAge: 1500
+    maxEnergy: 1500
     baseEnergy: 100
     actionCost: 1
     pollutionCost: 10
@@ -18,4 +21,4 @@ ALSS:
     mutationCount: 1
 Logger:
   path: "logs/app.log"
-  level: "off"
+  level: "Info"

@@ -1,6 +1,11 @@
 /*тут будет задан стиль сайта*/
+html *{
+    font-family: sans-serif;
+}
+
 body {
     margin: 0;
+
 }
 
 .page {
@@ -11,14 +16,19 @@ body {
 }
 
 .header {
-    background: gray;
+    background: green;
     color: white;
 
     display: flex;
     flex-direction: row;
 
-    padding: 2%;
+
+    padding: 0.5%;
     padding-left: 15%;
+}
+.header p {
+    text-align: center;
+    font-size: 25pt;
 }
 
 .logo{
@@ -42,25 +52,9 @@ body {
 
 }
 
-.menu {
-    display: flex;
-    max-width: 100%;
-    flex-direction: row;
-    justify-content: center;
-
-    margin-right: 5%;
-    margin-left: 5%;
-    margin-top: 5%;
-}
-
-.menu-panel {
-    background: red;
-    margin-left: 2%;
-    margin-right: 2%;
-}
 
 .game{
-    margin-top: 5%;
+    margin-top: 2%;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -80,9 +74,34 @@ body {
     padding: 2%;
     width: 20%;
     height: 100%;
+
+    font-size: 15pt;
 }
 
 .game-about{
     margin-top: 5%;
     margin-bottom: 5%;
+
+    text-align: justify;
+    font-size: 15pt;
+}
+
+.button{
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    padding: 15px 32px;
+
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    width: 100%;
+}
+
+.button:hover{
+    background-color: #2a6d25;
+}
+.button:disabled{
+    background-color: #6d6d6d;
 }

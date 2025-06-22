@@ -18,3 +18,10 @@ const (
 	energyTransferPacket = 10
 	livingSurviveLevel   = 30
 )
+
+const (
+	rationHunt = iota + 1
+	rationSun
+	rationMine
+	rationHemo
+)

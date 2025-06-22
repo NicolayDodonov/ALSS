@@ -8,7 +8,10 @@ func (w *world) addMinerals(c *coordinates, d int) {
 		if err != nil {
 			return
 		}
-		cell.LocalMinerals = (cell.LocalMinerals + d) % maxMineral
+		cell.LocalMinerals = cell.LocalMinerals + d
+		if cell.LocalMinerals > maxMineral {
+			cell.LocalMinerals = maxMineral
+		}
 		return
 	}
 }

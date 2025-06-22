@@ -55,33 +55,33 @@ func (a *agent) eatSun(c *Controller) error {
 		return err
 	}
 	if cell.Height > c.world.SeaLevel {
-		a.Energy += (c.world.Illumination*cell.Height)/10 + (cell.Height / 10) - c.world.PollutionFix
+		a.Energy += (c.world.Illumination*cell.Height)/10 + (cell.LocalMinerals / 10) - c.world.PollutionFix
 	}
+	a.Ration = rationSun
 	return nil
 }
 
-// Команда Хемосинтеза.
-func (a *agent) eatMinerals(c *Controller) error {
-	// Получаем клетку агента
-	cell, err := c.world.getCell(&a.coordinates)
+// Команда Минералосинтеза.
+func (a *agent) eatMinerals(c *Controller) {
+	// Получаем клетку взгляда агента
+	cell, err := c.world.getCell(offset(&a.coordinates, a.Angle))
 	if err != nil {
-		// если получаем ошибку - нужна синхронизация
-		return err
+		return
 	}
 
 	// расчитываем сколько съедим из клетки минералов
 	if cell.Height > 10 {
 		dMinerals := cell.LocalMinerals / 10
 
-		c.world.addMinerals(&a.coordinates, -dMinerals)
+		c.world.addMinerals(offset(&a.coordinates, a.Angle), -dMinerals)
 
 		a.Energy += dMinerals
 	}
-
-	return nil
+	a.Ration = rationMine
+	return
 }
 
-// Команда очистки атмосферы
+// Команда очистки атмосферы - Хемосинтеза
 func (a *agent) eatPollution(c *Controller) {
 	// расчитываем уменьшение атмосферного яда
 	dPollution := c.world.Pollution / (pollutionFixCoefficient * 10)
@@ -91,6 +91,7 @@ func (a *agent) eatPollution(c *Controller) {
 	//уменьшаем загрязнение и добавляем энергии агенту
 	c.world.addPollution(-dPollution)
 	a.Energy += dPollution
+	a.Ration = rationHemo
 }
 
 // Команда Охоты
@@ -112,6 +113,7 @@ func (a *agent) attack(c *Controller) error {
 	}
 
 	a.Energy += profit
+	a.Ration = rationHunt
 	return nil
 }
 
@@ -125,14 +127,19 @@ func (a *agent) look(c *Controller) error {
 
 	//todo: исправить взгляд
 	if lookedCell.Agent != nil {
-		//проверяем есть ли там вообще агент
-		a.Genome.jumpPointer(1)
-		return nil
+		if equals(a.Genome, lookedCell.Agent.Genome) {
+			a.Genome.jumpPointer(1)
+			return nil
+		} else {
+			a.Genome.jumpPointer(2)
+			return nil
+		}
 	}
 	if lookedCell.LocalMinerals >= baseMinerals {
-		a.Genome.jumpPointer(2)
+		a.Genome.jumpPointer(3)
 		return nil
 	}
+
 	a.Genome.jumpPointer(3)
 	return nil
 }

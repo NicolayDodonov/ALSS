@@ -9,6 +9,7 @@ type agent struct {
 	ID     string
 	Age    int
 	Energy int
+	Ration int
 	Angle  angle
 	coordinates
 	Genome *genome
@@ -21,6 +22,7 @@ func newAgent(c *Controller) *agent {
 		Age:    0,
 		Energy: c.Parameters.baseAgentEnergy,
 		Angle:  0,
+		Ration: 0,
 		coordinates: coordinates{
 			X: rand.IntN(c.world.MaxX),
 			Y: rand.IntN(c.world.MaxY),
@@ -81,28 +83,40 @@ func (a *agent) interpretationGenome(c *Controller) error {
 	switch gen {
 	case 0, 1, 2, 3, 4, 5, 6, 7:
 		err = a.move(angle(gen), c)
+		c.Stats.count("Other")
 	case 8:
 		err = a.move(a.Angle, c)
+		c.Stats.count("Other")
 	case 9:
 		a.turnLeft()
+		c.Stats.count("Other")
 	case 10:
 		a.turnRight()
+		c.Stats.count("Other")
 	case 11:
 		err = a.eatSun(c)
+		c.Stats.count("Sun")
 	case 12:
-		err = a.eatMinerals(c)
+		a.eatMinerals(c)
+		c.Stats.count("Mine")
 	case 13:
 		a.eatPollution(c)
+		c.Stats.count("Hemo")
 	case 14:
 		err = a.attack(c)
+		c.Stats.count("Hunt")
 	case 15:
 		err = a.look(c)
+		c.Stats.count("Other")
 	case 16:
 		err = a.friendOrFoe(c)
+		c.Stats.count("Other")
 	case 17:
 		err = a.lookHeightCell(c)
+		c.Stats.count("Other")
 	case 18:
 		err = a.getEnergy(c)
+		c.Stats.count("Other")
 	default:
 		a.Genome.jumpPointer(gen - 1)
 	}
@@ -122,8 +136,8 @@ func (a *agent) pollutionHandler(c *Controller) error {
 		return err
 	}
 
-	if cell.LocalMinerals >= 200 {
-		a.Energy -= c.Parameters.energyCost
+	if cell.LocalMinerals >= 225 {
+		a.Energy -= cell.LocalMinerals - 225
 	}
 	return nil
 }
@@ -145,8 +159,6 @@ func (a *agent) birthHandler(c *Controller) error {
 			break
 		}
 	}
-
-	//если есть пустая клетка - размножаемся
 	if freeCoords != nil {
 		// отдаём половину энергии
 		a.Energy /= 2
@@ -171,6 +183,7 @@ func (a *agent) birthHandler(c *Controller) error {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -208,7 +221,6 @@ func (a *agent) deathHandler(c *Controller) error {
 
 		//стамив "мертвые" значения энергии.
 		a.Energy = -1
-		c.Stats.Deaths++
 	}
 	return nil
 }
