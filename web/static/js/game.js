@@ -14,7 +14,7 @@ form.addEventListener('submit', SendForm)
 function SendForm(event){
     event.preventDefault()
     button.disabled = true
-    button.textContent = "модель запущена"
+    button.textContent = "Модель запущена"
     console.log('Нажата клавиша запуск')
 
     let jsonStruct = {
@@ -49,6 +49,7 @@ socket.onmessage = function (event){
             if (map[y][x].agent !== null){
                 if (renderAgent == 4){
                     ctx.fillStyle = ground(map[y][x], sea)
+                    button2.textContent="Режим Агентов - не рисовать"
                 } else {
                     ctx.fillStyle = agent(map[y][x].agent)
 
@@ -78,10 +79,15 @@ function RenderFon(){
     }
 }
 
-
+let button2 = document.getElementById("bt-agent");
+button2.disabled = true
+let button3 = document.getElementById("bt-fon");
+button3.disabled = true
 function agent(agent){
+    button2.disabled = false
     switch (renderAgent){
         case 1:
+            button2.textContent="Режим Агентов - питание"
             switch (agent.Ration){
                 case 1:   // охота
                     return "#dd0020"
@@ -95,6 +101,7 @@ function agent(agent){
                     return "#777777"
             }
         case 2:
+            button2.textContent="Режим Агентов - энергия"
             num = agent.Energy
             if (num <100){
                 return "#707000"
@@ -106,6 +113,7 @@ function agent(agent){
                 return "#FFFF99"
             }
         case 3:
+            button2.textContent="Режим Агентов - возраст"
             num = agent.Age
             if (num <100){
                 return "#FFc0c0"
@@ -116,12 +124,15 @@ function agent(agent){
             } else {
                 return "#700000"
             }
+
     }
 }
 
 function ground(cell, sea){
+    button3.disabled = false
     switch (renderFon){
         case 1:
+            button3.textContent = "Режим фона - высота"
             num = cell.height
             if (cell.mineral >= 225) {
                 return "#5f00ff"
@@ -132,6 +143,7 @@ function ground(cell, sea){
                 return "rgb(" + [0, 0, num*10].join(",") + ")";
             }
         case 2:
+            button3.textContent = "Режим фона - минералы"
             num = cell.mineral
             if (num < 10){
                 return "#cceeff"
